@@ -1,0 +1,9 @@
+- hosts: "control, ubuntu, pihole, proxmox"
+  become: yes
+  tasks:
+    - name: apt
+      apt:
+        autoclean: yes
+        autoremove: yes
+        update_cache: yes
+        upgrade: 'yes'

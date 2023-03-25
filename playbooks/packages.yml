@@ -1,0 +1,7 @@
+- name: Install packages
+  host: "control, ubuntu, pihole, proxmox"
+  apt:
+    name:
+      - htop
+      - mc
+      - net-tools

@@ -1,0 +1,8 @@
+---
+- import_playbook: update.yml
+- import_playbook: qemu-guest-agent.yml
+#- import_playbook: packages.yml
+- import_playbook: reboot.yml
+- import_playbook: pihole-update.yml
+- import_playbook: ServerUpdate.yml
+- import_playbook: choco.yml
