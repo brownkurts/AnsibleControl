@@ -1,6 +1,6 @@
 ---
 - name: Configure NTP Server
-  hosts: ntp-server
+  hosts: ntpserver
   become: true
 
   tasks:

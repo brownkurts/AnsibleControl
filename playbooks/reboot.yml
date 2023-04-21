@@ -1,5 +1,5 @@
 ---
-- hosts: ubuntu, pihole, ntp-server
+- hosts: ubuntu, pihole, ntpserver
   become: yes
 
   tasks:
