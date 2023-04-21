@@ -1,0 +1,22 @@
+---
+- name: Configure NTP Server
+  hosts: ntp-server
+  become: true
+
+  tasks:
+    - name: Install NTP Package
+      apt:
+        name: ntp
+        state: present
+
+    - name: Configure NTP Service
+      copy:
+        src: files/ntp.conf
+        dest: /etc/ntp.conf
+      notify: restart ntp
+
+  handlers:
+    - name: restart ntp
+      service:
+        name: ntp
+        state: restarted
