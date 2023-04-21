@@ -1,5 +1,5 @@
 - name: install latest qemu-guest-agent
-  hosts: "control, ubuntu, pihole, proxmox, ntpserver"
+  hosts: "control, ubuntu, pihole, proxmox"
   tasks:
     - name: install qemu-guest-agent
       apt:

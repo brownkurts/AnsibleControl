@@ -15,14 +15,6 @@ ansible_user=kurt
 ansible_ssh_pass=steven87
 ansible_sudo_pass=steven87
 
-[ntpserver]
-192.168.200.31
-
-[ntp-server:vars]
-ansible_user=kurt
-ansible_ssh_pass=steven87
-ansible_sudo_pass=steven87
-
 [pihole]
 192.168.2.2
 192.168.2.3
