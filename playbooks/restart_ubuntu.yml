@@ -1,0 +1,8 @@
+---
+- name: Restart Ubuntu servers
+  hosts: ubuntu, pihole
+  become: yes
+
+  tasks:
+    - name: Restart server
+      command: shutdown -r now
