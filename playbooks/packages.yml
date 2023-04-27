@@ -1,5 +1,5 @@
 ---
-- hosts: "control, ubuntu, pihole, proxmox,"
+- hosts: "control, ubuntu, pihole, proxmox"
   tasks:
     - name: Install packages
       apt:
