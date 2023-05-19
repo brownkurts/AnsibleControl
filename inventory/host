@@ -27,11 +27,11 @@ ansible_ssh_pass=steven87
 ansible_sudo_pass=steven87
 
 [proxmox]
-192.168.2.201
-192.168.2.212
-192.168.2.203
-192.168.1.200
-192.168.2.215
+PROXMOX-01 ansible_host=192.168.2.201
+HOST-02 ansible_host=192.168.2.212
+PROXMOX03 ansible_host=192.168.2.203
+PROXMOX4 ansible_host=192.168.1.200
+PROXMOX05 ansible_host=192.168.2.215
 
 [proxmox:vars]
 ansible_python_interpreter=/usr/bin/python3
