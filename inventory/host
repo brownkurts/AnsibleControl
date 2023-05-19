@@ -1,13 +1,13 @@
 [control]
-192.168.200.18
+Ansible ansible_host=192.168.200.18
 
 
 [ubuntu]
 192.168.200.30
-192.168.2.213
+Docker01 ansible_host=192.168.2.213
 192.168.200.25
 192.168.200.20
-192.168.2.15
+Unifi ansible_host=192.168.2.15
 192.168.2.20
 
 [ubuntu:vars]
@@ -16,30 +16,22 @@ ansible_ssh_pass=steven87
 ansible_sudo_pass=steven87
 
 [pihole]
-192.168.2.2
-192.168.2.3
-192.168.1.2
+Pihole01 ansible_host=192.168.2.2
+Pihole02 ansible_host=192.168.2.3
+Pihole03 ansible_host=192.168.1.2
 
 [pihole:vars]
 ansible_user=kurt
 ansible_ssh_pass=steven87
 ansible_sudo_pass=steven87
 
-[piholeha]
-192.168.200.2
-192.168.200.3
-
-
-[pihole:vars]
-ansible_user=kurt
-ansible_ssh_pass=steven87
-ansible_sudo_pass=steven87
 
 [proxmox]
-192.168.2.201
-192.168.2.212
-192.168.2.203
-192.168.1.200
+Proxmox-01 ansible_host=192.168.2.201
+Host-02 ansible_host=192.168.2.212
+Proxmox03 ansible_host=192.168.2.203
+Moms Proxmox ansible_host=192.168.1.200
+Proxmox05 ansible_host=192.168.2.215
 
 [proxmox:vars]
 ansible_python_interpreter=/usr/bin/python3
@@ -48,10 +40,10 @@ ansible_ssh_pass=steven87
 ansible_sudo_pass=steven87
 
 [WidnowsServers]
-192.168.2.5
-192.168.2.7
-192.168.2.12
-192.168.2.6
+Brown-DC1 ansible_host=192.168.2.5
+Brown-print ansible_host=192.168.2.7
+Brown-Rapp ansible_host=192.168.2.12
+Brown-Broker ansible_host=192.168.2.6
 
 [WidnowsServers:vars]
 ANSIBLE_HOST_KEY_CHECKING=false
@@ -61,8 +53,8 @@ ansible_connection=ssh
 ansible_shell_type=cmd
 
 [Windows]
-192.168.2.9
-192.168.2.16 
+Desktop ansible_host=192.168.2.9
+Windows-11VM ansible_host=192.168.2.16 
 
 [Windows:vars]
 ANSIBLE_HOST_KEY_CHECKING=false
