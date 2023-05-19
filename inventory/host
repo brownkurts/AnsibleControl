@@ -25,6 +25,16 @@ ansible_user=kurt
 ansible_ssh_pass=steven87
 ansible_sudo_pass=steven87
 
+[piholeha]
+192.168.200.2
+192.168.200.3
+
+
+[pihole:vars]
+ansible_user=kurt
+ansible_ssh_pass=steven87
+ansible_sudo_pass=steven87
+
 [proxmox]
 192.168.2.201
 192.168.2.212

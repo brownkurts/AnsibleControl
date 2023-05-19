@@ -1,0 +1,39 @@
+---
+- name: Setup Pi-hole HA
+  hosts: piholeha
+  become: yes
+
+  vars:
+    primary_server_ip: 192.168.200.2
+    secondary_server_ip: 192.168.200.3
+
+  tasks:
+    - name: Update package cache
+      apt:
+        update_cache: yes
+
+    - name: Install required packages
+      apt:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - curl
+        - jq
+
+    - name: Configure primary Pi-hole server
+      command: curl -sSL https://install.pi-hole.net | sudo bash /dev/stdin --reconfigure --dns 127.0.0.1
+
+    - name: Retrieve secondary Pi-hole server token
+      command: curl -sSL 'https://install.pi-hole.net' | sudo bash /dev/stdin --reconfigure --dns 127.0.0.1 | jq -r '.setupVars.webpassword'
+
+      register: secondary_server_token
+
+    - name: Configure secondary Pi-hole server
+      command: >
+        curl -sSL https://install.pi-hole.net | sudo bash /dev/stdin --reconfigure --dns 127.0.0.1 --setupDNS "{{ primary_server_ip }}"
+      when: secondary_server_token.stdout is defined
+
+    - name: Restart Pi-hole service
+      service:
+        name: pihole-FTL
+        state: restarted
