@@ -3,12 +3,13 @@ Ansible ansible_host=192.168.200.18
 
 
 [ubuntu]
-192.168.200.30
+Deploy ansible_host=192.168.200.30
 Docker01 ansible_host=192.168.2.213
-192.168.200.25
-192.168.200.20
+Kasem ansible_host=192.168.200.25
+Mesh ansible_host=192.168.200.20
 Unifi ansible_host=192.168.2.15
-192.168.2.20
+rocketchat ansible_host=192.168.2.20
+SGC ansible_host=192.168.2.30
 
 [ubuntu:vars]
 ansible_user=kurt
@@ -25,13 +26,12 @@ ansible_user=kurt
 ansible_ssh_pass=steven87
 ansible_sudo_pass=steven87
 
-
 [proxmox]
-Proxmox-01 ansible_host=192.168.2.201
-Host-02 ansible_host=192.168.2.212
-Proxmox03 ansible_host=192.168.2.203
-Moms Proxmox ansible_host=192.168.1.200
-Proxmox05 ansible_host=192.168.2.215
+192.168.2.201
+192.168.2.212
+192.168.2.203
+192.168.1.200
+192.168.2.215
 
 [proxmox:vars]
 ansible_python_interpreter=/usr/bin/python3
