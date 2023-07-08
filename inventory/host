@@ -32,6 +32,8 @@ HOST-02 ansible_host=192.168.2.212
 PROXMOX03 ansible_host=192.168.2.203
 PROXMOX4 ansible_host=192.168.1.200
 PROXMOX05 ansible_host=192.168.2.215
+PVE-1 ansible_host=192.168.200.200
+PVE-2 ansible_host=192.168.200.201
 
 [proxmox:vars]
 ansible_python_interpreter=/usr/bin/python3
