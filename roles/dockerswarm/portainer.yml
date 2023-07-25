@@ -1,0 +1,14 @@
+---
+- name: Install Portainer stack
+  hosts: swarm_manager
+  gather_facts: false
+  become: true
+  tasks:
+    - name: Pull Portainer image
+      command: docker pull portainer/portainer
+
+    - name: Create Portainer data volume
+      command: docker volume create portainer_data
+
+    - name: Deploy Portainer as a service
+      command: docker service create --name=portainer --publish=9000:9000 --constraint=node.role==manager --mount=type=bind,src=//var/run/docker.sock,dst=/var/run/docker.sock --mount=type=volume,src=portainer_data,dst=/data portainer/portainer

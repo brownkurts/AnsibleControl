@@ -1,0 +1,10 @@
+---
+- name: Create Docker Swarm workers
+  hosts: swarm_worker
+  gather_facts: false
+  become: true
+  tasks:
+    - name: Create Docker Swarm workers
+      command: docker swarm join --token {{ swarm_join_worker_token.stdout[0] }} {{ hostvars[groups['swarm_manager'][0]]['ansible_host'] }}:2377
+      delegate_to: localhost
+      run_once: true
