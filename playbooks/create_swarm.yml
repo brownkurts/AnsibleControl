@@ -4,8 +4,8 @@
   gather_facts: false
   become: true
   tasks:
-    - include_tasks: docker.yml
+    - include_tasks: roles/dockerswarm/docker.yml
 
-- import_playbook: swarm_manager.yml
-- import_playbook: swarm_worker.yml
-- import_playbook: portainer.yml
+- import_playbook: roles/dockerswarm/swarm_manager.yml
+- import_playbook: roles/dockerswarm/swarm_worker.yml
+- import_playbook: roles/dockerswarm/portainer.yml
