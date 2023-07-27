@@ -1,0 +1,7 @@
+---
+- name: Join worker nodes to Docker Swarm
+  hosts: swarm_nodes
+  become: true
+  tasks:
+    - name: Join worker nodes to Swarm
+      command: docker swarm join --token SWMTKN-1-4d2jdvld7cgcsr2cmse4kjobeby2ws1f6h5qyzux8xzp669s4t-3b5am837g3rw9l8fggyn2dzlc 192.168.200.40:2377

@@ -1,11 +1,3 @@
 ---
-- name: Install Docker
-  hosts: swarm_nodes
-  gather_facts: false
-  become: true
-  tasks:
-    - include_tasks: roles/dockerswarm/docker.yml
-
-- import_playbook: roles/dockerswarm/swarm_manager.yml
-- import_playbook: roles/dockerswarm/swarm_worker.yml
-- import_playbook: roles/dockerswarm/portainer.yml
+- import_playbook: dockerswarm/dockerinstall.yml
+- import_playbook: dockerswarm/initialize_swarm.yml

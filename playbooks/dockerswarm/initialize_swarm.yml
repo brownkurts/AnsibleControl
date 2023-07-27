@@ -1,0 +1,18 @@
+---
+- name: Initialize Docker Swarm on the manager node
+  hosts: managers
+  become: true
+  tasks:
+    - name: Leave Docker Swarm (if already part of a swarm)
+      command: docker swarm leave --force
+      ignore_errors: yes
+
+    - name: Initialize Docker Swarm
+      command: docker swarm init --advertise-addr 192.168.200.40
+      register: swarm_init_result
+      changed_when: swarm_init_result.rc == 0
+
+    - name: Set swarm initialized flag
+      set_fact:
+        swarm_initialized: "{{ swarm_init_result.rc == 0 }}"
+

@@ -1,0 +1,41 @@
+---
+- name: Remove Portainer service (if exists)
+  hosts: swarm_nodes
+  gather_facts: false
+  become: true
+
+  tasks:
+    - name: Remove Portainer service
+      command: docker service rm portainer
+      ignore_errors: true
+
+- name: Remove Docker service
+  hosts: swarm_nodes
+  gather_facts: false
+  become: true
+
+  tasks:
+    - name: Stop and Disable Docker service
+      service:
+        name: docker
+        state: stopped
+        enabled: no
+
+    - name: Uninstall Docker
+      apt:
+        name:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+        state: absent
+
+- name: Reset Docker on manager node
+  hosts: swarm_nodes
+  gather_facts: false
+  become: true
+
+  tasks:
+    - name: Remove Docker data directory
+      file:
+        path: /var/lib/docker
+        state: absent
