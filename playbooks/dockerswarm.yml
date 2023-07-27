@@ -1,5 +1,0 @@
----
-- import_playbook: swarm_nodes.yml
-- import_playbook: swarm_manager.yml
-- import_playbook: swarm_worker.yml
-- import_playbook: portainer.yml

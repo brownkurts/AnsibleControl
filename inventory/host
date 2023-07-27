@@ -34,7 +34,7 @@ ansible_sudo_pass=steven87
 
 [proxmox]
 PROXMOX-01 ansible_host=192.168.2.201
-PROXMOX03 ansible_host=192.168.2.203
+PROXMOX03 ansible_host=192.168.2.212
 PROXMOX4 ansible_host=192.168.1.200
 PROXMOX05 ansible_host=192.168.2.215
 PVE-1 ansible_host=192.168.200.200
@@ -61,7 +61,7 @@ ansible_shell_type=cmd
 
 [Windows]
 Desktop ansible_host=192.168.2.9
-Windows-11VM ansible_host=192.168.2.16 
+#Windows-11VM ansible_host=192.168.2.16 
 #Kurts-Laptop ansible_host=192.168.2.70
 [Windows:vars]
 ANSIBLE_HOST_KEY_CHECKING=false
