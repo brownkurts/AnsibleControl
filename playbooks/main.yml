@@ -1,5 +1,6 @@
 ---
 - import_playbook: task/update.yml
+- import_playbook: task/proxmox.yml
 - import_playbook: task/qemu-guest-agent.yml
 - import_playbook: task/packages.yml
 - import_playbook: task/pihole-update.yml
