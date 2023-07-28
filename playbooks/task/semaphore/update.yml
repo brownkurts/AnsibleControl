@@ -1,0 +1,12 @@
+---
+  tasks:
+    - name: Ensure dpkg is configured
+      shell: dpkg --configure -a
+      ignore_errors: yes
+
+    - name: Run apt commands
+      apt:
+        autoclean: yes
+        autoremove: yes
+        update_cache: yes
+        upgrade: 'yes'
