@@ -1,0 +1,9 @@
+- hosts: "control, ubuntu, pihole"
+  tasks:
+  - name: Add deployer user and add it to sudo
+    user:
+      name: kurt
+      state: present
+      createhome: yes
+    become: yes
+    become_method: "sudo"

@@ -2,10 +2,6 @@
 - hosts: all
   become: yes
   tasks:
-    - name: Ensure dpkg is configured
-      shell: dpkg --configure -a
-      ignore_errors: yes
-
     - name: Run apt commands
       apt:
         autoclean: yes
