@@ -3,7 +3,6 @@ Ansible ansible_host=192.168.200.18
 
 
 [ubuntu]
-#deploy.local
 Deploy ansible_host=192.168.200.30
 Docker01 ansible_host=192.168.2.213
 Kasem ansible_host=192.168.200.25
