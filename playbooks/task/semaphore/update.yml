@@ -1,5 +1,5 @@
 ---
-  tasks:
+  - tasks:
     - name: Ensure dpkg is configured
       shell: dpkg --configure -a
       ignore_errors: yes
