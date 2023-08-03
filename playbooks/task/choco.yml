@@ -17,4 +17,5 @@
         - vlc
         - zoom
         - 7zip
+        - git
         state: present
