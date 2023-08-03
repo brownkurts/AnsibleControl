@@ -1,20 +1,14 @@
 ---
-- name: Remove Portainer service (if exists)
-  hosts: swarm_nodes
+- name: Clean up Docker, GlusterFS, and Portainer
+  hosts: "swarm_nodes, managers, manager"
   gather_facts: false
   become: true
 
   tasks:
-    - name: Remove Portainer service
+    - name: Remove Portainer service (if exists)
       command: docker service rm portainer
       ignore_errors: true
 
-- name: Remove Docker service
-  hosts: swarm_nodes
-  gather_facts: false
-  become: true
-
-  tasks:
     - name: Stop and Disable Docker service
       service:
         name: docker
@@ -29,13 +23,44 @@
           - containerd.io
         state: absent
 
-- name: Reset Docker on manager node
-  hosts: swarm_nodes
-  gather_facts: false
-  become: true
-
-  tasks:
     - name: Remove Docker data directory
       file:
         path: /var/lib/docker
         state: absent
+
+    - name: Remove Docker daemon.json
+      file:
+        path: /etc/docker/daemon.json
+        state: absent
+
+    - name: Uninstall GlusterFS packages
+      apt:
+        name: "{{ gluster_packages }}"
+        state: absent
+      vars:
+        gluster_packages:
+          - glusterfs-server
+          - glusterfs-client
+
+    - name: Stop GlusterFS service
+      service:
+        name: glusterd
+        state: stopped
+
+    - name: Delete GlusterFS volume
+      command: gluster volume delete myvolume
+      when: ansible_hostname in groups['managers']  # Replace myvolume with the name of your GlusterFS volume
+
+    - name: Remove GlusterFS directories
+      file:
+        path: /mnt/glusterfs/docker_data
+        state: absent
+      when: ansible_hostname in groups['swarm_nodes']
+
+    - name: Clean up Docker and GlusterFS directories
+      file:
+        path: /mnt/glusterfs
+        state: absent
+      when: ansible_hostname in groups['swarm_nodes'] or ansible_hostname in groups['managers']
+
+  # You may also want to add additional tasks to remove other related components based on your specific setup.

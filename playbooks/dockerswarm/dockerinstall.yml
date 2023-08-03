@@ -1,6 +1,6 @@
 ---
-- name: Install Docker on Ubuntu
-  hosts: "swarm_nodes, managers"
+- name: Install Docker and GlusterFS on Ubuntu
+  hosts: "managers, manager, swarm_nodes"
   become: yes
 
   tasks:
@@ -45,3 +45,63 @@
         state: started
         enabled: yes
       when: ansible_os_family == "Debian"
+
+    - name: Install GlusterFS packages
+      apt:
+        name: "{{ gluster_packages }}"
+        state: present
+      vars:
+        gluster_packages:
+          - glusterfs-server
+          - glusterfs-client
+      when: ansible_os_family == "Debian"
+
+    - name: Start and enable GlusterFS service
+      service:
+        name: glusterd
+        state: started
+        enabled: yes
+      when: ansible_os_family == "Debian"
+
+    - name: Create GlusterFS volume
+      command: gluster volume create myvolume replica 3 transport tcp server1:/data server2:/data server3:/data
+      when: ansible_hostname in groups['managers'] or ansible_hostname == 'manager'  # Fix the condition here
+
+    - name: Start GlusterFS volume
+      command: gluster volume start myvolume
+      when: ansible_hostname in groups['managers'] or ansible_hostname == 'manager'  # Fix the condition here
+
+    # Add tasks to mount and configure the GlusterFS volume for Docker containers on the swarm_nodes (worker nodes).
+    # This is a general example, and you may need to customize it based on your specific use case.
+
+    - name: Mount GlusterFS volume on worker nodes
+      mount:
+        path: /mnt/glusterfs
+        src: server1:/myvolume  # Replace server1 with one of the GlusterFS servers in your cluster
+        fstype: glusterfs
+        state: mounted
+      when: ansible_hostname in groups['swarm_nodes']  # Replace "swarm_nodes" with the appropriate group name for your worker nodes
+
+    - name: Create a directory for Docker data
+      file:
+        path: /mnt/glusterfs/docker_data
+        state: directory
+        mode: '0755'
+      when: ansible_hostname in groups['swarm_nodes']
+
+    - name: Configure Docker to use GlusterFS for data
+      lineinfile:
+        path: /etc/docker/daemon.json
+        line: |
+          {
+            "data-root": "/mnt/glusterfs/docker_data"
+          }
+      when: ansible_hostname in groups['swarm_nodes']
+      notify:
+        - restart docker
+
+  handlers:
+    - name: restart docker
+      service:
+        name: docker
+        state: restarted

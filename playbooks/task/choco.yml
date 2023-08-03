@@ -17,4 +17,5 @@
         - vlc
         - zoom
         - 7zip
+        - 7zip-zstd
         state: present

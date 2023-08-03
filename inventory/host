@@ -71,8 +71,6 @@ ansible_shell_type=cmd
 
 
 [swarm_nodes]
-SW-2 ansible_host=192.168.200.41
-SW-3 ansible_host=192.168.200.42
 SE-4 ansible_host=192.168.200.43
 SW-5 ansible_host=192.168.200.44
 
@@ -81,9 +79,17 @@ ansible_user=kurt
 ansible_ssh_pass=steven87
 ansible_sudo_pass=steven87
 
-[managers]
+[manager]
 SW-1 ansible_host=192.168.200.40
 
+[manager:vars]
+ansible_user=kurt
+ansible_ssh_pass=steven87
+ansible_sudo_pass=steven87
+
+[managers]
+SW-2 ansible_host=192.168.200.41
+SW-3 ansible_host=192.168.200.42
 
 [managers:vars]
 ansible_user=kurt

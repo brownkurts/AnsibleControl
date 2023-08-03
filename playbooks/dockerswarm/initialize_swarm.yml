@@ -1,18 +1,50 @@
 ---
-- name: Initialize Docker Swarm on the manager node
-  hosts: managers
+- name: Add two additional nodes as managers
+  hosts: "manager"
+  gather_facts: true
   become: true
+
   tasks:
-    - name: Leave Docker Swarm (if already part of a swarm)
-      command: docker swarm leave --force
-      ignore_errors: yes
+    - name: Check if the swarm is initialized
+      shell: 'docker info | grep -q "Swarm: active"'
+      register: swarm_info
+      changed_when: false
 
     - name: Initialize Docker Swarm
-      command: docker swarm init --advertise-addr 192.168.200.40
+      command: docker swarm init --advertise-addr "{{ ansible_default_ipv4.address }}"
+      when: swarm_info.rc != 0
       register: swarm_init_result
-      changed_when: swarm_init_result.rc == 0
 
     - name: Set swarm initialized flag
       set_fact:
         swarm_initialized: "{{ swarm_init_result.rc == 0 }}"
 
+- name: Join new managers to the Docker Swarm
+  hosts: "managers"
+  gather_facts: true
+  become: true
+
+  tasks:
+    - name: Check if the swarm is initialized
+      shell: 'docker info | grep -q "Swarm: active"'
+      register: swarm_info
+      changed_when: false
+
+    - name: Join the node to the Docker Swarm as manager
+      command: docker swarm join --token "{{ hostvars['manager']['swarm_manager_token']['stdout'] }}" "{{ hostvars['manager']['swarm_manager_ip']['stdout'] }}:2377"
+      when: swarm_info.rc != 0
+
+- name: Join new workers to the Docker Swarm
+  hosts: "swarm_nodes"
+  gather_facts: true
+  become: true
+
+  tasks:
+    - name: Check if the swarm is initialized
+      shell: 'docker info | grep -q "Swarm: active"'
+      register: swarm_info
+      changed_when: false
+
+    - name: Join the node to the Docker Swarm as worker
+      command: docker swarm join --token "{{ hostvars['manager']['swarm_worker_token']['stdout'] }}" "{{ hostvars['manager']['swarm_manager_ip']['stdout'] }}:2377"
+      when: swarm_info.rc != 0

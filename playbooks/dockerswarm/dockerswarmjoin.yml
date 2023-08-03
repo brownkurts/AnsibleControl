@@ -1,7 +1,26 @@
 ---
-- name: Join worker nodes to Docker Swarm
-  hosts: swarm_nodes
+- name: Join new workers to the Docker Swarm
+  hosts: "managers"
+  gather_facts: true
   become: true
+
   tasks:
-    - name: Join worker nodes to Swarm
-      command: docker swarm join --token SWMTKN-1-4d2jdvld7cgcsr2cmse4kjobeby2ws1f6h5qyzux8xzp669s4t-3b5am837g3rw9l8fggyn2dzlc 192.168.200.40:2377
+    - name: Check if the swarm is initialized
+      command: docker info | grep -q "Swarm: active"
+      changed_when: false
+      register: swarm_info
+
+    - name: Retrieve the worker token
+      command: docker swarm join-token worker | grep -w "token" | awk '{print $5}'
+      when: swarm_info.rc == 0
+      register: worker_token
+
+- name: Join new workers to the Docker Swarm
+  hosts: "swarm_nodes"
+  gather_facts: true
+  become: true
+
+  tasks:
+    - name: Join the node to the Docker Swarm as worker
+      command: docker swarm join --token "{{ hostvars['managers']['worker_token']['stdout'] }}" "{{ hostvars['managers']['ansible_default_ipv4']['address'] }}:2377"
+      when: swarm_info.rc == 0
