@@ -1,0 +1,11 @@
+---
+- name: Set Git configurations on Windows
+  hosts: Windows   # Replace 'windows' with the appropriate inventory group containing your Windows hosts
+
+  tasks:
+    - name: Set Git user email
+      win_command: git config --global user.email "brownkurts@gmail.com"
+
+    - name: Set Git user name
+      win_command: git config --global user.name "Kurt brown"
+
