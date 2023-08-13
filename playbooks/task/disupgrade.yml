@@ -1,4 +1,5 @@
 - hosts: "control, ubuntu, pihole, proxmox"
+  become: yes
   tasks:
     - name: apt
       apt:
