@@ -18,4 +18,5 @@
         - zoom
         - 7zip
         - git
+        - rocketchat
         state: present
