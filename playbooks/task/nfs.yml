@@ -3,7 +3,7 @@
   become: yes
   vars:
     nfsmounts:
-      - {path: "/mnt/Public", src: "192.168.2.22:/mnt/Public"}
+      - {path: "/mnt/Public", src: "192.168.2.21:/mnt/Public"}
       - {path: "/mnt/unraid", src: "192.168.2.21:/mnt/user/unraid"}
       - {path: "/mnt/media", src: "192.168.2.21:/mnt/user/Media"}
 
