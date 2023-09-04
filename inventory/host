@@ -61,7 +61,7 @@ ansible_shell_type=cmd
 [Windows]
 Desktop ansible_host=192.168.2.9
 #Windows-11VM ansible_host=192.168.2.16 
-#Kurts-Laptop ansible_host=192.168.2.70
+Kurts-Laptop ansible_host=192.168.2.70
 [Windows:vars]
 ANSIBLE_HOST_KEY_CHECKING=false
 ansible_user=kurt
