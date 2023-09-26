@@ -11,6 +11,9 @@ Unifi ansible_host=192.168.2.15
 rocketchat ansible_host=192.168.2.20
 SGC ansible_host=192.168.2.30
 Grafana ansible_host=192.168.2.50
+SG1 ansible_host=192.168.2.90
+SG2 ansible_host=192.168.2.91
+SG3 ansible_host=192.168.2.92
 
 [ubuntu:vars]
 ansible_user=kurt
