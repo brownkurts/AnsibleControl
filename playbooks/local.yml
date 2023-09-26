@@ -1,10 +1,2 @@
  tasks:
-    - include: task/update.yml
-    - include: task/proxmox.yml
-    - include: task/qemu-guest-agent.yml
-    - include: task/packages.yml
-    - include: task/pihole-update.yml
-    - include: task/chocolatey.yml
-    - include: task/ServerUpdate.yml
-    - include: task/choco.yml
-    - include: task/reboot.yml
+    - include: main.yml
