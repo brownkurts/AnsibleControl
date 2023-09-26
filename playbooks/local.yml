@@ -1,10 +1,10 @@
----
-- import_playbook: task/update.yml
-- import_playbook: task/proxmox.yml
-- import_playbook: task/qemu-guest-agent.yml
-- import_playbook: task/packages.yml
-- import_playbook: task/pihole-update.yml
-- import_playbook: task/chocolatey.yml
-- import_playbook: task/ServerUpdate.yml
-- import_playbook: task/choco.yml
-- import_playbook: task/reboot.yml
+ tasks:
+    - include: task/update.yml
+    - include: task/proxmox.yml
+    - include: task/qemu-guest-agent.yml
+    - include: task/packages.yml
+    - include: task/pihole-update.yml
+    - include: task/chocolatey.yml
+    - include: task/ServerUpdate.yml
+    - include: task/choco.yml
+    - include: task/reboot.yml
