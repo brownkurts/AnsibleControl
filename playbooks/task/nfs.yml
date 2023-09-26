@@ -1,5 +1,5 @@
 - name: Mount NFS Shares
-  hosts: "control, ubuntu"
+  hosts: "control, ubuntu, docker"
   become: yes
   vars:
     nfsmounts:

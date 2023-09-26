@@ -1,5 +1,5 @@
 ---
-- hosts: ubuntu, pihole
+- hosts: "ubuntu, pihole, docker"
   become: yes
 
   tasks:

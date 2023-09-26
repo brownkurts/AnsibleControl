@@ -1,5 +1,5 @@
 ---
-- hosts: "control, ubuntu, pihole, proxmox"
+- hosts: "control, ubuntu, pihole, proxmox, docker"
   become: yes
   tasks:
     - name: Ensure dpkg is configured

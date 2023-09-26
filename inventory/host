@@ -11,9 +11,7 @@ Unifi ansible_host=192.168.2.15
 rocketchat ansible_host=192.168.2.20
 SGC ansible_host=192.168.2.30
 Grafana ansible_host=192.168.2.50
-SG1 ansible_host=192.168.2.90
-SG2 ansible_host=192.168.2.91
-SG3 ansible_host=192.168.2.92
+
 
 [ubuntu:vars]
 ansible_user=kurt
@@ -69,28 +67,12 @@ ansible_connection=ssh
 ansible_shell_type=cmd
 
 
-[swarm_nodes]
-SE-4 ansible_host=192.168.200.43
-SW-5 ansible_host=192.168.200.44
+[docker]
+SG1 ansible_host=192.168.2.90
+SG2 ansible_host=192.168.2.91
+SG3 ansible_host=192.168.2.92
 
-[swarm_nodes:vars]
-ansible_user=kurt
-ansible_ssh_pass=steven87
-ansible_sudo_pass=steven87
-
-[manager]
-SW-1 ansible_host=192.168.200.40
-
-[manager:vars]
-ansible_user=kurt
-ansible_ssh_pass=steven87
-ansible_sudo_pass=steven87
-
-[managers]
-SW-2 ansible_host=192.168.200.41
-SW-3 ansible_host=192.168.200.42
-
-[managers:vars]
+[docker:vars]
 ansible_user=kurt
 ansible_ssh_pass=steven87
 ansible_sudo_pass=steven87

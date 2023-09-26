@@ -1,4 +1,4 @@
-- hosts: "control, ubuntu, pihole, proxmox"
+- hosts: "control, ubuntu, pihole, proxmox, docker"
   become: true
   tasks:
     - name: Install packages

@@ -1,6 +1,6 @@
 ---
 - name: Install Portainer stack
-  hosts: swarm_manager
+  hosts: docker
   gather_facts: false
   become: true
   tasks:
