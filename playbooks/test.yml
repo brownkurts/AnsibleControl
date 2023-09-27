@@ -1,50 +1,29 @@
 ---
-- import_playbook: task/gitsync.yml
-  register: gitsync_output
-- import_playbook: task/update.yml
-- import_playbook: task/proxmox.yml
-- import_playbook: task/qemu-guest-agent.yml
-- import_playbook: task/packages.yml
-- import_playbook: task/pihole-update.yml
-- import_playbook: task/chocolatey.yml
-- import_playbook: task/ServerUpdate.yml
-- import_playbook: task/choco.yml
-- import_playbook: task/reboot.yml
+- hosts: localhost
+  gather_facts: no
+  tasks:
+    - name: Run gitsync playbook
+      import_playbook: task/gitsync.yml
+      register: gitsync_result
 
-- name: Send Ansible output to Rocket.Chat
-  community.general.rocket_chat:
-    msg: |
-      Ansible Playbooks Execution Summary:
-      
-      GitSync Playbook Output:
-      {{ gitsync_output.stdout }}
-      
-      Update Playbook Output:
-      {{ update_output.stdout }}
-      
-      Proxmox Playbook Output:
-      {{ proxmox_output.stdout }}
-      
-      QEMU Guest Agent Playbook Output:
-      {{ qemu_guest_agent_output.stdout }}
-      
-      Packages Playbook Output:
-      {{ packages_output.stdout }}
-      
-      Pi-hole Update Playbook Output:
-      {{ pihole_update_output.stdout }}
-      
-      Chocolatey Playbook Output:
-      {{ chocolatey_output.stdout }}
-      
-      ServerUpdate Playbook Output:
-      {{ server_update_output.stdout }}
-      
-      Choco Playbook Output:
-      {{ choco_output.stdout }}
-      
-      Reboot Playbook Output:
-      {{ reboot_output.stdout }}
-   token: 64d84e3a7d3522bf44894dc0/HsoR2gS7bjDjzjKk8BNuQiKzQJCBTenj7aDKCSZFmPuC8zNh
+    - name: Send gitsync playbook output to Rocket.Chat
+      when: gitsync_result is defined
+      rocketchat:
+        token: 64d84e3a7d3522bf44894dc0/HsoR2gS7bjDjzjKk8BNuQiKzQJCBTenj7aDKCSZFmPuC8zNh
         domain: rocketchat.kbtech.org
-  delegate_to: localhost
+        msg: "GitSync Playbook Output:\n{{ gitsync_result.stdout }}"
+        channel: "Ansible"
+
+    - name: Run update playbook
+      import_playbook: task/update.yml
+      register: update_result
+
+    - name: Send update playbook output to Rocket.Chat
+      when: update_result is defined
+      rocketchat:
+        token: 64d84e3a7d3522bf44894dc0/HsoR2gS7bjDjzjKk8BNuQiKzQJCBTenj7aDKCSZFmPuC8zNh
+        domain: rocketchat.kbtech.org
+        msg: "Update Playbook Output:\n{{ update_result.stdout }}"
+        channel: "Ansible"
+
+    # Repeat the above pattern for each playbook you want to run and send output for.
