@@ -8,10 +8,6 @@
         repo: https://github.com/brownkurts/AnsibleControl.git
         dest: /Ansible
         update: yes
-      register: git_output
 
-    - name: Debug Git Output
-      debug:
-        var: git_output
  
 
