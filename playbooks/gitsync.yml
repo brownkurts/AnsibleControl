@@ -1,11 +1,17 @@
 ---
 - name: Sync Git Repository
-  hosts: control  
-  become: yes           
+  hosts: control
+  become: yes
   tasks:
     - name: Clone or update Git repository
       git:
         repo: https://github.com/brownkurts/AnsibleControl.git
         dest: /Ansible
-        update: yes  
+        update: yes
+      register: git_output
+
+    - name: Debug Git Output
+      debug:
+        var: git_output
+ 
 
