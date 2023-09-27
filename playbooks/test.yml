@@ -1,44 +1,15 @@
 ---
-  tasks:
-    - name: Run gitsync playbook
-      include_playbook: task/gitsync.yml
-      register: gitsync_output
-
-    - name: Run update playbook
-      include_playbook: task/update.yml
-      register: update_output
-
-    - name: Run proxmox playbook
-      include_playbook: task/proxmox.yml
-      register: proxmox_output
-
-    - name: Run qemu-guest-agent playbook
-      include_playbook: task/qemu-guest-agent.yml
-      register: qemu_guest_agent_output
-
-    - name: Run packages playbook
-      include_playbook: task/packages.yml
-      register: packages_output
-
-    - name: Run pihole-update playbook
-      include_playbook: task/pihole-update.yml
-      register: pihole_update_output
-
-    - name: Run chocolatey playbook
-      include_playbook: task/chocolatey.yml
-      register: chocolatey_output
-
-    - name: Run ServerUpdate playbook
-      include_playbook: task/ServerUpdate.yml
-      register: server_update_output
-
-    - name: Run choco playbook
-      include_playbook: task/choco.yml
-      register: choco_output
-
-    - name: Run reboot playbook
-      include_playbook: task/reboot.yml
-      register: reboot_output
+- import_playbook: task/gitsync.yml
+  register: gitsync_output
+- import_playbook: task/update.yml
+- import_playbook: task/proxmox.yml
+- import_playbook: task/qemu-guest-agent.yml
+- import_playbook: task/packages.yml
+- import_playbook: task/pihole-update.yml
+- import_playbook: task/chocolatey.yml
+- import_playbook: task/ServerUpdate.yml
+- import_playbook: task/choco.yml
+- import_playbook: task/reboot.yml
 
 - name: Send Ansible output to Rocket.Chat
   community.general.rocket_chat:
