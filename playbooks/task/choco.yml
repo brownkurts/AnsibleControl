@@ -20,4 +20,5 @@
         - git
         - rocketchat
         - github-desktop
+        - obsidian
         state: present
