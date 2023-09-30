@@ -22,7 +22,7 @@
     - name: Mount /dev/sdb to /mnt/data2
       mount:
         path: /mnt/data2
-        src: /dev/sdb
+        src: /dev/sdc
         fstype: ext4
         state: mounted
       when: "'/mnt/data2' not in ansible_mounts | map(attribute='mount') | list"
@@ -30,7 +30,7 @@
     - name: Mount /dev/sdc to /mnt/data
       mount:
         path: /mnt/data
-        src: /dev/sdc
+        src: /dev/sdb
         fstype: ext4
         state: mounted
       when: "'/mnt/data' not in ansible_mounts | map(attribute='mount') | list"
