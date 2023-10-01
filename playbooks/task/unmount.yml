@@ -1,0 +1,16 @@
+---
+- name: Unmount Drives on Ubuntu Server
+  hosts: docker
+  become: yes
+  tasks:
+    - name: Unmount /mnt/data
+      mount:
+        path: /mnt/data
+        state: unmounted
+      when: "'/mnt/data' in ansible_mounts | map(attribute='mount') | list"
+
+    - name: Unmount /mnt/data2
+      mount:
+        path: /mnt/data2
+        state: unmounted
+      when: "'/mnt/data2' in ansible_mounts | map(attribute='mount') | list"
