@@ -54,7 +54,7 @@
     - name: Set Grafana admin password
       community.grafana_admin:
         user: admin
-        password: your_password
+        password: steven87
         hostname: localhost
       when: grafana_ds.changed
 
