@@ -10,7 +10,7 @@ Mesh ansible_host=192.168.200.20
 Unifi ansible_host=192.168.2.15
 rocketchat ansible_host=192.168.2.20
 SGC ansible_host=192.168.2.30
-Grafana ansible_host=192.168.2.50
+grafana ansible_host=192.168.200.14
 
 
 [ubuntu:vars]
