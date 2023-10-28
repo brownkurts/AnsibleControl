@@ -1,0 +1,76 @@
+---
+- name: Install and Configure Grafana
+  hosts: Grafana
+  become: yes
+  tasks:
+    - name: Update apt package cache
+      apt:
+        update_cache: yes
+
+    - name: Install required packages
+      apt:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - software-properties-common
+        - wget
+
+    - name: Add Grafana APT repository
+      apt_repository:
+        repo: deb https://packages.grafana.com/oss/deb stable main
+        state: present
+
+    - name: Import Grafana GPG key
+      apt_key:
+        url: https://packages.grafana.com/gpg.key
+        state: present
+
+    - name: Install Grafana
+      apt:
+        name: grafana
+        state: present
+        update_cache: yes
+
+    - name: Start Grafana service
+      service:
+        name: grafana-server
+        state: started
+        enabled: yes
+
+    - name: Enable the Grafana server to start at boot
+      service:
+        name: grafana-server
+        enabled: yes
+
+    - name: Create a Grafana data source
+      community.grafana_datasource:
+        name: Prometheus
+        type: prometheus
+        url: http://localhost:9090
+        access: proxy
+        is_default: true
+      register: grafana_ds
+
+    - name: Set Grafana admin password
+      community.grafana_admin:
+        user: admin
+        password: your_password
+        hostname: localhost
+      when: grafana_ds.changed
+
+    - name: Restart Grafana
+      service:
+        name: grafana-server
+        state: restarted
+
+    - name: Ensure Grafana is accessible
+      wait_for:
+        host: localhost
+        port: 3000
+        timeout: 60
+
+  handlers:
+    - name: Restart Grafana service
+      service:
+        name: grafana-server
+        state: restarted

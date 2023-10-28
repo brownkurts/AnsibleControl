@@ -67,12 +67,11 @@ ansible_connection=ssh
 ansible_shell_type=cmd
 
 
-[docker]
-SG1 ansible_host=192.168.2.90
-SG2 ansible_host=192.168.2.91
-SG3 ansible_host=192.168.2.92
+[grafana]
+grafana ansible_host=192.168.200.14
 
-[docker:vars]
+
+[grafana:vars]
 ansible_user=kurt
 ansible_ssh_pass=steven87
 ansible_sudo_pass=steven87
