@@ -1,6 +1,6 @@
 ---
 - name: Install and Configure Grafana
-  hosts: Grafana
+  hosts: grafanaservers
   become: yes
   tasks:
     - name: Update apt package cache

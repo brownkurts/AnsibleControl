@@ -66,4 +66,11 @@ ansible_ssh_pass=steven87
 ansible_connection=ssh
 ansible_shell_type=cmd
 
+[grafanaservers]
+grafana ansible_host=192.168.200.14
 
+
+[grafanaservers:vars]
+ansible_user=kurt
+ansible_ssh_pass=steven87
+ansible_sudo_pass=steven87
