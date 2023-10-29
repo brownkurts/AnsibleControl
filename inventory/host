@@ -10,7 +10,7 @@ Mesh ansible_host=192.168.200.20
 Unifi ansible_host=192.168.2.15
 rocketchat ansible_host=192.168.2.20
 SGC ansible_host=192.168.2.30
-grafana ansible_host=192.168.200.14
+
 
 
 [ubuntu:vars]
@@ -66,11 +66,4 @@ ansible_ssh_pass=steven87
 ansible_connection=ssh
 ansible_shell_type=cmd
 
-[grafanaservers]
-grafana ansible_host=192.168.200.14
 
-
-[grafanaservers:vars]
-ansible_user=kurt
-ansible_ssh_pass=steven87
-ansible_sudo_pass=steven87
