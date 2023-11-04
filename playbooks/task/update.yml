@@ -5,6 +5,7 @@
     - name: Ensure dpkg is configured
       shell: dpkg --configure -a
       ignore_errors: yes
+      state: 'present'
 
     - name: Run apt commands
       apt:
