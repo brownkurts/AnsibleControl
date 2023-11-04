@@ -11,9 +11,14 @@ Unifi ansible_host=192.168.2.15
 rocketchat ansible_host=192.168.2.20
 SGC ansible_host=192.168.2.30
 
-
-
 [ubuntu:vars]
+ansible_user=kurt
+ansible_ssh_pass=steven87
+ansible_sudo_pass=steven87
+
+[docker]
+
+[docker:vars]
 ansible_user=kurt
 ansible_ssh_pass=steven87
 ansible_sudo_pass=steven87
@@ -45,7 +50,7 @@ ansible_sudo_pass=steven87
 [WidnowsServers]
 Brown-DC1 ansible_host=192.168.2.5
 Brown-print ansible_host=192.168.2.7
-Brown-Rapp ansible_host=192.168.2.12
+#Brown-Rapp ansible_host=192.168.2.12
 #Brown-Broker ansible_host=192.168.2.6
 
 [WidnowsServers:vars]
@@ -66,4 +71,11 @@ ansible_ssh_pass=steven87
 ansible_connection=ssh
 ansible_shell_type=cmd
 
+[test]
+Deploy ansible_host=192.168.200.30
+
+[test:vars]
+ansible_user=kurt
+ansible_ssh_pass=steven87
+ansible_sudo_pass=steven87
 
