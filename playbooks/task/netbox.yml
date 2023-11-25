@@ -20,7 +20,7 @@
         - libffi-dev
         - libpq-dev
         - libssl-dev
-        - libjpeg62-turbo-dev
+        - libjpeg-turbo8-dev
         - zlib1g-dev
 
     - name: Clone NetBox repository

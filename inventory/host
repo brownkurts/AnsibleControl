@@ -11,6 +11,8 @@ Unifi ansible_host=192.168.2.15
 rocketchat ansible_host=192.168.2.20
 SGC ansible_host=192.168.2.30
 netbox ansible_host=192.168.200.31
+Wazuh ansible_host=192.168.200.32
+graylog ansible_host=192.168.200.33
 
 [ubuntu:vars]
 ansible_user=kurt
