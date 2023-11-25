@@ -1,0 +1,10 @@
+- name: Send notification message via Rocket Chat
+  rocketchat:
+    token: 64d84e3a7d3522bf44894dc0/HsoR2gS7bjDjzjKk8BNuQiKzQJCBTenj7aDKCSZFmPuC8zNh
+    method: POST
+    body_format: json
+    body:
+      text: "{{ message }}"
+    status_code: 200
+  delegate_to: localhost
+
