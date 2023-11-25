@@ -10,10 +10,3 @@
 - import_playbook: task/choco.yml
 - import_playbook: task/reboot.yml
 
-- name: Notify Rocket.Chat
-  hosts: localhost
-  gather_facts: false
-  tasks:
-    - name: Include the Rocket.Chat notification role
-      include_role:
-        name: rocketchat_notification
