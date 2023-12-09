@@ -1,0 +1,48 @@
+---
+- name: Set up NVIDIA vGPU on Proxmox VE
+  hosts: PROXMOX03
+  become: yes
+
+  tasks:
+    - name: Install required packages
+      apt:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - "{{ item }}"
+      loop_control:
+        loop_var: package_name
+      vars:
+        package_name:
+          - pve-headers-{{ ansible_kernel }}
+          - build-essential
+          - "{{ 'linux-headers-' + ansible_kernel }}"
+          - firmware-misc-nonfree
+      when: "'linux-headers' in package_name"
+
+    - name: Download NVIDIA vGPU driver
+      get_url:
+        url: https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/cuda-ubuntu2004.pin
+        dest: /etc/apt/preferences.d/cuda-repository-pin-600
+        mode: '0644'
+
+    - name: Add the NVIDIA vGPU repository
+      apt_repository:
+        repo: "deb https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64 /"
+        state: present
+
+    - name: Retry APT update on failure
+      fail:
+        msg: "Failed to update APT cache."
+      when: "'apt cache update failed' in update_result.stderr"
+
+    - name: Install NVIDIA vGPU driver
+      apt:
+        name: cuda-drivers
+        state: present
+
+    - name: Reboot the server
+      command: reboot
+      async: 0
+      poll: 0
+      ignore_errors: true
