@@ -12,6 +12,11 @@ rocketchat ansible_host=192.168.2.20
 SGC ansible_host=192.168.2.30
 netbox ansible_host=192.168.200.31
 graylog ansible_host=192.168.200.33
+dockerSwarm-01 ansible_host=192.168.200.34
+dockerSwarm-02 ansible_host=192.168.200.35
+dockerSwarm-03 ansible_host=192.168.200.36
+dockerSwarm-04 ansible_host=192.168.200.37
+dockerSwarm-05 ansible_host=192.168.200.38
 
 [ubuntu:vars]
 ansible_user=kurt
@@ -81,4 +86,3 @@ ansible_user=kurt
 ansible_ssh_pass=steven87
 ansible_sudo_pass=steven87
 
-Wazuh ansible_host=192.168.200.32
