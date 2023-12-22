@@ -86,3 +86,15 @@ ansible_user=kurt
 ansible_ssh_pass=steven87
 ansible_sudo_pass=steven87
 
+[dockerswarm]
+dockerSwarm-01 ansible_host=192.168.200.34
+dockerSwarm-02 ansible_host=192.168.200.35
+dockerSwarm-03 ansible_host=192.168.200.36
+dockerSwarm-04 ansible_host=192.168.200.37
+dockerSwarm-05 ansible_host=192.168.200.38
+
+
+[dockerswarm:vars]
+ansible_user=kurt
+ansible_ssh_pass=steven87
+ansible_sudo_pass=steven87

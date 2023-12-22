@@ -1,5 +1,5 @@
 - name: Install Docker engine
-  hosts: "docker"
+  hosts: "dockerswarm"
   become: true
   tasks:
   - name: install dependencies
