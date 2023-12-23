@@ -1,8 +1,0 @@
-- hosts: "control, ubuntu, pihole, proxmox, docker"
-  become: true
-  tasks:
-    - name: Install packages
-      apt:
-        name:
-          - htop
-          - mc
