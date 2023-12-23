@@ -1,0 +1,6 @@
+- name: manageservers
+  hosts: localhost
+  gather_facts: false
+  tasks:
+    - import_role:
+        name: manageservers/upkeep

@@ -1,6 +1,6 @@
 - name: Read the VM list JSON file
   ansible.builtin.shell:
-    cmd: qm list -full
+    cmd: "qm list -full"
   register: qm_list
 - name: set default next_vm_id
   ansible.builtin.set_fact:

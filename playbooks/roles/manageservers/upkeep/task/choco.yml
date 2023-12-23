@@ -1,0 +1,24 @@
+---
+- hosts: Windows
+  tasks:
+    - name: Install Choco Packages
+      win_chocolatey:
+        name: 
+        - googlechrome
+        - adobereader
+        - notepadplusplus.install
+        - forticlientvpn
+        - vscode
+        - putty
+        - cura-new
+        - yubico-authenticator
+        - greenshot
+        - teracopy
+        - vlc
+        - zoom
+        - 7zip
+        - git
+        - rocketchat
+        - github-desktop
+        - obsidian
+        state: present

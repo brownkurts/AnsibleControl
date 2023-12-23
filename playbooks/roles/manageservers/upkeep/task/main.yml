@@ -1,0 +1,14 @@
+---
+- include_tasks: gitsync.yml
+- include_tasks: update.yml
+#- include_tasks: proxmox.yml
+- include_tasks: qemu-guest-agent.yml
+- include_tasks: packages.yml
+- include_tasks: pihole-update.yml
+- include_tasks: chocolatey.yml
+- include_tasks: ServerUpdate.yml
+- include_tasks: choco.yml
+- include_tasks: reboot.yml
+- include_tasks: nfs.yml
+- include_tasks: disupgrade.yml
+- include_tasks: wazuhagent.yml
