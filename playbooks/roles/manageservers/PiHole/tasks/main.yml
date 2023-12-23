@@ -1,0 +1,6 @@
+---
+- include_tasks: update.yml
+- include_tasks: qemu-guest-agent.yml
+- include_tasks: packages.yml
+- include_tasks: pihole-update.yml
+- include_tasks: reboot.yml

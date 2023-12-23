@@ -1,6 +1,15 @@
-- name: manageservers
-  hosts: localhost
-  gather_facts: false
+- name: manage ubuntu servers
+  hosts: ubuntu, proxmox
+  become: yes
+  gather_facts: true
   tasks:
     - import_role:
-        name: manageservers/upkeep
+        name: manageservers/ubuntu
+
+- name: manage pihole servers
+  hosts: pihole
+  become: yes
+  gather_facts: true
+  tasks:
+    - import_role:
+        name: manageservers/PiHole

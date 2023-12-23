@@ -1,0 +1,35 @@
+---
+vars:
+  wazuh_server_ip: 192.168.200.32
+
+  - name: Add Wazuh repository key
+    apt_key:
+      url: https://packages.wazuh.com/key/GPG-KEY-WAZUH
+      state: present
+
+  - name: Add Wazuh repository
+    apt_repository:
+      repo: "deb https://packages.wazuh.com/4.x/apt/ stable main"
+      state: present
+
+  - name: Update apt cache
+    apt:
+      update_cache: yes
+
+  - name: Install Wazuh agent
+    apt:
+      name: wazuh-agent
+      state: present
+
+  - name: Configure Wazuh agent
+    lineinfile:
+      path: /var/ossec/etc/ossec.conf
+      line: "<ossec_config>\n  <client>\n    <server-ip>{{ wazuh_server_ip }}</server-ip>\n  </client>\n</ossec_config>"
+    notify:
+      - restart wazuh-agent
+
+handlers:
+  - name: restart wazuh-agent
+    service:
+      name: wazuh-agent
+      state: restarted

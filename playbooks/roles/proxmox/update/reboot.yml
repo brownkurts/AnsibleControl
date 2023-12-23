@@ -1,8 +1,4 @@
 ---
-- hosts: "ubuntu, pihole, docker"
-  become: yes
-
-  tasks:
     - name: Check if a reboot is required.
       ansible.builtin.stat:
         path: /var/run/reboot-required

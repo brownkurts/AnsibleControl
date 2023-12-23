@@ -1,6 +1,4 @@
-- name: install latest qemu-guest-agent
-  hosts: "control, ubuntu, pihole, docker"
-  tasks:
+---
     - name: install qemu-guest-agent
       apt:
         name: qemu-guest-agent

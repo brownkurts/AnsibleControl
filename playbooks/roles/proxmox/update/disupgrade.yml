@@ -1,6 +1,4 @@
-- hosts: "control, ubuntu, pihole, proxmox, docker"
-  become: yes
-  tasks:
+---
     - name: apt
       apt:
         update_cache: yes
