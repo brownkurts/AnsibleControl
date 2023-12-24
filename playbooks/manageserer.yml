@@ -1,5 +1,5 @@
 - name: manage ubuntu servers
-  hosts: ubuntu, proxmox
+  hosts: ubuntu
   become: yes
   gather_facts: true
   tasks:
@@ -13,3 +13,13 @@
   tasks:
     - import_role:
         name: manageservers/PiHole
+
+- name: manage pihole servers
+  hosts: proxmox
+  become: yes
+  gather_facts: true
+  tasks:
+    - import_role:
+        name: manageservers/proxmox/update
+
+- import_playbook: task/wazuhagent.yml
