@@ -1,0 +1,68 @@
+- name: manage ubuntu servers
+  hosts: ubuntu
+  become: yes
+  gather_facts: true
+  tasks:
+    - import_role:
+        name: manageservers/ubuntu
+      register: ubuntu_result
+
+    - set_fact:
+        global_ubuntu_result: "{{ ubuntu_result.stdout }}"
+
+- name: manage pihole servers
+  hosts: pihole
+  become: yes
+  gather_facts: true
+  tasks:
+    - import_role:
+        name: manageservers/PiHole
+      register: pihole_result
+
+    - set_fact:
+        global_pihole_result: "{{ pihole_result.stdout }}"
+
+- name: manage proxmox servers
+  hosts: proxmox
+  become: yes
+  gather_facts: true
+  tasks:
+    - import_role:
+        name: manageservers/proxmox/update
+      register: proxmox_result
+
+    - set_fact:
+        global_proxmox_result: "{{ proxmox_result.stdout }}"
+
+- name: manage Windows servers
+  hosts: WidnowsServers
+  gather_facts: true
+  tasks:
+    - import_role:
+        name: manageservers/windowsservers
+      register: windows_servers_result
+    - set_fact:
+        global_windows_servers_result: "{{ windows_servers_result.stdout }}"
+
+- name: manage Windows Desktops
+  hosts: Windows
+  gather_facts: true
+  tasks:
+    - import_role:
+        name: manageservers/windowsdesktops
+      register: windows_desktops_result
+    - set_fact:
+        global_windows_desktops_result: "{{ windows_desktops_result.stdout }}"
+        
+- name: Send notification message via Rocket Chat
+  hosts: localhost
+  gather_facts: false
+  tasks:
+    - name: Notify Rocket Chat
+      rocketchat:
+        token: 64d84e3a7d3522bf44894dc0/HsoR2gS7bjDjzjKk8BNuQiKzQJCBTenj7aDKCSZFmPuC8zNh
+        domain: rocketchat.kbtech.org
+        msg: 'Disk space on {{ inventory_hostname }} is above 80%!'
+        body: '{"channel": "#your-channel", "text": "{{ ubuntu_result.stdout }} {{ pihole_result.stdout }} {{ proxmox_result.stdout }} {{ windows_servers_result.stdout }} {{ windows_desktops_result.stdout }}"}'
+      delegate_to: localhost
+      run_once: true

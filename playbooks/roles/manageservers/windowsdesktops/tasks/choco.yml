@@ -1,6 +1,4 @@
 ---
-- hosts: Windows
-  tasks:
     - name: Install Choco Packages
       win_chocolatey:
         name: 

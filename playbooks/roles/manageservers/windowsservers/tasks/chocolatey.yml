@@ -1,6 +1,4 @@
 ---
-- hosts: WidnowsServers
-  tasks:
     - name: Install googlechrome
       win_chocolatey:
         name: 

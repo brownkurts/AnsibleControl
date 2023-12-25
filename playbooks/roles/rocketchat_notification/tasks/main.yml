@@ -1,6 +1,7 @@
 - name: Send notification message via Rocket Chat
-  rocketchat:
+  community.general.rocketchat:
     token: 64d84e3a7d3522bf44894dc0/HsoR2gS7bjDjzjKk8BNuQiKzQJCBTenj7aDKCSZFmPuC8zNh
+    domain: rocketchat.kbtech.org
     method: POST
     body_format: json
     body:
