@@ -1,6 +1,6 @@
 ---
 - name: Install Portainer stack
-  hosts: managers
+  hosts: dockerSwarm-01
   gather_facts: true
   become: true
 
@@ -12,4 +12,9 @@
       command: docker volume create portainer_data
 
     - name: Deploy Portainer as a service
-      command: docker service create --name=portainer --publish=9000:9000 --constraint=node.role==manager --mount=type=bind,src=/var/run/docker.sock,dst=/var/run/docker.sock --mount=type=volume,src=portainer_data,dst=/data portainer/portainer
+      command: docker service create --name=portainer \
+               --publish=9000:9000 \
+               --constraint=node.role==manager \
+               --mount=type=bind,src=/var/run/docker.sock,dst=/var/run/docker.sock \
+               --mount=type=bind,src=/mnt/docker-data,dst=/data \
+               portainer/portainer
