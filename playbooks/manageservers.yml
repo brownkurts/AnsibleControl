@@ -1,5 +1,5 @@
 - name: manage ubuntu servers
-  hosts: ubuntu
+  hosts: ubuntu, k3s
   become: yes
   gather_facts: true
   tasks:

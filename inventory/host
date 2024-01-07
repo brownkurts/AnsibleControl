@@ -12,11 +12,7 @@ rocketchat ansible_host=192.168.2.20
 SGC ansible_host=192.168.2.30
 netbox ansible_host=192.168.200.31
 graylog ansible_host=192.168.200.33
-dockerSwarm-01 ansible_host=192.168.200.34
-dockerSwarm-02 ansible_host=192.168.200.35
-dockerSwarm-03 ansible_host=192.168.200.36
-dockerSwarm-04 ansible_host=192.168.200.37
-dockerSwarm-05 ansible_host=192.168.200.38
+
 
 [ubuntu:vars]
 ansible_user=kurt
@@ -56,7 +52,7 @@ ansible_sudo_pass=steven87
 
 [WidnowsServers]
 Brown-DC1 ansible_host=192.168.2.5
-Brown-print ansible_host=192.168.2.7
+#Brown-print ansible_host=192.168.2.7
 #Brown-Rapp ansible_host=192.168.2.12
 #Brown-Broker ansible_host=192.168.2.6
 
@@ -86,15 +82,18 @@ ansible_user=kurt
 ansible_ssh_pass=steven87
 ansible_sudo_pass=steven87
 
-[docker]
-docker-01 ansible_host=192.168.201.21
-docker-02 ansible_host=192.168.201.22
-docker-03 ansible_host=192.168.201.23
-docker-04 ansible_host=192.168.201.24
-docker-05 ansible_host=192.168.201.25
+[k3s]
+k3s-01 ansible_host=192.168.201.21
+k3s-02 ansible_host=192.168.201.22
+k3s-03 ansible_host=192.168.201.23
+k3s-04 ansible_host=192.168.201.24
+k3s-05 ansible_host=192.168.201.25
+k3s-fs01 ansible_host=192.168.201.26
+k3s-fs02 ansible_host=192.168.201.27
+k3s-fs03 ansible_host=192.168.201.28
 
 
-[docker:vars]
+[k3s:vars]
 ansible_user=kurt
 ansible_ssh_pass=steven87
 ansible_sudo_pass=steven87
