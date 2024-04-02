@@ -1,0 +1,5 @@
+---
+ - include_tasks: pve_no_sub.yml
+ - include_tasks: upgrade.yml
+ #- include_tasks: enable_sdn.yml 
+ - include_tasks: reboot.yml

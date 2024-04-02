@@ -1,0 +1,24 @@
+# Per https://pve.proxmox.com/pve-docs/chapter-pvesdn.html
+
+- name: Install libpve-network-perl
+  ansible.builtin.apt:
+    name: libpve-network-perl
+    state: present
+
+- name: Install dnsmasq
+  ansible.builtin.apt:
+    name: dnsmasq
+    state: present
+
+- service_facts:
+
+- name: stop and disable a dnsmasq
+  service:
+    name: dnsmasq
+    state: stopped
+    enabled: false
+
+- name: Install frr-pythontools
+  ansible.builtin.apt:
+    name: frr-pythontools
+    state: present
