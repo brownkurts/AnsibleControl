@@ -1,5 +1,5 @@
 - name: Install Docker engine
-  hosts: "docker-03"
+  hosts: "docker"
   become: true
   tasks:
   - name: install dependencies
