@@ -1,5 +1,5 @@
 - name: manage ubuntu servers
-  hosts: ubuntu, k3s
+  hosts: ubuntu, docker
   become: yes
   gather_facts: true
   tasks:
