@@ -1,6 +1,6 @@
 ---
 - name: check disk space
-  hosts: "ubuntu, docker , k3s"
+  hosts: "ubuntu, docker"
   tasks:
     - name: get disk usage
       command: df -h
