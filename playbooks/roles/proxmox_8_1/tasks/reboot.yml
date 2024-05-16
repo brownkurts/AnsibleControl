@@ -1,3 +1,0 @@
-- name: Reboot machines to make sure they are on the latest kernal version
-  ansible.builtin.reboot:
-    reboot_timeout: 3600

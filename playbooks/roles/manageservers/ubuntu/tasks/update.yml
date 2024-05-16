@@ -1,15 +1,8 @@
----
- - name: Run apt commands
-  apt:
-    autoclean: yes
-    autoremove: yes
-    update_cache: yes
-    upgrade: 'yes'
-
- - name: Run do-release-upgrade
-  shell: do-release-upgrade
-  async: 1200
-  poll: 0
+    - name: Update Ubuntu
+      when: ansible_facts['os_family'] == 'Debian'
+      ansible.builtin.apt:
+        upgrade: dist
+        update_cache: true
 
 
 
