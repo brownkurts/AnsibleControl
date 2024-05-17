@@ -3,6 +3,7 @@
 - import_tasks: qemu-guest-agent.yml
 - import_tasks: packages.yml
 - import_tasks: reboot.yml
+- import_tasks: ipv6-disable.yml
 # - include_tasks: update.yml
 # - include_tasks: qemu-guest-agent.yml
 # - include_tasks: packages.yml

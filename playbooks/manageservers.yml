@@ -16,13 +16,13 @@
         name: manageservers/PiHole
 
 
-- name: manage proxmox servers
-  hosts: proxmox
-  become: yes
-  gather_facts: true
-  tasks:
-    - import_role:
-        name: manageservers/proxmox/update
+# - name: manage proxmox servers
+#   hosts: proxmox
+#   become: yes
+#   gather_facts: true
+#   tasks:
+#     - import_role:
+#         name: manageservers/proxmox/update
 
 
 - name: manage Windows servers
