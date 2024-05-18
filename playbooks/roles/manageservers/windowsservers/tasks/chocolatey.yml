@@ -1,5 +1,5 @@
 ---
-    - name: Install googlechrome
+    - name: Install Apps with Choco
       win_chocolatey:
         name: 
         - googlechrome

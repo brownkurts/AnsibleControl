@@ -105,7 +105,7 @@ rke2-c3 ansible_host=192.168.201.33
 [servers:vars]
 ansible_user=kurt
 ansible_ssh_pass=steven87
-ansible_sudo_pass=steven87
+; ansible_sudo_pass=steven87
 
 [agents]
 rke2-w1 ansible_host=192.168.201.34
@@ -115,4 +115,4 @@ rke2-w3 ansible_host=192.168.201.36
 [agents:vars]
 ansible_user=kurt
 ansible_ssh_pass=steven87
-ansible_sudo_pass=steven87
+; ansible_sudo_pass=steven87
