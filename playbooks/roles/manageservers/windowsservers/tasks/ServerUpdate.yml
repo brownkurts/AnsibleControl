@@ -4,11 +4,11 @@
         name: all
         state: latest
   
-    - name: Update Windows
-      when: ansible_facts['os_family'] == 'Windows'
-      ansible.windows.win_updates:
-        category_names:
-          - SecurityUpdates
-          - UpdateRollups
-          - CriticalUpdates
-        state: installed
+    # - name: Update Windows
+    #   when: ansible_facts['os_family'] == 'Windows'
+    #   ansible.windows.win_updates:
+    #     category_names:
+    #       - SecurityUpdates
+    #       - UpdateRollups
+    #       - CriticalUpdates
+    #     state: installed

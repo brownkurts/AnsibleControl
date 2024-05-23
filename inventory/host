@@ -9,6 +9,7 @@ Mesh ansible_host=192.168.200.20
 Unifi ansible_host=192.168.2.15
 rocketchat ansible_host=192.168.2.20
 SGC ansible_host=192.168.2.30
+rke2-admin ansible_host=192.168.201.15
 rke2-c1 ansible_host=192.168.201.31
 rke2-c2 ansible_host=192.168.201.32
 rke2-c3 ansible_host=192.168.201.33
