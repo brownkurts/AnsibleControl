@@ -1,6 +1,6 @@
 ---
 - name: Setup Docker Swarm with Portainer
-  hosts: docker
+  hosts: dockerswarm
   become: true
   vars:
     docker_users: ["{{ ansible_user }}"]

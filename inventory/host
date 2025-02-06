@@ -27,6 +27,16 @@ ansible_user=kurt
 ansible_ssh_pass=steven87
 ansible_sudo_pass=steven87
 
+[dockerswarm]
+docker-01 ansible_host=192.168.201.21
+docker-02 ansible_host=192.168.201.22
+docker-03 ansible_host=192.168.201.23
+
+[dockerswarm:vars]
+ansible_user=kurt
+ansible_ssh_pass=steven87
+ansible_sudo_pass=steven87
+
 [pihole]
 Pihole01 ansible_host=192.168.2.2
 Pihole02 ansible_host=192.168.2.3
