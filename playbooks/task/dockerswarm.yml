@@ -1,0 +1,76 @@
+---
+- name: Configure Docker Swarm and GlusterFS
+  hosts: dockerswarm
+  become: yes
+  gather_facts: yes
+
+  tasks:
+    - name: Update system and install dependencies
+      apt:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - ca-certificates
+        - curl
+        - gnupg
+        - software-properties-common
+        - glusterfs-server
+      when: "'ubuntu' in ansible_distribution.lower()"
+
+    - name: Create keyrings directory
+      file:
+        path: /etc/apt/keyrings
+        state: directory
+      when: "'ubuntu' in ansible_distribution.lower()"
+
+
+    - name: Install Docker and GlusterFS
+      apt:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - glusterfs-server
+
+    - name: Start and enable GlusterFS service
+      systemd:
+        name: glusterd
+        state: started
+        enabled: yes
+    - name: Create GlusterFS volume
+      gluster_volume:
+        name: staging-gfs
+        bricks: "{{ groups['dockerswarm'] | map('regex_replace', '(.+)', '\\1:/gluster/volume1') | join(' ') }}"
+        state: present
+        cluster: localhost
+
+
+    - name: Set GlusterFS volume to start on boot
+      lineinfile:
+        path: /etc/fstab
+        line: 'localhost:/staging-gfs /mnt glusterfs defaults,_netdev,backupvolfile-server=localhost 0 0'
+      when: "'ubuntu' in ansible_distribution.lower()"
+
+    - name: Mount GlusterFS volume
+      mount:
+        path: /mnt
+        src: localhost:/staging-gfs
+        fstype: glusterfs
+        opts: defaults,_netdev,backupvolfile-server=localhost
+        state: mounted
+      when: "'ubuntu' in ansible_distribution.lower()"
+
+    - name: Create Docker Swarm on the first node
+      shell: >
+        docker swarm init --advertise-addr {{ admin }}
+        && docker swarm join-token manager -q > manager.txt
+        && docker swarm join-token worker -q > worker.txt
+      args:
+        executable: /bin/bash
+
+    - name: Join additional managers to Docker Swarm
+      shell: "docker swarm join --token {{ managerToken.stdout }} {{ admin }}"
+      with_items: "{{ managers }}"
+
+    - name: Join workers to Docker Swarm
+      shell: "docker swarm join --token {{ workerToken.stdout }} {{ admin }}"
+      with_items: "{{ workers }}"

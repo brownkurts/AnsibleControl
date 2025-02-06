@@ -1,2 +1,6 @@
+ - hosts: localhost
+  connection: local
+  become: true
+  
  tasks:
     - include: main.yml

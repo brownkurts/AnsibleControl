@@ -1,0 +1,18 @@
+---
+vars:
+  nfsmounts:
+    - {path: "/mnt/Public", src: "192.168.2.21:/mnt/Public"}
+    - {path: "/mnt/unraid", src: "192.168.2.21:/mnt/user/unraid"}
+    - {path: "/mnt/media", src: "192.168.2.21:/mnt/user/Media"}
+
+tasks:
+  - name: mount the nfsshare in client side
+    mount:
+      fstype: nfs
+      opts: defaults
+      dump: 0
+      passno: 0
+      state: mounted
+      src: "{{ item.src }}"
+      path: "{{ item.path }}"
+    loop: "{{ nfsmounts }}"

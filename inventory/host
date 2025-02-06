@@ -3,17 +3,26 @@ Ansible ansible_host=192.168.200.18
 
 
 [ubuntu]
-Deploy ansible_host=192.168.200.30
-Docker01 ansible_host=192.168.2.213
 Kasem ansible_host=192.168.200.25
-Mesh ansible_host=192.168.200.20
 Unifi ansible_host=192.168.2.15
 rocketchat ansible_host=192.168.2.20
 SGC ansible_host=192.168.2.30
-Grafana ansible_host=192.168.2.50
-
+tactical-rrm ansible_host=107.150.55.52
+destiny ansible_host=192.168.201.10
+noc-docker1 ansible_host=10.3.1.102
+farm-ubuntu ansible_host=192.168.1.17
+wazuh ansible_host=10.3.1.30
 
 [ubuntu:vars]
+ansible_user=kurt
+ansible_ssh_pass=steven87
+ansible_sudo_pass=steven87
+
+[docker]
+destiny ansible_host=192.168.201.10
+
+
+[docker:vars]
 ansible_user=kurt
 ansible_ssh_pass=steven87
 ansible_sudo_pass=steven87
@@ -22,6 +31,7 @@ ansible_sudo_pass=steven87
 Pihole01 ansible_host=192.168.2.2
 Pihole02 ansible_host=192.168.2.3
 Pihole03 ansible_host=192.168.1.2
+Pihole04 ansible_host=10.3.1.2
 
 [pihole:vars]
 ansible_user=kurt
@@ -34,7 +44,7 @@ PROXMOX03 ansible_host=192.168.2.212
 PROXMOX4 ansible_host=192.168.1.200
 PROXMOX05 ansible_host=192.168.2.215
 PVE-1 ansible_host=192.168.200.200
-PVE-2 ansible_host=192.168.200.201
+#Proxmo-NOC ansible_host=10.3.1.200
 
 [proxmox:vars]
 ansible_python_interpreter=/usr/bin/python3
@@ -46,7 +56,7 @@ ansible_sudo_pass=steven87
 Brown-DC1 ansible_host=192.168.2.5
 Brown-print ansible_host=192.168.2.7
 Brown-Rapp ansible_host=192.168.2.12
-#Brown-Broker ansible_host=192.168.2.6
+Brown-Broker ansible_host=192.168.2.6
 
 [WidnowsServers:vars]
 ANSIBLE_HOST_KEY_CHECKING=false
@@ -57,22 +67,12 @@ ansible_shell_type=cmd
 
 [Windows]
 Desktop ansible_host=192.168.2.9
-#Windows-11VM ansible_host=192.168.2.16 
-Kurts-Laptop ansible_host=192.168.2.70
+Windows-11VM ansible_host=192.168.2.16 
+#Kurts-Laptop ansible_host=192.168.2.70
+
 [Windows:vars]
 ANSIBLE_HOST_KEY_CHECKING=false
 ansible_user=kurt
 ansible_ssh_pass=steven87
 ansible_connection=ssh
 ansible_shell_type=cmd
-
-
-[docker]
-SG1 ansible_host=192.168.2.90
-SG2 ansible_host=192.168.2.91
-SG3 ansible_host=192.168.2.92
-
-[docker:vars]
-ansible_user=kurt
-ansible_ssh_pass=steven87
-ansible_sudo_pass=steven87

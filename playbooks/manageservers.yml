@@ -1,0 +1,44 @@
+- name: manage ubuntu servers
+  hosts: ubuntu, docker
+  become: yes
+  gather_facts: true
+  tasks:
+    - import_role:
+        name: manageservers/ubuntu
+
+
+- name: manage pihole servers
+  hosts: pihole
+  become: yes
+  gather_facts: true
+  tasks:
+    - import_role:
+        name: manageservers/PiHole
+
+
+- name: manage proxmox servers
+  hosts: proxmox
+  become: yes
+  gather_facts: true
+  tasks:
+    - import_role:
+        name: manageservers/proxmox/update
+
+
+- name: manage Windows servers
+  hosts: WidnowsServers
+  gather_facts: true
+  tasks:
+    - import_role:
+        name: manageservers/windowsservers
+
+
+- name: manage Windows Desktops
+  hosts: Windows
+  gather_facts: true
+  tasks:
+    - import_role:
+        name: manageservers/windowsdesktops
+
+        
+
