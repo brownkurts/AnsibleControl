@@ -1,4 +1,0 @@
----
-- import_playbook: dockerswarm/dockerinstall.yml
-- import_playbook: dockerswarm/initialize_swarm.yml
-#- import_playbook: dockerswarm/dockerswarmjoin.yml
