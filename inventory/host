@@ -28,9 +28,9 @@ ansible_ssh_pass=steven87
 ansible_sudo_pass=steven87
 
 [dockerswarm]
-docker-01 ansible_host=192.168.201.21
-docker-02 ansible_host=192.168.201.22
-docker-03 ansible_host=192.168.201.23
+#docker-01 ansible_host=192.168.201.21
+#docker-02 ansible_host=192.168.201.22
+#docker-03 ansible_host=192.168.201.23
 
 [dockerswarm:vars]
 ansible_user=kurt
@@ -86,3 +86,24 @@ ansible_user=kurt
 ansible_ssh_pass=steven87
 ansible_connection=ssh
 ansible_shell_type=cmd
+
+[servers]
+server1 ansible_host=192.168.201.21
+server2 ansible_host=192.168.201.22
+server3 ansible_host=192.168.201.23
+
+[agents]
+agent1 ansible_host=192.168.201.24
+agent2 ansible_host=192.168.201.25
+agent3 ansible_host=192.168.201.26
+
+[rke2]
+
+[rke2:children]
+servers
+agents
+
+[rke2:vars]
+ansible_user=kurt
+ansible_ssh_pass=steven87
+ansible_sudo_pass=steven87
