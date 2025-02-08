@@ -1,6 +1,6 @@
 - name: manage ubuntu servers
-  hosts: ubuntu, docker
-  become: yes
+  hosts: ubuntu, docker, rke2
+  become: true
   gather_facts: true
   tasks:
     - import_role:
@@ -9,7 +9,7 @@
 
 - name: manage pihole servers
   hosts: pihole
-  become: yes
+  become: true
   gather_facts: true
   tasks:
     - import_role:
@@ -18,7 +18,7 @@
 
 - name: manage proxmox servers
   hosts: proxmox
-  become: yes
+  become: true
   gather_facts: true
   tasks:
     - import_role:
