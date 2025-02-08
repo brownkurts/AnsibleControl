@@ -26,33 +26,6 @@
         state: started
         enabled: yes
 
-    - name: Initialize Docker Swarm on manager
-      command: "docker swarm init --advertise-addr {{ ansible_host }}"
-      run_once: true
-      when: inventory_hostname == swarm_manager
-      register: swarm_init
-      changed_when: "swarm_init.rc == 0"
-
-    - name: Get Swarm join token for managers
-      command: "docker swarm join-token -q manager"
-      when: inventory_hostname == swarm_manager
-      register: manager_token
-      changed_when: false
-
-  #  - name: Get Swarm join token for workers
-   #   command: "docker swarm join-token -q worker"
-    #  when: inventory_hostname == swarm_manager
-     # register: worker_token
-      #changed_when: false
-
-    - name: Join manager nodes to Swarm
-      command: "docker swarm join --token {{ manager_token.stdout }} {{ swarm_manager }}:2377"
-      when: inventory_hostname != swarm_manager and inventory_hostname in groups['managers']
-
-    #- name: Join worker nodes to Swarm
-     # command: "docker swarm join --token {{ worker_token.stdout }} {{ swarm_manager }}:2377"
-      #when: inventory_hostname in groups['workers']
-
     - name: Create Portainer volume on shared storage
       file:
         path: "{{ portainer_data }}"
@@ -71,5 +44,4 @@
         --constraint 'node.role == manager' \
         --mount type=bind,src=/var/run/docker.sock,dst=/var/run/docker.sock \
         --mount type=bind,src={{ portainer_data }},dst=/data \
-        portainer/portainer-ce --admin-password "$(openssl rand -base64 16)"
       run_once: true
