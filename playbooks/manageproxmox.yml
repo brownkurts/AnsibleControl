@@ -1,5 +1,5 @@
 - name: manage proxmox servers
-  hosts: proxmox
+  hosts: proxmox, proxmoxNox
   become: true
   gather_facts: true
   tasks:
