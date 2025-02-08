@@ -1,0 +1,7 @@
+- name: manage proxmox servers
+  hosts: proxmox
+  become: true
+  gather_facts: true
+  tasks:
+    - import_role:
+        name: manageservers/proxmox/update

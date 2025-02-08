@@ -1,0 +1,14 @@
+- name: manage Windows servers
+  hosts: WidnowsServers
+  gather_facts: true
+  tasks:
+    - import_role:
+        name: manageservers/windowsservers
+
+
+- name: manage Windows Desktops
+  hosts: Windows
+  gather_facts: true
+  tasks:
+    - import_role:
+        name: manageservers/windowsdesktops
