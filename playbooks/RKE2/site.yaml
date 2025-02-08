@@ -24,6 +24,7 @@
 - name: Deploy Kube VIP
   hosts: servers
   gather_facts: true
+  become: true
   roles:
     - kube-vip
 
@@ -31,6 +32,7 @@
 - name: Prepare RKE2 on Servers and Agents
   hosts: servers,agents
   gather_facts: true
+  become: true
   roles:
     - rke2-prepare
 
@@ -38,6 +40,7 @@
 - name: Add additional RKE2 Servers
   hosts: servers
   gather_facts: true
+  become: true
   roles:
     - add-server
 
@@ -45,6 +48,7 @@
 - name: Add additional RKE2 Agents
   hosts: agents
   gather_facts: true
+  become: true
   roles:
     - add-agent
 
@@ -52,5 +56,6 @@
 - name: Apply manifests after cluster is created
   hosts: servers
   gather_facts: true
+  become: true
   roles:
     - apply-manifests
