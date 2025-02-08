@@ -1,7 +1,7 @@
 # Wait for Server 1 to be ready before continuing with metallb deployment
 - name: Wait for k8s nodes with node label 'server=true' to be ready, otherwise we cannot start metallb deployment
   ansible.builtin.command:
-    cmd: "kubectl wait --for=condition=Ready nodes --selector server=true --timeout=600s"
+    cmd: "kubectl wait --for=condition=Ready nodes --selector server=true --timeout=1000s"
   register: nodes_ready
   retries: 120
   delay: 10
@@ -11,11 +11,15 @@
 
 # Create namespace so that we can deploy metallb
 - name: Apply metallb namespace
+  become: true
   ansible.builtin.command:
     cmd: kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.12.1/manifests/namespace.yaml
   become_user: "{{ ansible_user }}"
+  environment:
+    KUBECONFIG: /etc/rancher/rke2/rke2.yaml
   changed_when: true
   when: inventory_hostname == groups['servers'][0]
+
 
 # Apply metallb manifest
 - name: Apply metallb manifest
