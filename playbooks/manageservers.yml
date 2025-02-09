@@ -1,5 +1,5 @@
 - name: manage ubuntu servers
-  hosts: ubuntu, docker, rke2
+  hosts: ubuntu, docker
   become: true
   gather_facts: true
   tasks:
