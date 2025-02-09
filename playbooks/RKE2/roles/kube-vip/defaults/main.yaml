@@ -1,4 +1,0 @@
----
-kube_vip_version: v0.8.0
-vip_interface: eth0
-vip: "192.168.201.50"
