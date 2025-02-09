@@ -10,7 +10,7 @@ rocketchat ansible_host=192.168.2.20
 tactical-rrm ansible_host=107.150.55.52
 destiny ansible_host=192.168.201.10
 #noc-docker1 ansible_host=10.3.1.102
-#farm-ubuntu ansible_host=192.168.1.17
+farm-ubuntu ansible_host=192.168.1.17
 wazuh ansible_host=10.3.1.30
 
 [ubuntu:vars]
@@ -21,21 +21,11 @@ ansible_sudo_pass=steven87
 [docker]
 destiny ansible_host=192.168.201.10
 
-
 [docker:vars]
 ansible_user=kurt
 ansible_ssh_pass=steven87
 ansible_sudo_pass=steven87
 
-[dockerswarm]
-#docker-01 ansible_host=192.168.201.21
-#docker-02 ansible_host=192.168.201.22
-#docker-03 ansible_host=192.168.201.23
-
-[dockerswarm:vars]
-ansible_user=kurt
-ansible_ssh_pass=steven87
-ansible_sudo_pass=steven87
 
 [pihole]
 Pihole01 ansible_host=192.168.2.2
@@ -94,24 +84,3 @@ ansible_user=kurt
 ansible_ssh_pass=steven87
 ansible_connection=ssh
 ansible_shell_type=cmd
-
-[servers]
-server1 ansible_host=192.168.201.21
-server2 ansible_host=192.168.201.22
-server3 ansible_host=192.168.201.23
-
-[agents]
-agent1 ansible_host=192.168.201.24
-agent2 ansible_host=192.168.201.25
-agent3 ansible_host=192.168.201.26
-
-[rke2]
-
-[rke2:children]
-servers
-agents
-
-[rke2:vars]
-ansible_user=kurt
-ansible_ssh_pass=steven87
-ansible_sudo_pass=steven87
