@@ -6,6 +6,13 @@
     - import_role:
         name: manageservers/ubuntu
 
+- name: manage ubuntu servers
+  hosts: control
+  become: true
+  gather_facts: true
+  tasks:
+    - import_role:
+        name: manageservers/control
 
 - name: manage pihole servers
   hosts: pihole
@@ -24,21 +31,6 @@
     - import_role:
         name: manageservers/proxmox/update
 
-
-- name: manage Windows servers
-  hosts: WidnowsServers
-  gather_facts: true
-  tasks:
-    - import_role:
-        name: manageservers/windowsservers
-
-
-- name: manage Windows Desktops
-  hosts: Windows
-  gather_facts: true
-  tasks:
-    - import_role:
-        name: manageservers/windowsdesktops
 
         
 

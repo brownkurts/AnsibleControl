@@ -1,7 +1,0 @@
-- name: manage ubuntu servers
-  hosts: control
-  become: true
-
-  tasks:
-    - import_role:
-        name: manageservers/ubuntu
