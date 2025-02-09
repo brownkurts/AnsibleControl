@@ -1,0 +1,23 @@
+---
+- name: Ensure NFS utilities are installed
+  package:
+    name: "{{ 'nfs-common' if ansible_os_family == 'Debian' else 'nfs-utils' }}"
+    state: present
+
+- name: Ensure mount points exist
+  file:
+    path: "{{ item.path }}"
+    state: directory
+    mode: "0755"
+  loop: "{{ nfsmounts }}"
+
+- name: Mount the NFS shares and persist in fstab
+  mount:
+    path: "{{ item.path }}"
+    src: "{{ item.src }}"
+    fstype: nfs
+    opts: defaults
+    dump: 0
+    passno: 0
+    state: present
+  loop: "{{ nfsmounts }}"
