@@ -20,12 +20,20 @@ ansible_sudo_pass=steven87
 
 [docker]
 destiny ansible_host=192.168.201.10
+docker-01 ansible_host=192.168.201.21
 
 [docker:vars]
 ansible_user=kurt
 ansible_ssh_pass=steven87
 ansible_sudo_pass=steven87
 
+[wazuh_server]
+wazuh ansible_host=10.3.1.30
+
+[wazuh_server:vars]
+ansible_user=kurt
+ansible_ssh_pass=steven87
+ansible_sudo_pass=steven87
 
 [pihole]
 Pihole01 ansible_host=192.168.2.2
