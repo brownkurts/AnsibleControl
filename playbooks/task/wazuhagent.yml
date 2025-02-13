@@ -4,7 +4,7 @@
   become: yes
 
   vars:
-    wazuh_server_ip: 192.168.200.32
+    wazuh_server_ip: 10.3.1.30
 
   tasks:
     - name: Add Wazuh repository key

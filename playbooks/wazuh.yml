@@ -18,15 +18,15 @@
         update_cache: yes
 
     - name: Add Wazuh repository key
-      apt_key:
+      get_url:
         url: https://packages.wazuh.com/key/GPG-KEY-WAZUH
-        state: present
+        dest: /usr/share/keyrings/wazuh.gpg
 
-    - name: Add Wazuh repository
-      apt_repository:
-        repo: "deb https://packages.wazuh.com/{{ wazuh_version }}/apt/ stable main"
-        state: present
-        filename: wazuh
+    # - name: Add Wazuh repository
+    #   apt_repository:
+    #     repo: "deb [signed-by=/usr/share/keyrings/wazuh.gpg] https://packages.wazuh.com/apt/stable main"
+    #     state: present
+    #     filename: wazuh
 
     - name: Install Wazuh Manager
       apt:
