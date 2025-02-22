@@ -1,6 +1,6 @@
 ---
 - name: Install Wazuh agent on Ubuntu
-  hosts: "control, ubuntu, pihole, proxmox, docker"
+  hosts: "control, ubuntu, pihole, docker"
   become: yes
 
   vars:
