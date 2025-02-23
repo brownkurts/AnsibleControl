@@ -38,15 +38,15 @@
     - reboot
 
 
-- name: manage proxmox servers
-  hosts: proxmox
-  become: true
-  gather_facts: true
-  roles:
-    - ipv6-disable
-    # - wazuh_agent
-    - packages
-    - update_linux
+# - name: manage proxmox servers
+#   hosts: proxmox
+#   become: true
+#   gather_facts: true
+#   roles:
+#     - ipv6-disable
+#     # - wazuh_agent
+#     - packages
+#     - update_linux
 
 
 
