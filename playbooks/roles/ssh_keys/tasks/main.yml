@@ -1,0 +1,37 @@
+---
+- name: Ensure .ssh directory exists
+  file:
+    path: "/home/{{ ansible_user }}/.ssh"
+    state: directory
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: '0700'
+
+- name: Check if SSH key exists
+  stat:
+    path: "{{ ssh_key_path }}"
+  register: ssh_key
+
+- name: Generate SSH key if not present
+  command: ssh-keygen -t rsa -b 4096 -f "{{ ssh_key_path }}" -N ""
+  args:
+    creates: "{{ ssh_key_path }}"
+  when: not ssh_key.stat.exists
+
+- name: Read public SSH key
+  slurp:
+    src: "{{ ssh_pub_key_path }}"
+  register: ssh_pub_key
+  when: ssh_key.stat.exists
+  
+- name: Debug SSH key content
+  debug:
+    msg: "{{ ssh_key }}"
+
+- name: Add SSH key to authorized_keys on all servers
+  authorized_key:
+    user: "{{ ansible_user }}"
+    key: "{{ lookup('file', '/home/{{ ansible_user }}/.ssh/id_rsa.pub') }}"
+    state: present
+  delegate_to: "{{ item }}"
+  with_items: "{{ groups['pihole_servers'] }}"

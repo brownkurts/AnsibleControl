@@ -1,7 +1,0 @@
----
-- import_tasks: update.yml
-- import_tasks: qemu-guest-agent.yml
-- import_tasks: packages.yml
-- import_tasks: ipv6-disable.yml
-
-

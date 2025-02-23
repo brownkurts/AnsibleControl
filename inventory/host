@@ -3,7 +3,7 @@ Ansible ansible_host=192.168.200.18
 
 
 [ubuntu]
-Kasem ansible_host=192.168.200.25
+Kasem ansible_host=192.168.201.14
 Unifi ansible_host=192.168.2.15
 rocketchat ansible_host=192.168.2.20
 #SGC ansible_host=192.168.2.30
@@ -27,6 +27,16 @@ ansible_user=kurt
 ansible_ssh_pass=steven87
 ansible_sudo_pass=steven87
 
+[dockerswarm]
+docker-01 ansible_host=192.168.201.21
+docker-02 ansible_host=192.168.201.22
+docker-03 ansible_host=192.168.201.23
+
+[dockerswarm:vars]
+ansible_user=kurt
+ansible_ssh_pass=steven87
+ansible_sudo_pass=steven87
+
 [wazuh_server]
 wazuh ansible_host=10.3.1.30
 
@@ -36,12 +46,21 @@ ansible_ssh_pass=steven87
 ansible_sudo_pass=steven87
 
 [pihole]
-Pihole01 ansible_host=192.168.2.2
-Pihole02 ansible_host=192.168.2.3
+Pihole01 ansible_host=192.168.2.3
+Pihole02 ansible_host=192.168.2.4
 Pihole03 ansible_host=192.168.1.2
 Pihole04 ansible_host=10.3.1.2
 
 [pihole:vars]
+ansible_user=kurt
+ansible_ssh_pass=steven87
+ansible_sudo_pass=steven87
+
+[pihole_servers]
+Pihole01 ansible_host=192.168.2.3
+Pihole02 ansible_host=192.168.2.4
+
+[pihole_servers:vars]
 ansible_user=kurt
 ansible_ssh_pass=steven87
 ansible_sudo_pass=steven87

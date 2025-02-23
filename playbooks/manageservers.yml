@@ -2,34 +2,48 @@
   hosts: ubuntu, docker, wazuh
   become: true
   gather_facts: true
-  tasks:
-    - import_role:
-        name: manageservers/ubuntu
+  roles:
+    - nfs_mount
+    - ipv6-disable
+    - packages
+    - qemu-guest-agent
+    - update_linux
+    - reboot
 
 - name: manage ubuntu servers
   hosts: control
   become: true
   gather_facts: true
-  tasks:
-    - import_role:
-        name: manageservers/control
+  roles:
+    - nfs_mount
+    - ipv6-disable
+    - packages
+    - qemu-guest-agent
+    - update_linux
 
 - name: manage pihole servers
   hosts: pihole
   become: true
   gather_facts: true
-  tasks:
-    - import_role:
-        name: manageservers/PiHole
+  roles:
+    - nfs_mount
+    - ipv6-disable
+    - packages
+    - qemu-guest-agent
+    - update_linux
+    - PiHole_update
+    - reboot
 
 
-- name: manage proxmox servers
-  hosts: proxmox
-  become: true
-  gather_facts: true
-  tasks:
-    - import_role:
-        name: manageservers/proxmox/update
+# - name: manage proxmox servers
+#   hosts: proxmox
+#   become: true
+#   gather_facts: true
+#   roles:
+#     - ipv6-disable
+#     - packages
+#     - update_linux
+#     - reboot
 
 
         
