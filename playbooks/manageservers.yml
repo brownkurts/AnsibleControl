@@ -3,7 +3,8 @@
   become: true
   gather_facts: true
   roles:
-    - nfs_mount
+    # - nfs_mount
+    # - wazuh_agent
     - ipv6-disable
     - packages
     - qemu-guest-agent
@@ -15,7 +16,8 @@
   become: true
   gather_facts: true
   roles:
-    - nfs_mount
+    # - nfs_mount
+    # - wazuh_agent
     - ipv6-disable
     - packages
     - qemu-guest-agent
@@ -26,7 +28,8 @@
   become: true
   gather_facts: true
   roles:
-    - nfs_mount
+    # - nfs_mount
+    # - wazuh_agent
     - ipv6-disable
     - packages
     - qemu-guest-agent
@@ -35,15 +38,16 @@
     - reboot
 
 
-# - name: manage proxmox servers
-#   hosts: proxmox
-#   become: true
-#   gather_facts: true
-#   roles:
-#     - ipv6-disable
-#     - packages
-#     - update_linux
-#     - reboot
+- name: manage proxmox servers
+  hosts: proxmox
+  become: true
+  gather_facts: true
+  roles:
+    - ipv6-disable
+    # - wazuh_agent
+    - packages
+    - update_linux
+
 
 
         
