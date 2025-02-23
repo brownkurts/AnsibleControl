@@ -1,0 +1,7 @@
+- name: manage pihole servers
+  hosts: pihole
+  become: true
+  gather_facts: true
+  roles:
+    - ssh_keys
+    
