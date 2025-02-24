@@ -9,7 +9,9 @@
     - packages
     - qemu-guest-agent
     - update_linux
+    - Linuxrmm
     - reboot
+
 
 - name: manage ubuntu servers
   hosts: control
@@ -22,6 +24,7 @@
     - packages
     - qemu-guest-agent
     - update_linux
+    - Linuxrmm
 
 - name: manage pihole servers
   hosts: pihole
@@ -35,6 +38,7 @@
     - qemu-guest-agent
     - update_linux
     - PiHole_update
+    - Linuxrmm
     - reboot
 
 
