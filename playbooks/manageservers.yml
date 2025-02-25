@@ -1,58 +1,77 @@
-- name: manage ubuntu servers
-  hosts: ubuntu, docker, wazuh
-  become: true
-  gather_facts: true
-  roles:
-    # - nfs_mount
-    # - wazuh_agent
-    - ipv6-disable
-    - packages
-    - qemu-guest-agent
-    - update_linux
-    - Linuxrmm
-    - reboot
-
-
-- name: manage ubuntu servers
-  hosts: control
-  become: true
-  gather_facts: true
-  roles:
-    # - nfs_mount
-    # - wazuh_agent
-    - ipv6-disable
-    - packages
-    - qemu-guest-agent
-    - update_linux
-    - Linuxrmm
-
-- name: manage pihole servers
-  hosts: pihole
-  become: true
-  gather_facts: true
-  roles:
-    # - nfs_mount
-    # - wazuh_agent
-    - ipv6-disable
-    - packages
-    - qemu-guest-agent
-    - update_linux
-    - PiHole_update
-    - Linuxrmm
-    - reboot
-
-
-# - name: manage proxmox servers
-#   hosts: proxmox
+# - name: Manage Ubuntu Servers
+#   hosts: ubuntu, docker, wazuh
 #   become: true
 #   gather_facts: true
 #   roles:
 #     - ipv6-disable
-#     # - wazuh_agent
 #     - packages
+#     - qemu-guest-agent
 #     - update_linux
+#     - Linuxrmm
+#     - reboot
+
+#   tasks:
+#     - name: Capture errors (if any)
+#       block:
+#         - name: Run all roles (dummy task)
+#           command: echo "Roles executed"
+#           register: result
+#       rescue:
+#         - name: Send failure notification to Rocket.Chat
+#           rocketchat:
+#             token: 64d84e3a7d3522bf44894dc0/HsoR2gS7bjDjzjKk8BNuQiKzQJCBTenj7aDKCSZFmPuC8zNh
+#             domain: rocketchat.kbtech.org
+#             msg: "🚨 ERROR on {{ inventory_hostname }}:\n{{ ansible_failed_result }}"
+#       always:
+#         - name: Send success notification to Rocket.Chat
+#           rocketchat:
+#             token: 64d84e3a7d3522bf44894dc0/HsoR2gS7bjDjzjKk8BNuQiKzQJCBTenj7aDKCSZFmPuC8zNh
+#             domain: rocketchat.kbtech.org
+#             msg: "✅ Ubuntu servers update completed on {{ inventory_hostname }}"
+
+# - name: Manage PiHole Servers
+#   hosts: pihole
+#   become: true
+#   gather_facts: true
+#   roles:
+#     - ipv6-disable
+#     - packages
+#     - qemu-guest-agent
+#     - update_linux
+#     - PiHole_update
+#     - Linuxrmm
+#     - reboot
+
+#   tasks:
+#     - name: Capture errors (if any)
+#       block:
+#         - name: Run all roles (dummy task)
+#           command: echo "Roles executed"
+#           register: result
+#       rescue:
+#         - name: Send failure notification to Rocket.Chat
+#           rocketchat:
+#             token: 64d84e3a7d3522bf44894dc0/HsoR2gS7bjDjzjKk8BNuQiKzQJCBTenj7aDKCSZFmPuC8zNh
+#             domain: rocketchat.kbtech.org
+#             msg: "🚨 ERROR on {{ inventory_hostname }}:\n{{ ansible_failed_result }}"
+#       always:
+#         - name: Send success notification to Rocket.Chat
+#           rocketchat:
+#             token: 64d84e3a7d3522bf44894dc0/HsoR2gS7bjDjzjKk8BNuQiKzQJCBTenj7aDKCSZFmPuC8zNh
+#             domain: rocketchat.kbtech.org
+#             msg: "✅ PiHole servers update completed on {{ inventory_hostname }}"
 
 
+- name: manage rke2 servers
+  hosts: rke2
+  become: true
+  gather_facts: true
+  roles:
+    - ipv6-disable
+    - packages
+    - update_linux
+    - qemu-guest-agent
+    - reboot
 
         
 
