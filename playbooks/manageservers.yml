@@ -62,8 +62,8 @@
 #             msg: "✅ PiHole servers update completed on {{ inventory_hostname }}"
 
 
-- name: manage rke2 servers
-  hosts: rke2
+- name: manage k3s servers
+  hosts: k3s
   become: true
   gather_facts: true
   roles:
