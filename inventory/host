@@ -28,22 +28,22 @@ ansible_ssh_pass=steven87
 ansible_sudo_pass=steven87
 
 [servers]
-k3s-c1 ansible_host=192.168.201.21
-k3s-c2 ansible_host=192.168.201.22
-k3s-c3 ansible_host=192.168.201.23
+server1 ansible_host=192.168.201.21
+server2 ansible_host=192.168.201.22
+server3 ansible_host=192.168.201.23
 
 [agents]
-k3s-w1 ansible_host=192.168.201.24
-k3s-w2 ansible_host=192.168.201.25
-k3s-w3 ansible_host=192.168.201.26
+agent1 ansible_host=192.168.201.24
+agent2 ansible_host=192.168.201.25
+agent3 ansible_host=192.168.201.26
 
-[k3s]
+[rke2]
 
-[k3s:children]
+[rke2:children]
 servers
 agents
 
-[k3s:vars]
+[rke2:vars]
 ansible_user=kurt
 
 [wazuh_server]
