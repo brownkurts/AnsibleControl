@@ -4,7 +4,7 @@ arch: "amd64"
 
 vip: 192.168.201.50
 
-metallb_version: v0.13.12
+metallb_version: v0.14.9
 lb_range: 192.168.201.60-192.168.201.90
 lb_pool_name: first-pool
 

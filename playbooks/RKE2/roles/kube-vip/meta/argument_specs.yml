@@ -9,7 +9,7 @@ argument_specs:
       kube_vip_version:
         type: str
         required: false
-        default: v0.8.0
+        default: v0.8.8
         description: Version of kube-vip to install
       vip_interface:
         type: str
