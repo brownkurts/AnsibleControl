@@ -1,14 +1,14 @@
-# - name: Manage Ubuntu Servers
-#   hosts: ubuntu, docker, wazuh
-#   become: true
-#   gather_facts: true
-#   roles:
-#     - ipv6-disable
-#     - packages
-#     - qemu-guest-agent
-#     - update_linux
-#     - Linuxrmm
-#     - reboot
+- name: Manage Ubuntu Servers
+  hosts: ubuntu, docker, wazuh
+  become: true
+  gather_facts: true
+  roles:
+    - ipv6-disable
+    - packages
+    - qemu-guest-agent
+    - update_linux
+    - Linuxrmm
+    - reboot
 
 #   tasks:
 #     - name: Capture errors (if any)
@@ -29,18 +29,18 @@
 #             domain: rocketchat.kbtech.org
 #             msg: "✅ Ubuntu servers update completed on {{ inventory_hostname }}"
 
-# - name: Manage PiHole Servers
-#   hosts: pihole
-#   become: true
-#   gather_facts: true
-#   roles:
-#     - ipv6-disable
-#     - packages
-#     - qemu-guest-agent
-#     - update_linux
-#     - PiHole_update
-#     - Linuxrmm
-#     - reboot
+- name: Manage PiHole Servers
+  hosts: pihole
+  become: true
+  gather_facts: true
+  roles:
+    - ipv6-disable
+    - packages
+    - qemu-guest-agent
+    - update_linux
+    - PiHole_update
+    - Linuxrmm
+    - reboot
 
 #   tasks:
 #     - name: Capture errors (if any)
