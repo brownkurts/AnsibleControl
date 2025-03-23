@@ -5,4 +5,4 @@
     use_enterprise_repos: false
   roles:
     - proxmox_newsetup
-    - ironicbadger.proxmox_nag_removal
+ 

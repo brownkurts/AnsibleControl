@@ -7,6 +7,14 @@
         state: absent
       when: not use_enterprise_repos
 
+- name: Modify line in file to remove nag message
+  replace:
+    path: /usr/share/javascript/proxmox-widget-toolkit/proxmoxlib.js
+    regexp: 'res[\s\n]*\.data\.status\.toLowerCase\(\) !== .active.'
+    replace: "false"
+    backup: yes
+  # notify: restart pveproxy
+  
 - name: Perform tasks for Proxmox Virtual Environment
   block:
     - name: Remove pve-enterprise ceph subscription repo
