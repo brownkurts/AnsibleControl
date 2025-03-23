@@ -1,0 +1,5 @@
+---
+- name: reboot server
+  ansible.builtin.reboot:
+    msg: "Rebooting to apply updates"
+    reboot_timeout: 600

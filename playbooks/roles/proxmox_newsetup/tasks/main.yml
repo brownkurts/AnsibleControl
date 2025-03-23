@@ -1,0 +1,43 @@
+---
+- name: Perform tasks for Proxmox Virtual Environment
+  block:
+    - name: Remove pve-enterprise subscription repo
+      ansible.builtin.file:
+        path: "{{ proxmox_pve_enterprise_list }}"
+        state: absent
+      when: not use_enterprise_repos
+
+- name: Perform tasks for Proxmox Virtual Environment
+  block:
+    - name: Remove pve-enterprise ceph subscription repo
+      ansible.builtin.file:
+        path: "{{ proxmox_pve_enterprise_list_ceph }}"
+        state: absent
+      when: not use_enterprise_repos
+
+    - name: Ensure Ceph no-subscription repo is added
+      ansible.builtin.apt_repository:
+        repo: "deb http://download.proxmox.com/debian/ceph-quincy bookworm no-subscription"
+        state: present
+        filename: "ceph"
+        update_cache: yes
+
+    - name: Ensure pve-no-subscription repos are active
+      ansible.builtin.apt_repository:
+        repo: "{{ item.line }}"
+        state: present
+        update_cache: false
+      loop: "{{ __deb_proxmox_pve_repos | selectattr('release', '==', ansible_distribution_release) }}"
+
+    - name: Update all packages to latest
+      ansible.builtin.apt:
+        name: "*"
+        state: latest
+        update_cache: yes
+      notify: reboot server  # Notify the handler here
+
+    - name: Perform a dist-upgrade
+      ansible.builtin.apt:
+        update_cache: yes
+        upgrade: dist
+      notify: reboot server  # Notify the handler here

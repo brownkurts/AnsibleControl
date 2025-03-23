@@ -1,35 +1,34 @@
-# - name: Manage Ubuntu Servers
-#   hosts: ubuntu, docker, wazuh
-#   become: true
-#   gather_facts: true
-#   roles:
-#     - ipv6-disable
-#     - packages
-#     - qemu-guest-agent
-#     - update_linux
-#     - Linuxrmm
-#     - reboot
+- name: Manage Ubuntu Servers
+  hosts: ubuntu, docker, wazuh
+  become: true
+  gather_facts: true
+  roles:
+    - ipv6-disable
+    - packages
+    - qemu-guest-agent
+    - update_linux
+    - Linuxrmm
+    - reboot
 
-# - name: Manage PiHole Servers
-#   hosts: pihole
-#   become: true
-#   gather_facts: true
-#   roles:
-#     - ipv6-disable
-#     - packages
-#     - qemu-guest-agent
-#     - update_linux
-#     - PiHole_update
-#     - Linuxrmm
-#     - reboot
+- name: Manage PiHole Servers
+  hosts: pihole
+  become: true
+  gather_facts: true
+  roles:
+    - ipv6-disable
+    - packages
+    - qemu-guest-agent
+    - update_linux
+    - PiHole_update
+    - Linuxrmm
+    - reboot
 
 - name: Manage proxmox Servers
   hosts: proxmox
   become: true
-  gather_facts: false
+  gather_facts: true
   roles:
-    - ipv6-disable
-    - proxmoxupdate
+    - update_linux
 
 
 

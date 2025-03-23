@@ -6,7 +6,7 @@ Ansible ansible_host=192.168.200.18
 Kasm ansible_host=192.168.201.14
 Unifi ansible_host=192.168.2.15
 rocketchat ansible_host=192.168.2.20
-#SGC ansible_host=192.168.2.30
+SGC ansible_host=192.168.2.30
 #tactical-rrm ansible_host=107.150.55.52
 destiny ansible_host=192.168.201.10
 #noc-docker1 ansible_host=10.3.1.102
@@ -65,14 +65,6 @@ ansible_user=kurt
 ansible_ssh_pass=steven87
 ansible_sudo_pass=steven87
 
-[pihole_servers]
-Pihole01 ansible_host=192.168.2.3
-Pihole02 ansible_host=192.168.2.4
-
-[pihole_servers:vars]
-ansible_user=kurt
-ansible_ssh_pass=steven87
-ansible_sudo_pass=steven87
 
 [proxmox]
 PROXMOX-01 ansible_host=192.168.2.201
@@ -95,6 +87,19 @@ ansible_python_interpreter=/usr/bin/python3
 ansible_user=root
 ansible_ssh_pass=Nmofhqvtj44w!
 ansible_sudo_pass=Nmofhqvtj44w!
+
+
+[pve-dev]
+pve-dev1 ansible_host=192.168.200.91
+pve-dev2 ansible_host=192.168.200.92
+pve-dev3 ansible_host=192.168.200.93
+
+
+[pve-dev:vars]
+ansible_python_interpreter=/usr/bin/python3
+ansible_user=root
+ansible_ssh_pass=steven87
+ansible_sudo_pass=steven87
 
 [WidnowsServers]
 Brown-DC1 ansible_host=192.168.2.5

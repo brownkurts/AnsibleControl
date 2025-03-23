@@ -1,0 +1,8 @@
+---
+proxmox_pve_enterprise_list: "/etc/apt/sources.list.d/pve-enterprise.list"
+
+proxmox_pve_enterprise_list_ceph: "/etc/apt/sources.list.d/ceph.list"
+
+__deb_proxmox_pve_repos:
+  - release: "bookworm"
+    line: "deb http://download.proxmox.com/debian/pve bookworm pve-no-subscription"
