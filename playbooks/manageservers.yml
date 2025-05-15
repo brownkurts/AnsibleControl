@@ -28,7 +28,7 @@
   become: true
   gather_facts: true
   roles:
-    - update_linux
+    - update_proxmox
 
 
 
