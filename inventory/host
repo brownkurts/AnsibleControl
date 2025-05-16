@@ -1,9 +1,8 @@
 [control]
 Ansible ansible_host=192.168.200.18
 
-
 [ubuntu]
-Kasm ansible_host=192.168.201.14
+#Kasm ansible_host=192.168.201.14
 Unifi ansible_host=192.168.2.15
 rocketchat ansible_host=192.168.2.20
 SGC ansible_host=192.168.2.30
@@ -47,7 +46,7 @@ agents
 ansible_user=kurt
 
 [wazuh_server]
-; wazuh ansible_host=10.3.1.30
+#wazuh ansible_host=10.3.1.30
 
 [wazuh_server:vars]
 ansible_user=kurt

@@ -1,5 +1,5 @@
 - name: Manage Ubuntu Servers
-  hosts: ubuntu, docker, wazuh
+  hosts: ubuntu, docker
   become: true
   gather_facts: true
   roles:
