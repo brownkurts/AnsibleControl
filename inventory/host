@@ -2,9 +2,9 @@
 Ansible ansible_host=192.168.200.18
 
 [ubuntu]
-#Kasm ansible_host=192.168.201.14
+Kasm ansible_host=192.168.201.14
 Unifi ansible_host=192.168.2.15
-rocketchat ansible_host=192.168.2.20
+rocketchat ansible_host=10.3.1.11
 SGC ansible_host=192.168.2.30
 #tactical-rrm ansible_host=107.150.55.52
 destiny ansible_host=192.168.201.10
