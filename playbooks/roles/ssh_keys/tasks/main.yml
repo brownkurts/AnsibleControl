@@ -12,22 +12,14 @@
     path: "{{ ssh_key_path }}"
   register: ssh_key
 
-- name: Generate SSH key if not present
-  command: ssh-keygen -t rsa -b 4096 -f "{{ ssh_key_path }}" -N ""
-  args:
-    creates: "{{ ssh_key_path }}"
-  when: not ssh_key.stat.exists
-
 - name: Read public SSH key
   slurp:
     src: "{{ ssh_pub_key_path }}"
   register: ssh_pub_key
   when: ssh_key.stat.exists
   
-- name: Add SSH key to authorized_keys on all servers
+- name: Add public key to authorized_keys
   authorized_key:
-    user: "{{ ansible_user }}"
-    key: "{{ lookup('file', '/home/{{ ansible_user }}/.ssh/id_rsa.pub') }}"
+    user: "{{ ssh_key_user }}"
+    key: "{{ ssh_key_content['content'] | b64decode }}"
     state: present
-  delegate_to: "{{ item }}"
-  with_items: "{{ groups['pihole_servers'] }}"

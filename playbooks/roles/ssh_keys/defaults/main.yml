@@ -1,5 +1,5 @@
 ---
-ansible_user: kurt
-ssh_key_path: "/home/{{ ansible_user }}/.ssh/id_rsa"
+ansible_user: root
+ssh_key_path: "/home/{{ ansible_user }}/.ssh/id_ed25519"
 ssh_pub_key_path: "{{ ssh_key_path }}.pub"
 authorized_keys_file: "/home/{{ ansible_user }}/.ssh/authorized_keys"

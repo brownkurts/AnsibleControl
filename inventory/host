@@ -66,11 +66,11 @@ ansible_sudo_pass=steven87
 
 
 [proxmox]
-PROXMOX-01 ansible_host=192.168.2.201
+; PROXMOX-01 ansible_host=192.168.2.201
 PROXMOX03 ansible_host=192.168.2.212
 PROXMOX4 ansible_host=192.168.1.200
 PROXMOX05 ansible_host=192.168.2.215
-PVE-1 ansible_host=192.168.200.200
+; PVE-1 ansible_host=192.168.200.200
 
 [proxmox:vars]
 ansible_python_interpreter=/usr/bin/python3
@@ -79,13 +79,13 @@ ansible_ssh_pass=steven87
 ansible_sudo_pass=steven87
 
 [proxmoxNox]
-Proxmox-NOC ansible_host=10.3.1.200
+Proxmox-NOC ansible_host=107.150.55.50
 
 [proxmoxNox:vars]
 ansible_python_interpreter=/usr/bin/python3
 ansible_user=root
-ansible_ssh_pass=Nmofhqvtj44w!
-ansible_sudo_pass=Nmofhqvtj44w!
+ansible_ssh_pass=Iwqfcd9gys1r!
+ansible_sudo_pass=Iwqfcd9gys1r!
 
 
 [pve-dev]

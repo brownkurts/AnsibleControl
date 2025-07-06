@@ -23,12 +23,12 @@
     - Linuxrmm
     - reboot
 
-- name: Manage proxmox Servers
-  hosts: proxmox
-  become: true
-  gather_facts: true
-  roles:
-    - update_proxmox
+# - name: Manage proxmox Servers
+#   hosts: proxmox
+#   become: true
+#   gather_facts: true
+#   roles:
+#     - update_proxmox
 
 
 
