@@ -3,6 +3,7 @@
   become: true
   gather_facts: true
   roles:
+    - nfs_mount
     - ipv6-disable
     - packages
     - qemu-guest-agent
