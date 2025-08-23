@@ -8,7 +8,7 @@
     - packages
     - qemu-guest-agent
     - update_linux
-    - Linuxrmm
+    # - Linuxrmm
     - reboot
 
 - name: Manage PiHole Servers
@@ -21,15 +21,15 @@
     - qemu-guest-agent
     - update_linux
     - PiHole_update
-    - Linuxrmm
+    # - Linuxrmm
     - reboot
 
-# - name: Manage proxmox Servers
-#   hosts: proxmox
-#   become: true
-#   gather_facts: true
-#   roles:
-#     - update_proxmox
+- name: Manage proxmox Servers
+  hosts: proxmox, proxmoxNox
+  become: true
+  gather_facts: false
+  roles:
+    - update_proxmox
 
 
 

@@ -1,5 +1,5 @@
 - name: Upgrade Proxmox nodes one at a time
-  hosts: pve-dev
+  hosts: proxmoxNox
   serial: 1  # Ensures updates happen one node at a time
   vars:
     use_enterprise_repos: false
