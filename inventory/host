@@ -9,6 +9,7 @@ rocketchat ansible_host=10.3.1.11
 #tactical-rrm ansible_host=107.150.55.52
 destiny ansible_host=192.168.201.10
 odyssey ansible_host=10.3.1.13
+admin ansible_host=192.168.201.20
 
 
 
@@ -31,18 +32,18 @@ server1 ansible_host=192.168.201.21
 server2 ansible_host=192.168.201.22
 server3 ansible_host=192.168.201.23
 
-[agents]
-agent1 ansible_host=192.168.201.24
-agent2 ansible_host=192.168.201.25
-agent3 ansible_host=192.168.201.26
+[workers]
+workers1 ansible_host=192.168.201.24
+workers2 ansible_host=192.168.201.25
+workers3 ansible_host=192.168.201.26
 
-[rke2]
+[k3s]
 
-[rke2:children]
+[k3s:children]
 servers
-agents
+workers
 
-[rke2:vars]
+[k3s:vars]
 ansible_user=kurt
 
 [wazuh_server]

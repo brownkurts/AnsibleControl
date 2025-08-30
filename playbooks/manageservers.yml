@@ -1,9 +1,9 @@
 - name: Manage Ubuntu Servers
-  hosts: ubuntu, docker
+  hosts: ubuntu, docker, k3s
   become: true
   gather_facts: true
   roles:
-    - nfs_mount
+    # - nfs_mount
     - ipv6-disable
     - packages
     - qemu-guest-agent
