@@ -1,0 +1,623 @@
+---
+- hosts: localhost
+  gather_facts: false
+  vars:
+    ansible_python_interpreter: /usr/bin/python3
+
+    # ===== Proxmox API =====
+    pm_api_host: "192.168.2.201"
+    pm_api_user: "root@pam"
+    pm_api_token_id: "ansible"
+    pm_api_token_secret: "e84d81d9-f476-4cc0-b529-22a4bbd9cb25"
+    pm_node: "PROXMOX-01"
+    validate_certs: false
+
+    # ===== VM & network =====
+    vm_storage: "local-lvm"           # faster local storage
+    vm_bridge: "vmbr0"
+    template_vmid: 9002               # Ubuntu cloud-init TEMPLATE VMID
+    disk_gb: 40
+    vm_cores: 4
+    vm_memory_mb: 8192
+    ci_user: "kurt"
+
+    # Bootstrap: DHCP on native/untagged VLAN (VLAN 1 / 192.168.2.0/24)
+    bootstrap_prefix: "192.168.2."
+    bootstrap_re: "{{ '^' + (bootstrap_prefix | replace('.', '\\.')) }}"
+
+    # Permanent k3s mgmt (VLAN 201)
+    gw_201: "192.168.201.1"
+    masters:
+      - { name: "k3s-s1", vmid: 601, ip201: "192.168.201.21" }
+      - { name: "k3s-s2", vmid: 602, ip201: "192.168.201.22" }
+      - { name: "k3s-s3", vmid: 603, ip201: "192.168.201.23" }
+
+    # K3s / kube-vip / MetalLB
+    k3s_version: "v1.31.5+k3s1"
+    kubevip_version: "v0.8.8"
+    kubevip_vip: "192.168.201.50"
+    metallb_native_url: "https://raw.githubusercontent.com/metallb/metallb/v0.14.5/config/manifests/metallb-native.yaml"
+    metallb_pool_range: "192.168.201.60-192.168.201.80"
+
+    # Rancher / Cert-Manager / Helm
+    rancher_hostname: "rancher.example.local"
+    cert_manager_version: "v1.13.2"
+    helm_get_script: "https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3"
+
+  pre_tasks:
+    - name: Ensure pip is present
+      become: true
+      apt:
+        name: python3-pip
+        state: present
+        update_cache: true
+
+    - name: Install proxmoxer + requests
+      become: true
+      pip:
+        name:
+          - proxmoxer>=2.0.1
+          - requests
+        executable: pip3
+
+    # Look up TEMPLATE NAME from VMID (community.general.proxmox_kvm wants a name)
+    - name: Fetch VM list from Proxmox
+      uri:
+        url: "https://{{ pm_api_host }}:8006/api2/json/cluster/resources?type=vm"
+        method: GET
+        headers:
+          Authorization: "PVEAPIToken={{ pm_api_user }}!{{ pm_api_token_id }}={{ pm_api_token_secret }}"
+        validate_certs: no
+      register: vm_list
+
+    - name: Derive template name by VMID
+      set_fact:
+        template_name: >-
+          {{
+            (vm_list.json.data
+             | selectattr('vmid','equalto', template_vmid)
+             | map(attribute='name')
+             | list
+            ) | first | default('')
+          }}
+
+    - name: Fail if template name not found
+      fail:
+        msg: "Could not find TEMPLATE with VMID={{ template_vmid }}. Ensure {{ template_vmid }} exists and is a template."
+      when: template_name | length == 0
+
+    # Warn if template ide2 isn't a pure cloudinit placeholder on desired storage
+    - name: Get template config (warn-only; ignore cert issues)
+      uri:
+        url: "https://{{ pm_api_host }}:8006/api2/json/nodes/{{ pm_node }}/qemu/{{ template_vmid }}/config"
+        method: GET
+        headers:
+          Authorization: "PVEAPIToken={{ pm_api_user }}!{{ pm_api_token_id }}={{ pm_api_token_secret }}"
+        validate_certs: no
+      register: tcfg
+      failed_when: false
+
+    - name: Warn if template ide2 is not '<storage>:cloudinit,media=cdrom'
+      debug:
+        msg: >-
+          WARNING: Template {{ template_vmid }} ide2='{{ tcfg.json.data.ide2 | default('UNKNOWN') }}'.
+          For fastest clones set: qm set {{ template_vmid }} --ide2 {{ vm_storage }}:cloudinit,media=cdrom
+      when:
+        - tcfg is defined
+        - tcfg.json is defined
+        - tcfg.json.data is defined
+        - (tcfg.json.data.ide2 is not defined)
+          or (tcfg.json.data.ide2 is not search(':cloudinit'))
+          or (tcfg.json.data.ide2 is search(':vm-\\d+-cloudinit'))
+
+    - name: Merge masters list (no workers yet)
+      set_fact:
+        nodes_all: "{{ masters }}"
+
+    # Persist needed vars into hostvars['localhost'] for later plays
+    - name: Publish vars for later plays (hostvars-safe)
+      set_fact:
+        _masters: "{{ masters }}"
+        _nodes_all: "{{ nodes_all }}"
+        _gw_201: "{{ gw_201 }}"
+        _ci_user: "{{ ci_user }}"
+        _bootstrap_prefix: "{{ bootstrap_prefix }}"
+        _bootstrap_re: "{{ bootstrap_re }}"
+        _pm_api_host: "{{ pm_api_host }}"
+        _pm_node: "{{ pm_node }}"
+        _pm_api_user: "{{ pm_api_user }}"
+        _pm_api_token_id: "{{ pm_api_token_id }}"
+        _pm_api_token_secret: "{{ pm_api_token_secret }}"
+        _k3s_version: "{{ k3s_version }}"
+        _kubevip_version: "{{ kubevip_version }}"
+        _kubevip_vip: "{{ kubevip_vip }}"
+        _metallb_native_url: "{{ metallb_native_url }}"
+        _metallb_pool_range: "{{ metallb_pool_range }}"
+        _rancher_hostname: "{{ rancher_hostname }}"
+        _cert_manager_version: "{{ cert_manager_version }}"
+        _helm_get_script: "{{ helm_get_script }}"
+
+  collections:
+    - community.general
+
+  tasks:
+    # ===== Clone VMs (sequential, full clone to local-lvm) =====
+    - name: Clone VMs from template (no VLAN tag; long wait)
+      community.general.proxmox_kvm:
+        api_host: "{{ pm_api_host }}"
+        api_user: "{{ pm_api_user }}"
+        api_token_id: "{{ pm_api_token_id }}"
+        api_token_secret: "{{ pm_api_token_secret }}"
+        validate_certs: "{{ validate_certs }}"
+        node: "{{ pm_node }}"
+        clone: "{{ template_name }}"        # SOURCE NAME (not VMID)
+        name: "{{ item.name }}"
+        newid: "{{ item.vmid }}"
+        full: true
+        storage: "{{ vm_storage }}"         # disks (incl. CI) on local-lvm
+        timeout: 3600
+        scsihw: virtio-scsi-pci
+        scsi:
+          scsi0: "{{ vm_storage }}:{{ disk_gb }}"
+        cores: "{{ vm_cores }}"
+        memory: "{{ vm_memory_mb }}"
+        net:
+          net0: "virtio,bridge={{ vm_bridge }}"  # no VLAN tag; guest will do VLANs
+        ipconfig:
+          ipconfig0: "dhcp=1"                    # bootstrap on native VLAN
+        ciuser: "{{ ci_user }}"
+        agent: 1
+        onboot: 1
+        ostype: l26
+        state: present
+      loop: "{{ nodes_all }}"
+      loop_control: { label: "{{ item.name }}" }
+
+    - name: Start VMs
+      community.general.proxmox_kvm:
+        api_host: "{{ pm_api_host }}"
+        api_user: "{{ pm_api_user }}"
+        api_token_id: "{{ pm_api_token_id }}"
+        api_token_secret: "{{ pm_api_token_secret }}"
+        validate_certs: "{{ validate_certs }}"
+        node: "{{ pm_node }}"
+        vmid: "{{ item.vmid }}"
+        state: started
+      loop: "{{ nodes_all }}"
+
+    - name: Pause briefly before discovery (let cloud-init kick off)
+      pause:
+        seconds: 20
+
+    # ===== Discover DHCP IPs via QGA on native VLAN =====
+    - name: Wait for QGA 'network-get-interfaces' to respond
+      uri:
+        url: "https://{{ pm_api_host }}:8006/api2/json/nodes/{{ pm_node }}/qemu/{{ item.vmid }}/agent/network-get-interfaces"
+        method: GET
+        headers:
+          Authorization: "PVEAPIToken={{ pm_api_user }}!{{ pm_api_token_id }}={{ pm_api_token_secret }}"
+        validate_certs: no
+        status_code: [200, 500]   # 500 until agent fully up
+      register: qga_up
+      until: qga_up.status == 200 and (qga_up.json.data.result | length) > 0
+      retries: 120
+      delay: 4
+      loop: "{{ nodes_all }}"
+      loop_control: { label: "{{ item.name }}" }
+
+    - name: Extract all IPv4s from QGA per VM
+      set_fact:
+        _qga_ipv4s: "{{ _qga_ipv4s | default({}) | combine({
+          (item.item.vmid | string):
+            (
+              (item.json.data.result | default([]))
+              | map(attribute='ip-addresses') | map('default', []) | list | sum(start=[])
+              | selectattr('ip-address-type','equalto','ipv4')
+              | map(attribute='ip-address')
+              | reject('search','^127\\.')
+              | reject('search','^169\\.254\\.')
+              | list
+            )
+        }) }}"
+      loop: "{{ qga_up.results }}"
+      when: item.status == 200
+
+    - name: Build vmid -> DHCP IPv4 map (prefer prefix {{ bootstrap_prefix }})
+      set_fact:
+        bootstrap_hosts: "{{ bootstrap_hosts | default({}) | combine({
+          item: (
+            (_qga_ipv4s[item] | select('search', bootstrap_re) | list | first)
+            | default(_qga_ipv4s[item] | first | default(''))
+          )
+        }) }}"
+      loop: "{{ _qga_ipv4s.keys() | list }}"
+
+    - name: Show discovered bootstrap (DHCP) addresses
+      debug: { var: bootstrap_hosts }
+
+    - name: Ensure all DHCP IPs are valid {{ bootstrap_prefix }} addresses
+      assert:
+        that:
+          - bootstrap_hosts | length == (_nodes_all | length)
+          - (bootstrap_hosts.values() | list | select('match', bootstrap_re) | list | length) == (_nodes_all | length)
+        fail_msg: "Could not discover valid DHCP IPs via QGA for all VMs. Got: {{ bootstrap_hosts }}"
+
+    - name: Add temporary bootstrap inventory (using discovered IPs)
+      add_host:
+        name: "{{ item.name }}"
+        ansible_host: "{{ bootstrap_hosts[item.vmid | string] }}"
+        ansible_user: "{{ ci_user }}"
+        ansible_ssh_common_args: "-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
+        groups: "bootstrap"
+        ip201: "{{ item.ip201 }}"
+      loop: "{{ _nodes_all }}"
+
+# ============================== BOOTSTRAP (configure VLAN 201 in guest) ==============================
+- hosts: bootstrap
+  become: true
+  gather_facts: true
+  vars:
+    gw_201: "{{ hostvars['localhost']._gw_201 }}"
+    iface_primary: "{{ ansible_default_ipv4.interface | default('eth0') }}"
+  tasks:
+    - name: Install basics and ensure guest agent
+      apt:
+        name: [curl, ca-certificates, qemu-guest-agent, netplan.io]
+        state: present
+        update_cache: true
+
+    - name: Ensure qemu-guest-agent running
+      service:
+        name: qemu-guest-agent
+        state: started
+        enabled: true
+
+    - name: Disable Cloud-Init networking
+      copy:
+        dest: /etc/cloud/cloud.cfg.d/10-disable-ci-network.cfg
+        mode: '0644'
+        content: |
+          network: {config: disabled}
+
+    - name: Write netplan for static VLAN 201 (leave base unnumbered)
+      copy:
+        dest: /etc/netplan/01-k3s.yaml
+        mode: '0644'
+        content: |
+          network:
+            version: 2
+            renderer: networkd
+            ethernets:
+              {{ iface_primary }}:
+                dhcp4: false
+            vlans:
+              {{ iface_primary }}.201:
+                id: 201
+                link: {{ iface_primary }}
+                addresses: [ {{ hostvars[inventory_hostname].ip201 }}/24 ]
+                routes:
+                  - to: default
+                    via: {{ gw_201 }}
+                nameservers:
+                  addresses: [1.1.1.1,8.8.8.8]
+
+    - name: Remove Cloud-Init netplan to avoid conflicts
+      file:
+        path: /etc/netplan/50-cloud-init.yaml
+        state: absent
+
+    - name: Pre-validate netplan config
+      command: netplan generate
+
+    - name: Apply netplan (fire-and-forget; SSH will drop)
+      command: netplan apply
+      async: 60
+      poll: 0
+      changed_when: true
+      ignore_errors: true
+
+# Switch to VLAN 201 IPs (discovered via QGA), then continue
+- hosts: localhost
+  gather_facts: false
+  vars:
+    api_hdr:
+      Authorization: "PVEAPIToken={{ hostvars['localhost']._pm_api_user }}!{{ hostvars['localhost']._pm_api_token_id }}={{ hostvars['localhost']._pm_api_token_secret }}"
+  tasks:
+    - name: Wait until each VM reports a 192.168.201.x address via QGA
+      uri:
+        url: "https://{{ hostvars['localhost']._pm_api_host }}:8006/api2/json/nodes/{{ hostvars['localhost']._pm_node }}/qemu/{{ item.vmid }}/agent/network-get-interfaces"
+        method: GET
+        headers: "{{ api_hdr }}"
+        validate_certs: false
+        status_code: [200, 500]
+      register: qga_probe
+      until: >
+        qga_probe.status == 200 and
+        (
+          (qga_probe.json.data.result | default([]) | map(attribute='ip-addresses') | map('default', []) | list | sum(start=[]))
+          | selectattr('ip-address-type','equalto','ipv4')
+          | map(attribute='ip-address')
+          | select('search','^192\\.168\\.201\\.')
+          | list | length
+        ) > 0
+      retries: 120
+      delay: 5
+      loop: "{{ hostvars['localhost']._nodes_all }}"
+      loop_control: { label: "{{ item.name }}" }
+
+    - name: Build vmid -> IPv4(201) map from QGA
+      set_fact:
+        vlan201_hosts: >-
+          {{
+            (vlan201_hosts | default({}))
+            | combine({
+              (item.item.vmid | string):
+                (
+                  (item.json.data.result | default([]))
+                  | map(attribute='ip-addresses') | map('default', []) | list | sum(start=[])
+                  | selectattr('ip-address-type','equalto','ipv4')
+                  | map(attribute='ip-address')
+                  | select('search','^192\\.168\\.201\\.')
+                  | list | first | default('')
+                )
+            })
+          }}
+      loop: "{{ qga_probe.results }}"
+      when: item.status == 200
+
+    - name: Show discovered VLAN201 addresses
+      debug:
+        var: vlan201_hosts
+
+    - name: Add masters on 201
+      add_host:
+        name: "{{ item.name }}"
+        ansible_host: "{{ vlan201_hosts[item.vmid | string] | default(item.ip201) }}"
+        ansible_user: "{{ hostvars['localhost']._ci_user }}"
+        ansible_ssh_common_args: "-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
+        groups: "k3s_masters,k3s_all"
+      loop: "{{ hostvars['localhost']._masters }}"
+
+    - name: Wait for SSH on VLAN 201 addresses
+      wait_for:
+        host: "{{ vlan201_hosts[item.vmid | string] | default(item.ip201) }}"
+        port: 22
+        timeout: 600
+        delay: 5
+        state: started
+      loop: "{{ hostvars['localhost']._masters }}"
+      loop_control: { label: "{{ item.name }}" }
+
+# ============================== K3S BASELINE ==============================
+- hosts: k3s_all
+  become: true
+  gather_facts: true
+  tasks:
+    - name: Ensure curl/ca-certificates present
+      apt:
+        name: [curl, ca-certificates]
+        state: present
+        update_cache: true
+
+    - name: Set common K3s args
+      set_fact:
+        k3s_common_args: >-
+          --disable traefik
+          --disable servicelb
+          --flannel-iface={{ ansible_default_ipv4.interface }}
+          --write-kubeconfig-mode 644
+
+# ======================== BOOTSTRAP FIRST SERVER ========================
+- hosts: "k3s_masters[0]"
+  become: true
+  tasks:
+    - name: Install K3s (server, cluster-init; servers also run workloads)
+      shell: |
+        curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="{{ hostvars['localhost']._k3s_version }}" sh -s - server \
+          --cluster-init \
+          {{ hostvars[inventory_hostname].k3s_common_args }} \
+          --node-ip {{ ansible_host }}
+      args:
+        creates: /usr/local/bin/k3s
+
+    - name: Read K3s node token
+      slurp:
+        src: /var/lib/rancher/k3s/server/node-token
+      register: token_raw
+
+    - name: Publish join info
+      delegate_to: localhost
+      set_fact:
+        join_token: "{{ token_raw.content | b64decode | trim }}"
+        join_url: "https://{{ ansible_host }}:6443"
+
+# ========================= JOIN OTHER SERVERS =========================
+- hosts: "k3s_masters[1:]"
+  become: true
+  tasks:
+    - name: Join server
+      shell: |
+        curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="{{ hostvars['localhost']._k3s_version }}" \
+          K3S_URL="{{ hostvars['localhost'].join_url }}" \
+          K3S_TOKEN="{{ hostvars['localhost'].join_token }}" \
+          sh -s - server \
+          {{ hostvars[inventory_hostname].k3s_common_args }} \
+          --node-ip {{ ansible_host }}
+      args:
+        creates: /usr/local/bin/k3s
+
+# ================================= KUBE-VIP =================================
+- hosts: "k3s_masters[0]"
+  become: true
+  vars:
+    kubeenv: { KUBECONFIG: "/etc/rancher/k3s/k3s.yaml" }
+  tasks:
+    - name: Wait for API
+      shell: "kubectl get nodes"
+      environment: "{{ kubeenv }}"
+      register: kget
+      retries: 30
+      delay: 6
+      until: kget.rc == 0
+
+    - name: Apply kube-vip RBAC
+      shell: "kubectl apply -f https://kube-vip.io/manifests/rbac.yaml"
+      environment: "{{ kubeenv }}"
+
+    - name: Render kube-vip manifest (DaemonSet)
+      copy:
+        dest: /root/kube-vip.yaml
+        mode: '0644'
+        content: |
+          apiVersion: apps/v1
+          kind: DaemonSet
+          metadata:
+            name: kube-vip-ds
+            namespace: kube-system
+          spec:
+            selector:
+              matchLabels: { app: kube-vip }
+            template:
+              metadata:
+                labels: { app: kube-vip }
+              spec:
+                hostNetwork: true
+                tolerations:
+                  - key: "node-role.kubernetes.io/control-plane"
+                    operator: "Exists"
+                    effect: "NoSchedule"
+                containers:
+                  - name: kube-vip
+                    image: ghcr.io/kube-vip/kube-vip:{{ hostvars['localhost']._kubevip_version }}
+                    args: [ "manager" ]
+                    env:
+                      - { name: vip_arp,      value: "true" }
+                      - { name: address,      value: "{{ hostvars['localhost']._kubevip_vip }}" }
+                      - { name: interface,    value: "{{ ansible_default_ipv4.interface }}" }
+                      - { name: cp_enable,    value: "true" }
+                      - { name: cp_namespace, value: "kube-system" }
+                      - { name: lb_enable,    value: "false" }
+                    securityContext:
+                      capabilities:
+                        add: [ "NET_ADMIN", "NET_RAW" ]
+                nodeSelector:
+                  node-role.kubernetes.io/control-plane: "true"
+
+    - name: Apply kube-vip
+      shell: "kubectl apply -f /root/kube-vip.yaml"
+      environment: "{{ kubeenv }}"
+
+# ================================= METALLB =================================
+- hosts: "k3s_masters[0]"
+  become: true
+  vars:
+    kubeenv: { KUBECONFIG: "/etc/rancher/k3s/k3s.yaml" }
+  tasks:
+    - name: Install MetalLB
+      shell: "kubectl apply -f {{ hostvars['localhost']._metallb_native_url }}"
+      environment: "{{ kubeenv }}"
+
+    - name: Wait for metallb controller
+      shell: "kubectl -n metallb-system wait --for=condition=Available deployment/controller --timeout=240s"
+      environment: "{{ kubeenv }}"
+
+    - name: Apply MetalLB pool + L2Advertisement
+      copy:
+        dest: /root/metallb-pool.yaml
+        mode: '0644'
+        content: |
+          apiVersion: metallb.io/v1beta1
+          kind: IPAddressPool
+          metadata:
+            name: vlan201-pool
+            namespace: metallb-system
+          spec:
+            addresses: [ "{{ hostvars['localhost']._metallb_pool_range }}" ]
+          ---
+          apiVersion: metallb.io/v1beta1
+          kind: L2Advertisement
+          metadata:
+            name: vlan201-l2
+            namespace: metallb-system
+          spec:
+            ipAddressPools: [ "vlan201-pool" ]
+
+    - name: Apply MetalLB config
+      shell: "kubectl apply -f /root/metallb-pool.yaml"
+      environment: "{{ kubeenv }}"
+
+# ===================== HELM / CERT-MANAGER / RANCHER =====================
+- hosts: "k3s_masters[0]"
+  become: true
+  vars:
+    kubeenv: { KUBECONFIG: "/etc/rancher/k3s/k3s.yaml" }
+  tasks:
+    - name: Install Helm
+      shell: |
+        curl -fsSL -o /root/get_helm.sh {{ hostvars['localhost']._helm_get_script }}
+        chmod 700 /root/get_helm.sh
+        /root/get_helm.sh
+      args:
+        creates: /usr/local/bin/helm
+
+    - name: Install Cert-Manager CRDs
+      shell: "kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/{{ hostvars['localhost']._cert_manager_version }}/cert-manager.crds.yaml"
+      environment: "{{ kubeenv }}"
+
+    - name: Install Cert-Manager
+      shell: |
+        helm repo add jetstack https://charts.jetstack.io
+        helm repo update
+        helm upgrade --install cert-manager jetstack/cert-manager \
+          --namespace cert-manager --create-namespace \
+          --version {{ hostvars['localhost']._cert_manager_version }}
+      environment: "{{ kubeenv }}"
+
+    - name: Install Rancher
+      shell: |
+        helm repo add rancher-latest https://releases.rancher.com/server-charts/latest
+        helm repo update
+        kubectl create namespace cattle-system --dry-run=client -o yaml | kubectl apply -f -
+        helm upgrade --install rancher rancher-latest/rancher \
+          --namespace cattle-system \
+          --set hostname={{ hostvars['localhost']._rancher_hostname }} \
+          --set bootstrapPassword=admin
+      environment: "{{ kubeenv }}"
+
+# ================================= LONGHORN =================================
+- hosts: "k3s_masters[0]"
+  become: true
+  vars:
+    kubeenv: { KUBECONFIG: "/etc/rancher/k3s/k3s.yaml" }
+  tasks:
+    - name: Install Longhorn
+      shell: |
+        kubectl apply -f https://raw.githubusercontent.com/longhorn/longhorn/v1.6.1/deploy/longhorn.yaml
+      environment: "{{ kubeenv }}"
+      register: lh_out
+      failed_when: false
+
+    - debug:
+        msg: "Longhorn apply output: {{ lh_out.stdout | default('') }} {{ lh_out.stderr | default('') }}"
+
+# ================================ QUICK TEST ================================
+- hosts: "k3s_masters[0]"
+  become: true
+  vars:
+    kubeenv: { KUBECONFIG: "/etc/rancher/k3s/k3s.yaml" }
+  tasks:
+    - name: Deploy nginx and expose with LB
+      shell: |
+        set -e
+        kubectl create deploy nginx-1 --image=nginx:stable --dry-run=client -o yaml | kubectl apply -f -
+        kubectl expose deployment nginx-1 --port=80 --type=LoadBalancer --name=nginx-1
+        kubectl annotate svc nginx-1 metallb.universe.tf/address-pool=vlan201-pool --overwrite
+        kubectl get svc nginx-1 -o wide
+      environment: "{{ kubeenv }}"
+      args:
+        executable: /bin/bash
+      register: nginx_out
+      failed_when: false
+
+    - debug:
+        var: nginx_out.stdout

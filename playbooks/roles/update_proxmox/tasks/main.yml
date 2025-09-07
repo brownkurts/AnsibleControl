@@ -1,9 +1,82 @@
-    - name: Update all packages to latest
-      ansible.builtin.apt:
-        state: latest
-        update_cache: yes
+---
+- name: Build noninteractive APT environment
+  ansible.builtin.set_fact:
+    apt_env:
+      DEBIAN_FRONTEND: noninteractive
+      APT_LISTCHANGES_FRONTEND: none
+      NEEDRESTART_MODE: "{{ apt_needrestart_mode }}"
+      UCF_FORCE_CONFFNEW: "{{ apt_ucf_force_conffnew }}"
 
-    - name: Perform a dist-upgrade
-      ansible.builtin.apt:
-        update_cache: yes
-        upgrade: dist
+# --- Proxmox repo hygiene (safe to run on Debian, will just no-op) ---
+- name: Disable Proxmox enterprise repo (comment out)
+  ansible.builtin.replace:
+    path: /etc/apt/sources.list.d/pve-enterprise.list
+    regexp: '^(deb\s+http.*)$'
+    replace: '# \1'
+  when: pve_disable_enterprise_repo
+  ignore_errors: true
+
+- name: Ensure no-subscription repo is present
+  ansible.builtin.lineinfile:
+    path: /etc/apt/sources.list.d/pve-no-subscription.list
+    create: true
+    line: "{{ pve_no_subscription_line }}"
+    state: present
+  when: pve_enable_no_subscription_repo
+  ignore_errors: true
+
+# --- Updates ---
+- name: apt cache update (with lock wait + retries)
+  ansible.builtin.apt:
+    update_cache: yes
+    cache_valid_time: "{{ apt_cache_valid_time }}"
+    force_apt_get: "{{ apt_force_apt_get }}"
+    lock_timeout: "{{ apt_lock_timeout }}"
+  environment: "{{ apt_env }}"
+  register: _cache
+  retries: 3
+  delay: 10
+  until: _cache is succeeded
+
+- name: Upgrade packages to latest
+  ansible.builtin.apt:
+    state: latest
+    force_apt_get: "{{ apt_force_apt_get }}"
+    lock_timeout: "{{ apt_lock_timeout }}"
+    dpkg_options: "{{ apt_dpkg_options }}"
+  environment: "{{ apt_env }}"
+
+- name: dist-upgrade (kernel/deps)
+  ansible.builtin.apt:
+    upgrade: dist
+    force_apt_get: "{{ apt_force_apt_get }}"
+    lock_timeout: "{{ apt_lock_timeout }}"
+    dpkg_options: "{{ apt_dpkg_options }}"
+  environment: "{{ apt_env }}"
+
+- name: Autoremove unused deps
+  ansible.builtin.apt:
+    autoremove: yes
+    purge: yes
+    force_apt_get: "{{ apt_force_apt_get }}"
+    lock_timeout: "{{ apt_lock_timeout }}"
+  environment: "{{ apt_env }}"
+
+- name: Autoclean
+  ansible.builtin.apt:
+    autoclean: yes
+    force_apt_get: "{{ apt_force_apt_get }}"
+    lock_timeout: "{{ apt_lock_timeout }}"
+  environment: "{{ apt_env }}"
+
+# --- Reboot only if needed ---
+- name: Check if reboot is required
+  ansible.builtin.stat:
+    path: /var/run/reboot-required
+  register: reboot_flag
+
+- name: Trigger reboot handler when required
+  ansible.builtin.meta: flush_handlers
+  when: reboot_flag.stat.exists
+  notify: Reboot if required
+

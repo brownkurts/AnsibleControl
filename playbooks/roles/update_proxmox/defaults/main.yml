@@ -1,0 +1,19 @@
+---
+# APT behavior
+apt_force_apt_get: true
+apt_lock_timeout: 600
+apt_cache_valid_time: 3600
+apt_dpkg_options: "force-confdef,force-confold"
+
+# Non-interactive env
+apt_needrestart_mode: "a"      # auto-restart services
+apt_ucf_force_conffnew: "1"    # prefer new config files silently
+
+# Proxmox repo tweaks
+pve_disable_enterprise_repo: true
+pve_enable_no_subscription_repo: true
+pve_release: "{{ ansible_lsb.codename | default(ansible_distribution_release) | default('bookworm') }}"
+pve_no_subscription_line: "deb http://download.proxmox.com/debian/pve {{ pve_release }} pve-no-subscription"
+
+# Reboot
+reboot_timeout: 1200
