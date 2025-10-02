@@ -1,16 +1,19 @@
 ---
 - name: check disk space
-  hosts: "ubuntu, docker"
+  hosts: "ubuntu, docker, k3s, pihole"
   tasks:
     - name: get disk usage
-      command: df -h
-      register: disk_usage
-    - name: check disk space available
       shell: df -h / | awk 'NR==2 {print $5}'
       register: disk_usage
-    - name: Send notification message via Rocket Chat
-      rocketchat:
-        token: 64d84e3a7d3522bf44894dc0/HsoR2gS7bjDjzjKk8BNuQiKzQJCBTenj7aDKCSZFmPuC8zNh
-        domain: rocketchat.kbtech.org
-        msg: 'Disk space on {{ inventory_hostname }} is above 80%!'
-      when: disk_usage.stdout[:-1]|int > 80
+
+    - name: Send notification via Gotify
+      uri:
+        url: "https://gotify.kbtech.org/message?token=AsTCKdEFGMaMAb4"
+        method: POST
+        body_format: json
+        body:
+          message: "Disk space on {{ inventory_hostname }} is above 80%! (Used: {{ disk_usage.stdout }})"
+          title: "Disk Alert"
+          priority: 5
+        status_code: 200
+      when: disk_usage.stdout[:-1] | int > 80

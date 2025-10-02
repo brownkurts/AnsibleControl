@@ -3,12 +3,7 @@ Ansible ansible_host=192.168.200.18
 
 [ubuntu]
 Kasm ansible_host=192.168.201.14
-Unifi ansible_host=192.168.2.15
-rocketchat ansible_host=10.3.1.11
-#SGC ansible_host=192.168.2.30
-#tactical-rrm ansible_host=107.150.55.52
 destiny ansible_host=192.168.201.10
-odyssey ansible_host=10.3.1.13
 admin ansible_host=192.168.201.20
 
 
@@ -27,21 +22,10 @@ ansible_user=kurt
 ansible_ssh_pass=steven87
 ansible_sudo_pass=steven87
 
-[servers]
-server1 ansible_host=192.168.201.21
-server2 ansible_host=192.168.201.22
-server3 ansible_host=192.168.201.23
-
-[workers]
-workers1 ansible_host=192.168.201.24
-workers2 ansible_host=192.168.201.25
-workers3 ansible_host=192.168.201.26
-
 [k3s]
-
-[k3s:children]
-servers
-workers
+k3s-1 ansible_host=192.168.201.21
+k3s-2 ansible_host=192.168.201.22
+k3s-3 ansible_host=192.168.201.23
 
 [k3s:vars]
 ansible_user=kurt
