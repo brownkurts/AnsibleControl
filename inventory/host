@@ -4,7 +4,7 @@ Ansible ansible_host=192.168.200.18
 [ubuntu]
 Kasm ansible_host=192.168.201.14
 destiny ansible_host=192.168.201.10
-admin ansible_host=192.168.201.20
+
 
 
 
