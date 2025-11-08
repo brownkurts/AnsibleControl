@@ -64,13 +64,13 @@ ansible_sudo_pass=steven87
 ansible_transfer_method=scp
 
 [proxmoxNox]
-Proxmox-NOC ansible_host=107.150.55.50
+Proxmox-NOC ansible_host=74.91.16.2
 
 [proxmoxNox:vars]
 ansible_python_interpreter=/usr/bin/python3
 ansible_user=root
-ansible_ssh_pass=Iwqfcd9gys1r!
-ansible_sudo_pass=Iwqfcd9gys1r!
+ansible_ssh_pass=Wz2m6o0kjvmi!
+ansible_sudo_pass=Wz2m6o0kjvmi!
 
 
 [pve-dev]
