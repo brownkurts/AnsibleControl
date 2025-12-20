@@ -4,8 +4,9 @@ Ansible ansible_host=192.168.200.18
 [ubuntu]
 Kasm ansible_host=192.168.201.14
 destiny ansible_host=192.168.201.10
-
-
+docker-01 ansible_host=192.168.201.11
+docker-02 ansible_host=192.168.201.12
+docker-03 ansible_host=192.168.201.13
 
 
 [ubuntu:vars]
@@ -14,7 +15,9 @@ ansible_ssh_pass=steven87
 ansible_sudo_pass=steven87
 
 [docker]
-destiny ansible_host=192.168.201.10
+docker-01 ansible_host=192.168.201.11
+docker-02 ansible_host=192.168.201.12
+docker-03 ansible_host=192.168.201.13
 
 
 [docker:vars]
