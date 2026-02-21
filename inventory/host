@@ -2,12 +2,10 @@
 Ansible ansible_host=192.168.200.18
 
 [ubuntu]
-Kasm ansible_host=192.168.201.14
+Kasm ansible_host=10.3.1.15
 destiny ansible_host=192.168.201.10
-docker-01 ansible_host=192.168.201.11
-docker-02 ansible_host=192.168.201.12
-docker-03 ansible_host=192.168.201.13
-
+unifi ansible_host=74.91.16.5
+tactical ansible_host=74.91.16.4
 
 [ubuntu:vars]
 ansible_user=kurt

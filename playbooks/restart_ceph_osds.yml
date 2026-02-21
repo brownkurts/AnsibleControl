@@ -1,0 +1,90 @@
+---
+- name: Restart Ceph OSD on each host safely (auto-detect systemd/docker/podman)
+  hosts: docker
+  gather_facts: false
+  become: true
+  serial: 1
+
+  tasks:
+    - name: Check for systemd units that look like Ceph
+      ansible.builtin.shell: |
+        set -euo pipefail
+        systemctl list-unit-files --type=service --no-pager 2>/dev/null | awk '{print $1}' | egrep -x 'ceph-osd\.target|ceph\.target|ceph\.service' || true
+      args:
+        executable: /bin/bash
+      register: ceph_units
+      changed_when: false
+
+    - name: Restart Ceph via systemd if available (preferred)
+      ansible.builtin.shell: |
+        set -euo pipefail
+        # Prefer osd target, otherwise ceph target/service
+        if systemctl list-unit-files --type=service --no-pager | awk '{print $1}' | grep -qx 'ceph-osd.target'; then
+          systemctl restart ceph-osd.target
+        elif systemctl list-unit-files --type=service --no-pager | awk '{print $1}' | grep -qx 'ceph.target'; then
+          systemctl restart ceph.target
+        elif systemctl list-unit-files --type=service --no-pager | awk '{print $1}' | grep -qx 'ceph.service'; then
+          systemctl restart ceph.service
+        else
+          exit 2
+        fi
+      args:
+        executable: /bin/bash
+      register: systemd_restart
+      changed_when: true
+      failed_when: false
+
+    - name: Find a Ceph OSD container (docker)
+      ansible.builtin.shell: |
+        set -euo pipefail
+        if command -v docker >/dev/null 2>&1; then
+          docker ps --format '{{"{{"}}.ID{{"}}"}} {{"{{"}}.Command{{"}}"}} {{"{{"}}.Names{{"}}"}}' \
+            | grep -E 'ceph-osd' \
+            | awk 'NR==1{print $1}'
+        fi
+      args:
+        executable: /bin/bash
+      register: docker_osd
+      changed_when: false
+      failed_when: false
+      when: systemd_restart.rc != 0
+
+    - name: Restart docker OSD container if found
+      ansible.builtin.command: "docker restart {{ docker_osd.stdout }}"
+      when:
+        - systemd_restart.rc != 0
+        - docker_osd.stdout is defined
+        - docker_osd.stdout | length > 0
+
+    - name: Find a Ceph OSD container (podman)
+      ansible.builtin.shell: |
+        set -euo pipefail
+        if command -v podman >/dev/null 2>&1; then
+          podman ps --format '{{"{{"}}.ID{{"}}"}} {{"{{"}}.Command{{"}}"}} {{"{{"}}.Names{{"}}"}}' \
+            | grep -E 'ceph-osd' \
+            | awk 'NR==1{print $1}'
+        fi
+      args:
+        executable: /bin/bash
+      register: podman_osd
+      changed_when: false
+      failed_when: false
+      when:
+        - systemd_restart.rc != 0
+        - docker_osd.stdout | default('') | length == 0
+
+    - name: Restart podman OSD container if found
+      ansible.builtin.command: "podman restart {{ podman_osd.stdout }}"
+      when:
+        - systemd_restart.rc != 0
+        - docker_osd.stdout | default('') | length == 0
+        - podman_osd.stdout is defined
+        - podman_osd.stdout | length > 0
+
+    - name: Reboot host as last resort (no systemd unit or container found)
+      ansible.builtin.reboot:
+        reboot_timeout: 900
+      when:
+        - systemd_restart.rc != 0
+        - docker_osd.stdout | default('') | length == 0
+        - podman_osd.stdout | default('') | length == 0

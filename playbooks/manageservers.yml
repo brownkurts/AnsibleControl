@@ -1,15 +1,24 @@
 - name: Manage Ubuntu Servers
-  hosts: ubuntu, docker, k3s
+  hosts: ubuntu
   become: true
   gather_facts: true
   roles:
-    # - nfs_mount
     - ipv6-disable
     - packages
     - qemu-guest-agent
     - update_linux
-    # - Linuxrmm
     - reboot
+
+- name: Rolling updates for swarm nodes (Ceph-aware)
+  hosts: docker
+  serial: 1
+  any_errors_fatal: true
+  become: true
+  roles:
+    - ipv6-disable
+    - packages
+    - qemu-guest-agent
+    - swarm_ceph_rolling_update
 
 - name: Manage PiHole Servers
   hosts: pihole
@@ -21,7 +30,6 @@
     - qemu-guest-agent
     - update_linux
     - PiHole_update
-    # - Linuxrmm
     - reboot
 
 - name: Manage proxmox Servers

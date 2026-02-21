@@ -1,0 +1,18 @@
+---
+- name: Prechecks (Ceph + Swarm membership)
+  ansible.builtin.import_tasks: prechecks.yml
+
+- name: Drain node from swarm (if applicable)
+  ansible.builtin.import_tasks: drain.yml
+
+- name: Update packages
+  ansible.builtin.import_tasks: update.yml
+
+- name: Reboot if needed
+  ansible.builtin.import_tasks: reboot.yml
+
+- name: Postchecks (Ceph health)
+  ansible.builtin.import_tasks: postchecks.yml
+
+- name: Undrain node back to active
+  ansible.builtin.import_tasks: undrain.yml

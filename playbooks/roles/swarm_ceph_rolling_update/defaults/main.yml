@@ -1,0 +1,20 @@
+---
+apt_cache_valid_time: 3600
+reboot_if_needed: true
+reboot_timeout: 1800
+
+# Swarm behavior
+drain_workers: true
+drain_managers: false   # usually safer to NOT drain managers unless you know what you're doing
+swarm_delegate_manager: "{{ (groups[swarm_managers_group] | default([])) | first }}"
+
+# Inventory group names (set these to match your inventory)
+swarm_group: "swarm"
+swarm_managers_group: "swarm_managers"
+
+# Ceph behavior
+require_ceph_healthy: true
+ceph_health_ok_regex: "HEALTH_OK"
+
+# How long to pause after draining for reschedules
+drain_pause_seconds: 20

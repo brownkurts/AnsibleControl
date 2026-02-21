@@ -1,0 +1,112 @@
+---
+- name: Grow Ceph Bluestore OSD LVM (discover via LVM, no hardcoded sda/sdb)
+  hosts: docker
+  gather_facts: false
+  become: true
+
+  vars:
+    # Optional: target a single LV (full path). Leave empty to auto-discover.
+    # Example: /dev/ceph-<fsid>/osd-block-<uuid>
+    osd_lv_path: ""
+
+  tasks:
+    - name: Ensure required tools exist
+      ansible.builtin.package:
+        name:
+          - lvm2
+          - util-linux
+        state: present
+
+    - name: Discover OSD block LVs using LVM (paths)
+      ansible.builtin.shell: |
+        set -euo pipefail
+        if [ -n "{{ osd_lv_path }}" ]; then
+          test -e "{{ osd_lv_path }}" && echo "{{ osd_lv_path }}" || true
+          exit 0
+        fi
+        lvs --noheadings -o lv_path,lv_name 2>/dev/null \
+          | awk '$2 ~ /^osd-block-/ {print $1}' \
+          | sort -u
+      args:
+        executable: /bin/bash
+      register: osd_lvs
+      changed_when: false
+
+    - name: Fail if no OSD LVs found
+      ansible.builtin.fail:
+        msg: >-
+          No Ceph OSD LVM LVs found (lv_name osd-block-*). This host may not be an LVM/Bluestore OSD node.
+      when: (osd_lvs.stdout_lines | length) == 0
+
+    - name: Set target LV list
+      ansible.builtin.set_fact:
+        target_osd_lvs: "{{ osd_lvs.stdout_lines }}"
+
+    - name: Determine PV disk(s) backing each OSD LV (via VG -> PV)
+      ansible.builtin.shell: |
+        set -euo pipefail
+        vg="$(lvs --noheadings -o vg_name {{ item | quote }} | awk '{print $1}')"
+        test -n "$vg"
+        pvs --noheadings -o pv_name --select "vg_name=$vg" | awk '{print $1}'
+      args:
+        executable: /bin/bash
+      loop: "{{ target_osd_lvs }}"
+      register: vg_pvs
+      changed_when: false
+
+    - name: Build list of unique PV disks to pvresize
+      ansible.builtin.set_fact:
+        pv_disks: "{{ (vg_pvs.results | map(attribute='stdout_lines') | list | flatten) | unique }}"
+
+    - name: Show what will be modified
+      ansible.builtin.debug:
+        msg:
+          - "OSD LV(s): {{ target_osd_lvs }}"
+          - "PV disk(s) to pvresize: {{ pv_disks }}"
+
+    - name: Capture LV sizes (bytes) before
+      ansible.builtin.shell: |
+        set -euo pipefail
+        for lv in {{ target_osd_lvs | map('quote') | join(' ') }}; do
+          echo -n "$lv "
+          blockdev --getsize64 "$lv"
+        done
+      args:
+        executable: /bin/bash
+      register: sizes_before
+      changed_when: false
+
+    - name: pvresize PV disk(s)
+      ansible.builtin.command: "pvresize {{ item }}"
+      loop: "{{ pv_disks }}"
+      register: pvresize_out
+      changed_when: "'resized' in (pvresize_out.stdout | lower) or 'changed' in (pvresize_out.stdout | lower)"
+
+    - name: Extend each OSD LV to use all free extents
+      ansible.builtin.command: "lvextend -l +100%FREE {{ item }}"
+      loop: "{{ target_osd_lvs }}"
+      register: lvextend_out
+      changed_when: >
+        ('successfully resized' in (lvextend_out.stdout | lower)) or
+        ('changed from' in (lvextend_out.stdout | lower))
+      failed_when:
+        - lvextend_out.rc != 0
+        - "'matches existing size' not in (lvextend_out.stderr | lower)"
+
+    - name: Capture LV sizes (bytes) after
+      ansible.builtin.shell: |
+        set -euo pipefail
+        for lv in {{ target_osd_lvs | map('quote') | join(' ') }}; do
+          echo -n "$lv "
+          blockdev --getsize64 "$lv"
+        done
+      args:
+        executable: /bin/bash
+      register: sizes_after
+      changed_when: false
+
+    - name: Report before/after
+      ansible.builtin.debug:
+        msg:
+          - "Before: {{ sizes_before.stdout_lines }}"
+          - "After : {{ sizes_after.stdout_lines }}"

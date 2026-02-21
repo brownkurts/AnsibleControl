@@ -1,0 +1,42 @@
+---
+- name: Skip drain if not in swarm
+  ansible.builtin.meta: end_task
+  when: not (in_swarm | default(false))
+
+- name: Determine if this node is a manager
+  ansible.builtin.command: docker info -f '{{ "{{" }} .Swarm.ControlAvailable {{ "}}" }}'
+  register: swarm_is_manager
+  changed_when: false
+  failed_when: false
+  when: in_swarm | default(false)
+
+- name: "Set fact: is_manager_node"
+  ansible.builtin.set_fact:
+    is_manager_node: "{{ (swarm_is_manager.stdout | default('false')) | lower == 'true' }}"
+  when: in_swarm | default(false)
+
+- name: Decide if we should drain this node
+  ansible.builtin.set_fact:
+    should_drain: >-
+      {{
+        (drain_workers and not (is_manager_node | default(false)))
+        or
+        (drain_managers and (is_manager_node | default(false)))
+      }}
+  when: in_swarm | default(false)
+
+- name: Drain node (run from a manager)
+  ansible.builtin.command: "docker node update --availability drain {{ inventory_hostname }}"
+  delegate_to: "{{ swarm_delegate_manager }}"
+  when:
+    - in_swarm | default(false)
+    - should_drain | default(false)
+    - swarm_delegate_manager is defined
+    - swarm_delegate_manager | length > 0
+
+- name: Wait for tasks to move off the node
+  ansible.builtin.pause:
+    seconds: "{{ drain_pause_seconds }}"
+  when:
+    - in_swarm | default(false)
+    - should_drain | default(false)

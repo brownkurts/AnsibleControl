@@ -1,0 +1,8 @@
+---
+- name: Update Ubuntu (dist-upgrade)
+  when: ansible_facts['os_family'] == 'Debian'
+  become: true
+  ansible.builtin.apt:
+    upgrade: dist
+    update_cache: true
+    cache_valid_time: "{{ apt_cache_valid_time }}"
