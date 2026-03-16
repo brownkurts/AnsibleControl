@@ -1,5 +1,5 @@
 [control]
-Ansible ansible_host=192.168.200.18
+Ansible ansible_host=192.168.2.156
 
 [ubuntu]
 Kasm ansible_host=10.3.1.15
@@ -64,10 +64,8 @@ ansible_user=root
 Proxmox-NOC ansible_host=74.91.16.2
 
 [proxmoxNox:vars]
-
 ansible_user=root
-ansible_ssh_pass=Wz2m6o0kjvmi!
-ansible_sudo_pass=Wz2m6o0kjvmi!
+
 
 
 [WidnowsServers]
@@ -79,7 +77,6 @@ Brown-Broker ansible_host=192.168.2.6
 [WidnowsServers:vars]
 ANSIBLE_HOST_KEY_CHECKING=false
 ansible_user=services
-1!!
 ansible_connection=ssh
 ansible_shell_type=cmd
 

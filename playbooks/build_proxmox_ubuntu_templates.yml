@@ -1,0 +1,8 @@
+---
+- name: Build Ubuntu cloud-init templates on all Proxmox nodes
+  hosts: localhost
+  connection: local
+  gather_facts: false
+
+  roles:
+    - role: proxmox_ubuntu_template

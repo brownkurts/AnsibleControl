@@ -1,0 +1,70 @@
+---
+ansible_user: kurt
+ansible_become: true
+ansible_python_interpreter: /usr/bin/python3
+
+os: "linux"
+arch: "amd64"
+
+vip: 192.168.201.50
+
+metallb_version: v0.14.9
+lb_range: 192.168.201.60-192.168.201.90
+lb_pool_name: first-pool
+
+ansible_become_method: sudo
+
+proxmox_api_host: "192.168.2.201"
+proxmox_api_user: "root@pam"
+proxmox_api_token_id: "ansible"
+proxmox_validate_certs: false
+
+proxmox_template_image_dir: "/var/lib/vz/template/qcow2"
+proxmox_template_snippet_storage: "local"
+proxmox_template_agent: 1
+proxmox_template_bridge: "vmbr0"
+proxmox_template_ciuser: "kurt"
+proxmox_template_nameserver: "1.1.1.1"
+proxmox_template_searchdomain: "brown.local"
+proxmox_template_memory: 2048
+proxmox_template_cores: 2
+proxmox_template_sockets: 1
+proxmox_template_cpu: "x86-64-v2-AES"
+proxmox_template_scsihw: "virtio-scsi-pci"
+proxmox_template_disk_format: "qcow2"
+proxmox_template_storage_default: "local-lvm"
+proxmox_template_network_model: "virtio"
+proxmox_template_ostype: "l26"
+proxmox_template_onboot: false
+proxmox_template_balloon: 0
+
+proxmox_ubuntu_template:
+  template_name_prefix: "tpl-ubuntu-2404"
+  image_url: "https://cloud-images.ubuntu.com/noble/current/noble-server-cloudimg-amd64.img"
+  image_filename: "noble-server-cloudimg-amd64.img"
+  checksum_url: "https://cloud-images.ubuntu.com/noble/current/SHA256SUMS"
+  image_checksum_algorithm: "sha256"
+  ssh_public_key_file: "~/.ssh/id_ed25519.pub"
+  reboot_after_template_build: false
+  force_rebuild: false
+
+proxmox_template_targets:
+  - node: "PROXMOX-01"
+    vmid: 9001
+    name_suffix: "proxmox-01"
+    storage: "local-lvm"
+
+  - node: "PROXMOX03"
+    vmid: 9002
+    name_suffix: "proxmox03"
+    storage: "local-lvm"
+
+  - node: "PROXMOX05"
+    vmid: 9003
+    name_suffix: "proxmox05"
+    storage: "local-lvm"
+
+  - node: "pve-4"
+    vmid: 9004
+    name_suffix: "pve-4"
+    storage: "local-lvm"
