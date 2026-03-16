@@ -1,4 +1,8 @@
 ---
+ansible_user: kurt
+ansible_become: true
+ansible_python_interpreter: /usr/bin/python3
+
 os: "linux"
 arch: "amd64"
 
@@ -8,7 +12,6 @@ metallb_version: v0.14.9
 lb_range: 192.168.201.60-192.168.201.90
 lb_pool_name: first-pool
 
-ansible_become: true
 ansible_become_method: sudo
 ################################################################################
 # options to change default values

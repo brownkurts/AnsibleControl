@@ -9,8 +9,8 @@ tactical ansible_host=74.91.16.4
 
 [ubuntu:vars]
 ansible_user=kurt
-ansible_ssh_pass=steven87
-ansible_sudo_pass=steven87
+
+
 
 [docker]
 docker-01 ansible_host=192.168.201.11
@@ -20,8 +20,8 @@ docker-03 ansible_host=192.168.201.13
 
 [docker:vars]
 ansible_user=kurt
-ansible_ssh_pass=steven87
-ansible_sudo_pass=steven87
+
+
 
 [k3s]
 k3s-1 ansible_host=192.168.201.21
@@ -36,8 +36,8 @@ ansible_user=kurt
 
 [wazuh_server:vars]
 ansible_user=kurt
-ansible_ssh_pass=steven87
-ansible_sudo_pass=steven87
+
+
 
 [pihole]
 Pihole01 ansible_host=192.168.2.3
@@ -47,8 +47,8 @@ Pihole04 ansible_host=10.3.1.2
 
 [pihole:vars]
 ansible_user=kurt
-ansible_ssh_pass=steven87
-ansible_sudo_pass=steven87
+
+
 
 
 [proxmox]
@@ -58,33 +58,17 @@ PROXMOX4 ansible_host=192.168.1.200
 PROXMOX05 ansible_host=192.168.2.215
 
 [proxmox:vars]
-ansible_python_interpreter=/usr/bin/python3
 ansible_user=root
-ansible_ssh_pass=steven87
-ansible_sudo_pass=steven87
-ansible_transfer_method=scp
 
 [proxmoxNox]
 Proxmox-NOC ansible_host=74.91.16.2
 
 [proxmoxNox:vars]
-ansible_python_interpreter=/usr/bin/python3
+
 ansible_user=root
 ansible_ssh_pass=Wz2m6o0kjvmi!
 ansible_sudo_pass=Wz2m6o0kjvmi!
 
-
-[pve-dev]
-pve-dev1 ansible_host=192.168.200.91
-pve-dev2 ansible_host=192.168.200.92
-pve-dev3 ansible_host=192.168.200.93
-
-
-[pve-dev:vars]
-ansible_python_interpreter=/usr/bin/python3
-ansible_user=root
-ansible_ssh_pass=steven87
-ansible_sudo_pass=steven87
 
 [WidnowsServers]
 Brown-DC1 ansible_host=192.168.2.5
@@ -95,7 +79,7 @@ Brown-Broker ansible_host=192.168.2.6
 [WidnowsServers:vars]
 ANSIBLE_HOST_KEY_CHECKING=false
 ansible_user=services
-ansible_ssh_pass=Steven871!!
+1!!
 ansible_connection=ssh
 ansible_shell_type=cmd
 
@@ -107,6 +91,6 @@ Windows-11VM ansible_host=192.168.2.16
 [Windows:vars]
 ANSIBLE_HOST_KEY_CHECKING=false
 ansible_user=kurt
-ansible_ssh_pass=steven87
+
 ansible_connection=ssh
 ansible_shell_type=cmd
