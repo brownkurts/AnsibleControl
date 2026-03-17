@@ -52,17 +52,17 @@ proxmox_template_targets:
     name_suffix: "proxmox-01"
     storage: "local-lvm"
 
-  - node: proxmox03""
+  - node: "proxmox03"
     vmid: 9002
     name_suffix: "proxmox03"
     storage: "local-lvm"
 
-  - node: "proxmox05"
-    vmid: 9003
-    name_suffix: "proxmox05"
-    storage: "local-lvm"
+  # - node: "proxmox05"
+  #   vmid: 9003
+  #   name_suffix: "proxmox05"
+  #   storage: "local-lvm"
 
-  - node: "pve-4"
-    vmid: 9004
-    name_suffix: "pve-4"
-    storage: "local-lvm"
+  # - node: "pve-4"
+  #   vmid: 9004
+  #   name_suffix: "pve-4"
+    #  storage: "local-lvm"

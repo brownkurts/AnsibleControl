@@ -53,9 +53,9 @@ ansible_user=kurt
 
 [proxmox]
 PROXMOX-01 ansible_host=192.168.2.201
-PROXMOX03 ansible_host=192.168.2.212
+proxmox03 ansible_host=192.168.2.212
 PVE3 ansible_host=192.168.1.200
-PROXMOX05 ansible_host=192.168.2.215
+proxmox05 ansible_host=192.168.2.215
 pve-4 ansible_host=192.168.2.204
 
 [proxmox:vars]
