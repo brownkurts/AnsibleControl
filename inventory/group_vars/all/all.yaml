@@ -1,6 +1,4 @@
 ---
-ansible_user: kurt
-ansible_become: true
 ansible_python_interpreter: /usr/bin/python3
 
 os: "linux"
@@ -54,12 +52,12 @@ proxmox_template_targets:
     name_suffix: "proxmox-01"
     storage: "local-lvm"
 
-  - node: "PROXMOX03"
+  - node: proxmox03""
     vmid: 9002
     name_suffix: "proxmox03"
     storage: "local-lvm"
 
-  - node: "PROXMOX05"
+  - node: "proxmox05"
     vmid: 9003
     name_suffix: "proxmox05"
     storage: "local-lvm"

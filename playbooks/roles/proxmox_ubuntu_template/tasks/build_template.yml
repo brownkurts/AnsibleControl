@@ -22,9 +22,12 @@
   delegate_to: "{{ proxmox_template_target.node }}"
   become: true
 
+- name: Set qm_bin fact
+  ansible.builtin.set_fact:
+    qm_bin: "/usr/sbin/qm"
+
 - name: Check whether VMID already exists on target node
-  ansible.builtin.command:
-    cmd: "qm status {{ proxmox_template_target.vmid }}"
+  ansible.builtin.raw: "{{ qm_bin }} status {{ proxmox_template_target.vmid }}"
   register: proxmox_template_vmid_status
   failed_when: false
   changed_when: false
@@ -32,8 +35,7 @@
   become: true
 
 - name: Remove existing VM when force_rebuild is enabled
-  ansible.builtin.command:
-    cmd: "qm destroy {{ proxmox_template_target.vmid }} --purge 1 --destroy-unreferenced-disks 1"
+  ansible.builtin.raw: "{{ qm_bin }} destroy {{ proxmox_template_target.vmid }} --purge 1 --destroy-unreferenced-disks 1"
   when:
     - proxmox_ubuntu_template.force_rebuild | bool
     - proxmox_template_vmid_status.rc == 0
@@ -41,8 +43,7 @@
   become: true
 
 - name: Refresh VMID status after optional destroy
-  ansible.builtin.command:
-    cmd: "qm status {{ proxmox_template_target.vmid }}"
+  ansible.builtin.raw: "{{ qm_bin }} status {{ proxmox_template_target.vmid }}"
   register: proxmox_template_vmid_status_after_destroy
   failed_when: false
   changed_when: false
@@ -74,73 +75,52 @@
   when: proxmox_template_vmid_status_after_destroy.rc != 0
 
 - name: Check whether imported disk already exists
-  ansible.builtin.command:
-    cmd: "qm config {{ proxmox_template_target.vmid }}"
+  ansible.builtin.raw: "{{ qm_bin }} config {{ proxmox_template_target.vmid }}"
   register: proxmox_template_config_before_import
   changed_when: false
   delegate_to: "{{ proxmox_template_target.node }}"
   become: true
 
 - name: Import Ubuntu image disk
-  ansible.builtin.command:
-    cmd: >
-      qm importdisk {{ proxmox_template_target.vmid }}
-      {{ proxmox_template_image_path }}
-      {{ proxmox_template_storage }}
-      --format {{ proxmox_template_disk_format }}
+  ansible.builtin.raw: >
+    {{ qm_bin }} importdisk {{ proxmox_template_target.vmid }}
+    {{ proxmox_template_image_path }}
+    {{ proxmox_template_storage }}
+    --format {{ proxmox_template_disk_format }}
   when: "'unused0:' not in proxmox_template_config_before_import.stdout and 'scsi0:' not in proxmox_template_config_before_import.stdout"
   delegate_to: "{{ proxmox_template_target.node }}"
   become: true
 
 - name: Refresh config after disk import
-  ansible.builtin.command:
-    cmd: "qm config {{ proxmox_template_target.vmid }}"
+  ansible.builtin.raw: "{{ qm_bin }} config {{ proxmox_template_target.vmid }}"
   register: proxmox_template_config_after_import
   changed_when: false
   delegate_to: "{{ proxmox_template_target.node }}"
   become: true
 
 - name: Attach imported disk as scsi0
-  ansible.builtin.command:
-    cmd: "qm set {{ proxmox_template_target.vmid }} --scsi0 {{ proxmox_template_storage }}:vm-{{ proxmox_template_target.vmid }}-disk-0"
+  ansible.builtin.raw: "{{ qm_bin }} set {{ proxmox_template_target.vmid }} --scsi0 {{ proxmox_template_storage }}:vm-{{ proxmox_template_target.vmid }}-disk-0"
   when: "'scsi0:' not in proxmox_template_config_after_import.stdout"
   delegate_to: "{{ proxmox_template_target.node }}"
   become: true
 
 - name: Add cloud-init drive
-  ansible.builtin.command:
-    cmd: "qm set {{ proxmox_template_target.vmid }} --ide2 {{ proxmox_template_snippet_storage }}:cloudinit"
+  ansible.builtin.raw: "{{ qm_bin }} set {{ proxmox_template_target.vmid }} --ide2 {{ proxmox_template_snippet_storage }}:cloudinit"
   when: "'ide2:' not in proxmox_template_config_after_import.stdout"
   delegate_to: "{{ proxmox_template_target.node }}"
   become: true
 
 - name: Configure boot order
-  ansible.builtin.command:
-    cmd: "qm set {{ proxmox_template_target.vmid }} --boot order=scsi0"
+  ansible.builtin.raw: "{{ qm_bin }} set {{ proxmox_template_target.vmid }} --boot order=scsi0"
   delegate_to: "{{ proxmox_template_target.node }}"
   become: true
   changed_when: true
 
 - name: Configure serial console
-  ansible.builtin.command:
-    cmd: "qm set {{ proxmox_template_target.vmid }} --serial0 socket --vga serial0"
+  ansible.builtin.raw: "{{ qm_bin }} set {{ proxmox_template_target.vmid }} --serial0 socket --vga serial0"
   delegate_to: "{{ proxmox_template_target.node }}"
   become: true
   changed_when: true
-
-- name: Configure cloud-init defaults
-  ansible.builtin.command:
-    cmd: >
-      qm set {{ proxmox_template_target.vmid }}
-      --ciuser {{ proxmox_template_ciuser }}
-      --nameserver {{ proxmox_template_nameserver }}
-      {% if proxmox_template_searchdomain | length > 0 %}--searchdomain {{ proxmox_template_searchdomain }}{% endif %}
-      --sshkeys /tmp/proxmox_template_ssh_key_{{ proxmox_template_target.vmid }}.pub
-  delegate_to: "{{ proxmox_template_target.node }}"
-  become: true
-  changed_when: true
-  vars:
-    ansible_shell_executable: /bin/bash
 
 - name: Copy SSH public key to target node for qm set
   ansible.builtin.copy:
@@ -150,14 +130,13 @@
   delegate_to: "{{ proxmox_template_target.node }}"
   become: true
 
-- name: Re-run cloud-init defaults after key file exists
-  ansible.builtin.command:
-    cmd: >
-      qm set {{ proxmox_template_target.vmid }}
-      --ciuser {{ proxmox_template_ciuser }}
-      --nameserver {{ proxmox_template_nameserver }}
-      {% if proxmox_template_searchdomain | length > 0 %}--searchdomain {{ proxmox_template_searchdomain }}{% endif %}
-      --sshkeys /tmp/proxmox_template_ssh_key_{{ proxmox_template_target.vmid }}.pub
+- name: Configure cloud-init defaults
+  ansible.builtin.raw: >
+    {{ qm_bin }} set {{ proxmox_template_target.vmid }}
+    --ciuser {{ proxmox_template_ciuser }}
+    --nameserver {{ proxmox_template_nameserver }}
+    {% if proxmox_template_searchdomain | length > 0 %}--searchdomain {{ proxmox_template_searchdomain }}{% endif %}
+    --sshkeys /tmp/proxmox_template_ssh_key_{{ proxmox_template_target.vmid }}.pub
   delegate_to: "{{ proxmox_template_target.node }}"
   become: true
   changed_when: true
@@ -170,16 +149,14 @@
   become: true
 
 - name: Resize disk to 8G
-  ansible.builtin.command:
-    cmd: "qm resize {{ proxmox_template_target.vmid }} scsi0 8G"
+  ansible.builtin.raw: "{{ qm_bin }} resize {{ proxmox_template_target.vmid }} scsi0 8G"
   failed_when: false
   changed_when: false
   delegate_to: "{{ proxmox_template_target.node }}"
   become: true
 
 - name: Mark VM as template
-  ansible.builtin.command:
-    cmd: "qm template {{ proxmox_template_target.vmid }}"
+  ansible.builtin.raw: "{{ qm_bin }} template {{ proxmox_template_target.vmid }}"
   register: proxmox_mark_template_result
   failed_when:
     - proxmox_mark_template_result.rc != 0
