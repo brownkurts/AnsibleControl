@@ -1,13 +1,13 @@
-# - name: Manage Ubuntu Servers
-#   hosts: ubuntu
-#   become: true
-#   gather_facts: true
-#   roles:
-#     - ipv6-disable
-#     - packages
-#     - qemu-guest-agent
-#     - update_linux
-#     - reboot
+- name: Manage Ubuntu Servers
+  hosts: ubuntu
+  become: true
+  gather_facts: true
+  roles:
+    - ipv6-disable
+    - packages
+    - qemu-guest-agent
+    - update_linux
+    - reboot
 
 - name: Rolling updates for swarm nodes (Ceph-aware)
   hosts: docker
@@ -20,24 +20,24 @@
     - qemu-guest-agent
     - swarm_ceph_rolling_update
 
-# - name: Manage PiHole Servers
-#   hosts: pihole
-#   become: true
-#   gather_facts: true
-#   roles:
-#     - ipv6-disable
-#     - packages
-#     - qemu-guest-agent
-#     - update_linux
-#     - PiHole_update
-#     - reboot
+- name: Manage PiHole Servers
+  hosts: pihole
+  become: true
+  gather_facts: true
+  roles:
+    - ipv6-disable
+    - packages
+    - qemu-guest-agent
+    - update_linux
+    - PiHole_update
+    - reboot
 
-# - name: Manage proxmox Servers
-#   hosts: proxmox, proxmoxNox
-#   become: true
-#   gather_facts: false
-#   roles:
-#     - update_proxmox
+- name: Manage proxmox Servers
+  hosts: proxmox, proxmoxNox
+  become: true
+  gather_facts: false
+  roles:
+    - update_proxmox
 
 
 

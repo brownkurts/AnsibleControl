@@ -1,0 +1,74 @@
+---
+- name: Bootstrap ansible-pull on all managed servers
+  hosts: all
+  become: true
+  gather_facts: true
+
+  vars:
+    ansible_pull_repo_url: "https://github.com/brownkurts/ansible_pull_servers.git"
+    ansible_pull_branch: "main"
+    ansible_pull_playbook: "local.yml"
+    ansible_pull_inventory: "localhost,"
+    ansible_pull_limit: "localhost"
+
+    ansible_pull_git_username: "brownkurts"
+    ansible_pull_git_token: "{{ vault_github_pat }}"
+
+    ansible_pull_enable_cron: true
+    ansible_pull_run_now: false
+    ansible_pull_cron_minute: "*/30"
+    ansible_pull_log_file: "/var/log/ansible-pull.log"
+
+  tasks:
+    - name: Validate required GitHub token
+      ansible.builtin.assert:
+        that:
+          - ansible_pull_git_token is defined
+          - ansible_pull_git_token | length > 0
+        fail_msg: "vault_github_pat must be defined."
+
+    - name: Install required packages
+      ansible.builtin.package:
+        name:
+          - ansible
+          - git
+        state: present
+
+    - name: Write root Git credentials
+      ansible.builtin.copy:
+        dest: /root/.git-credentials
+        owner: root
+        group: root
+        mode: "0600"
+        content: |
+          https://{{ ansible_pull_git_username }}:{{ ansible_pull_git_token }}@github.com
+
+    - name: Configure Git credential helper for root
+      ansible.builtin.command: git config --global credential.helper store
+      changed_when: false
+
+    - name: Create ansible-pull cron job
+      ansible.builtin.cron:
+        name: "ansible-pull"
+        user: root
+        minute: "{{ ansible_pull_cron_minute }}"
+        job: >-
+          /usr/bin/ansible-pull -o
+          -U {{ ansible_pull_repo_url }}
+          -C {{ ansible_pull_branch }}
+          -i {{ ansible_pull_inventory }}
+          -l {{ ansible_pull_limit }}
+          {{ ansible_pull_playbook }}
+          >> {{ ansible_pull_log_file }} 2>&1
+      when: ansible_pull_enable_cron | bool
+
+    - name: Run ansible-pull now
+      ansible.builtin.command: >-
+        /usr/bin/ansible-pull -o
+        -U {{ ansible_pull_repo_url }}
+        -C {{ ansible_pull_branch }}
+        -i {{ ansible_pull_inventory }}
+        -l {{ ansible_pull_limit }}
+        {{ ansible_pull_playbook }}
+      when: ansible_pull_run_now | bool
+      changed_when: true
