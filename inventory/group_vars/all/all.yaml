@@ -1,16 +1,18 @@
 ---
 ansible_python_interpreter: /usr/bin/python3
+ansible_become_method: sudo
 
 os: "linux"
 arch: "amd64"
 
-vip: 192.168.201.50
+vip: "192.168.201.50"
+k3s_api_vip: "192.168.201.50"
+k3s_primary_server_ip: "192.168.201.51"
+k3s_iface: "eth0"
 
-metallb_version: v0.14.9
-lb_range: 192.168.201.60-192.168.201.90
-lb_pool_name: first-pool
-
-ansible_become_method: sudo
+metallb_version: "v0.14.9"
+lb_range: "192.168.201.60-192.168.201.90"
+lb_pool_name: "first-pool"
 
 proxmox_api_host: "192.168.2.201"
 proxmox_api_user: "root@pam"
@@ -57,12 +59,69 @@ proxmox_template_targets:
     name_suffix: "proxmox03"
     storage: "local-lvm"
 
-  # - node: "proxmox05"
-  #   vmid: 9003
-  #   name_suffix: "proxmox05"
-  #   storage: "local-lvm"
+  - node: "proxmox05"
+    vmid: 9003
+    name_suffix: "proxmox05"
+    storage: "ceph"
 
-  # - node: "pve-4"
-  #   vmid: 9004
-  #   name_suffix: "pve-4"
-    #  storage: "local-lvm"
+k3s_version: "v1.31"
+k3s_version_channel: "v1.31"
+k3s_cluster_token: "CHANGE_ME_LONG_RANDOM_TOKEN"
+k3s_disable_traefik: false
+k3s_disable_servicelb: true
+k3s_write_kubeconfig_mode: "0644"
+
+k3s_node_cidr: "192.168.201.0/24"
+k3s_gateway: "192.168.201.1"
+k3s_dns_servers:
+  - "1.1.1.1"
+  - "8.8.8.8"
+
+k3s_servers:
+  - name: "k3s-1"
+    vmid: 2101
+    proxmox_node: "PROXMOX-01"
+    clone_template: "tpl-ubuntu-2404-proxmox-01"
+    ip: "192.168.201.51"
+    cidr: 24
+    gateway: "192.168.201.1"
+    vlan_tag: 201
+    cores: 4
+    memory: 8192
+    disk_gb: 80
+    longhorn_disk_gb: 100
+    storage: "local-lvm"
+
+  - name: "k3s-2"
+    vmid: 2102
+    proxmox_node: "proxmox03"
+    clone_template: "tpl-ubuntu-2404-proxmox03"
+    ip: "192.168.201.52"
+    cidr: 24
+    gateway: "192.168.201.1"
+    vlan_tag: 201
+    cores: 4
+    memory: 8192
+    disk_gb: 80
+    longhorn_disk_gb: 100
+    storage: "local-lvm"
+
+  - name: "k3s-3"
+    vmid: 2103
+    proxmox_node: "proxmox05"
+    clone_template: "tpl-ubuntu-2404-proxmox05"
+    ip: "192.168.201.53"
+    cidr: 24
+    gateway: "192.168.201.1"
+    vlan_tag: 201
+    cores: 4
+    memory: 8192
+    disk_gb: 80
+    longhorn_disk_gb: 100
+    storage: "ceph"
+
+kube_vip_version: "v0.8.9"
+
+longhorn_version: "1.11.0"
+longhorn_default_replica_count: 2
+longhorn_data_path: "/var/lib/longhorn"

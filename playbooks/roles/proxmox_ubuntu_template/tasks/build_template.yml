@@ -32,14 +32,10 @@
   failed_when: false
   changed_when: false
   delegate_to: "{{ proxmox_template_target.node }}"
-  become: true
 
 - name: Set skip flag if VM is already a template
   ansible.builtin.set_fact:
-    proxmox_template_skip: >-
-      {{ proxmox_template_existing_config.rc == 0
-         and 'template: 1' in proxmox_template_existing_config.stdout
-         and not (proxmox_ubuntu_template.force_rebuild | bool) }}
+    proxmox_template_skip_existing: "{{ 'template: 1' in (proxmox_template_existing_config.stdout | default('')) and not (proxmox_ubuntu_template.force_rebuild | bool) }}"
 
 - name: Check whether VMID already exists on target node
   ansible.builtin.raw: "{{ qm_bin }} status {{ proxmox_template_target.vmid }}"
@@ -47,17 +43,15 @@
   failed_when: false
   changed_when: false
   delegate_to: "{{ proxmox_template_target.node }}"
-  become: true
-  when: not proxmox_template_skip | bool
+  when: not proxmox_template_skip_existing
 
 - name: Remove existing VM when force_rebuild is enabled
   ansible.builtin.raw: "{{ qm_bin }} destroy {{ proxmox_template_target.vmid }} --purge 1 --destroy-unreferenced-disks 1"
   when:
-    - not proxmox_template_skip | bool
+    - not proxmox_template_skip_existing
     - proxmox_ubuntu_template.force_rebuild | bool
     - proxmox_template_vmid_status.rc == 0
   delegate_to: "{{ proxmox_template_target.node }}"
-  become: true
 
 - name: Refresh VMID status after optional destroy
   ansible.builtin.raw: "{{ qm_bin }} status {{ proxmox_template_target.vmid }}"
@@ -65,8 +59,7 @@
   failed_when: false
   changed_when: false
   delegate_to: "{{ proxmox_template_target.node }}"
-  become: true
-  when: not proxmox_template_skip | bool
+  when: not proxmox_template_skip_existing
 
 - name: Create template staging VM
   community.proxmox.proxmox_kvm:
@@ -82,7 +75,6 @@
     cores: "{{ proxmox_template_cores }}"
     sockets: "{{ proxmox_template_sockets }}"
     cpu: "{{ proxmox_template_cpu }}"
-    machine: q35
     agent: "{{ proxmox_template_agent }}"
     onboot: "{{ proxmox_template_onboot }}"
     balloon: "{{ proxmox_template_balloon }}"
@@ -92,7 +84,7 @@
       net0: "{{ proxmox_template_network_model }},bridge={{ proxmox_template_bridge }}"
     state: present
   when:
-    - not proxmox_template_skip | bool
+    - not proxmox_template_skip_existing
     - proxmox_template_vmid_status_after_destroy.rc != 0
 
 - name: Check whether imported disk already exists
@@ -100,58 +92,68 @@
   register: proxmox_template_config_before_import
   changed_when: false
   delegate_to: "{{ proxmox_template_target.node }}"
-  become: true
-  when: not proxmox_template_skip | bool
+  when: not proxmox_template_skip_existing
 
-- name: Import Ubuntu image disk
-  ansible.builtin.raw: >
-    {{ qm_bin }} importdisk {{ proxmox_template_target.vmid }}
+- name: Reset SSH connection before import
+  ansible.builtin.meta: reset_connection
+  when:
+    - not proxmox_template_skip_existing
+    - "'unused0:' not in proxmox_template_config_before_import.stdout"
+    - "'scsi0:' not in proxmox_template_config_before_import.stdout"
+
+- name: Start Ubuntu image disk import in background
+  ansible.builtin.shell: >
+    nohup {{ qm_bin }} importdisk {{ proxmox_template_target.vmid }}
     {{ proxmox_template_image_path }}
     {{ proxmox_template_storage }}
     --format {{ proxmox_template_disk_format }}
+    >/tmp/qm-import-{{ proxmox_template_target.vmid }}.log 2>&1 &
+  args:
+    executable: /bin/bash
   when:
-    - not proxmox_template_skip | bool
-    - "'unused0:' not in proxmox_template_config_before_import.stdout and 'scsi0:' not in proxmox_template_config_before_import.stdout"
+    - not proxmox_template_skip_existing
+    - "'unused0:' not in proxmox_template_config_before_import.stdout"
+    - "'scsi0:' not in proxmox_template_config_before_import.stdout"
   delegate_to: "{{ proxmox_template_target.node }}"
-  become: true
+  changed_when: true
 
-- name: Refresh config after disk import
+- name: Wait for imported disk to appear
   ansible.builtin.raw: "{{ qm_bin }} config {{ proxmox_template_target.vmid }}"
   register: proxmox_template_config_after_import
+  until: >
+    'unused' in proxmox_template_config_after_import.stdout
+    or 'scsi0:' in proxmox_template_config_after_import.stdout
+  retries: 60
+  delay: 5
   changed_when: false
   delegate_to: "{{ proxmox_template_target.node }}"
-  become: true
-  when: not proxmox_template_skip | bool
+  when: not proxmox_template_skip_existing
 
 - name: Attach imported disk as scsi0
   ansible.builtin.raw: "{{ qm_bin }} set {{ proxmox_template_target.vmid }} --scsi0 {{ proxmox_template_storage }}:vm-{{ proxmox_template_target.vmid }}-disk-0"
   when:
-    - not proxmox_template_skip | bool
+    - not proxmox_template_skip_existing
     - "'scsi0:' not in proxmox_template_config_after_import.stdout"
   delegate_to: "{{ proxmox_template_target.node }}"
-  become: true
 
 - name: Add cloud-init drive
   ansible.builtin.raw: "{{ qm_bin }} set {{ proxmox_template_target.vmid }} --ide2 {{ proxmox_template_snippet_storage }}:cloudinit"
   when:
-    - not proxmox_template_skip | bool
+    - not proxmox_template_skip_existing
     - "'ide2:' not in proxmox_template_config_after_import.stdout"
   delegate_to: "{{ proxmox_template_target.node }}"
-  become: true
 
 - name: Configure boot order
   ansible.builtin.raw: "{{ qm_bin }} set {{ proxmox_template_target.vmid }} --boot order=scsi0"
   delegate_to: "{{ proxmox_template_target.node }}"
-  become: true
   changed_when: true
-  when: not proxmox_template_skip | bool
+  when: not proxmox_template_skip_existing
 
 - name: Configure serial console
   ansible.builtin.raw: "{{ qm_bin }} set {{ proxmox_template_target.vmid }} --serial0 socket --vga serial0"
   delegate_to: "{{ proxmox_template_target.node }}"
-  become: true
   changed_when: true
-  when: not proxmox_template_skip | bool
+  when: not proxmox_template_skip_existing
 
 - name: Copy SSH public key to target node for qm set
   ansible.builtin.copy:
@@ -160,7 +162,7 @@
     mode: "0600"
   delegate_to: "{{ proxmox_template_target.node }}"
   become: true
-  when: not proxmox_template_skip | bool
+  when: not proxmox_template_skip_existing
 
 - name: Configure cloud-init defaults
   ansible.builtin.raw: >
@@ -170,9 +172,8 @@
     {% if proxmox_template_searchdomain | length > 0 %}--searchdomain {{ proxmox_template_searchdomain }}{% endif %}
     --sshkeys /tmp/proxmox_template_ssh_key_{{ proxmox_template_target.vmid }}.pub
   delegate_to: "{{ proxmox_template_target.node }}"
-  become: true
   changed_when: true
-  when: not proxmox_template_skip | bool
+  when: not proxmox_template_skip_existing
 
 - name: Clean up temporary SSH public key file
   ansible.builtin.file:
@@ -180,15 +181,14 @@
     state: absent
   delegate_to: "{{ proxmox_template_target.node }}"
   become: true
-  when: not proxmox_template_skip | bool
+  when: not proxmox_template_skip_existing
 
 - name: Resize disk to 8G
   ansible.builtin.raw: "{{ qm_bin }} resize {{ proxmox_template_target.vmid }} scsi0 8G"
   failed_when: false
   changed_when: false
   delegate_to: "{{ proxmox_template_target.node }}"
-  become: true
-  when: not proxmox_template_skip | bool
+  when: not proxmox_template_skip_existing
 
 - name: Mark VM as template
   ansible.builtin.raw: "{{ qm_bin }} template {{ proxmox_template_target.vmid }}"
@@ -199,14 +199,13 @@
   changed_when:
     - "'already a template' not in (proxmox_mark_template_result.stderr | default(''))"
   delegate_to: "{{ proxmox_template_target.node }}"
-  become: true
-  when: not proxmox_template_skip | bool
+  when: not proxmox_template_skip_existing
 
 - name: Optionally reboot node after template build
   ansible.builtin.reboot:
     reboot_timeout: 900
   when:
-    - not proxmox_template_skip | bool
+    - not proxmox_template_skip_existing
     - proxmox_ubuntu_template.reboot_after_template_build | bool
   delegate_to: "{{ proxmox_template_target.node }}"
   become: true

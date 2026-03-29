@@ -24,9 +24,9 @@ ansible_user=kurt
 
 
 [k3s]
-k3s-1 ansible_host=192.168.201.21
-k3s-2 ansible_host=192.168.201.22
-k3s-3 ansible_host=192.168.201.23
+k3s-1 ansible_host=192.168.201.51
+k3s-2 ansible_host=192.168.201.52
+k3s-3 ansible_host=192.168.201.53
 
 [k3s:vars]
 ansible_user=kurt
@@ -60,6 +60,10 @@ pve-4 ansible_host=192.168.2.204
 
 [proxmox:vars]
 ansible_user=root
+ansible_connection=ssh
+ansible_shell_executable=/bin/bash
+ansible_become=false
+ansible_ssh_common_args='-o ControlMaster=no -o ControlPersist=no -o ServerAliveInterval=30 -o ServerAliveCountMax=10'
 
 [proxmoxNox]
 Proxmox-NOC ansible_host=74.91.16.2

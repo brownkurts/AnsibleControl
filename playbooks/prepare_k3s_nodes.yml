@@ -1,0 +1,95 @@
+---
+- name: Prepare Ubuntu nodes for K3s and Longhorn
+  hosts: k3s
+  become: true
+  gather_facts: true
+
+  tasks:
+    - name: Wait for cloud-init to finish if present
+      ansible.builtin.shell: |
+        if command -v cloud-init >/dev/null 2>&1; then
+          cloud-init status --wait || true
+        fi
+      args:
+        executable: /bin/bash
+      changed_when: false
+      failed_when: false
+
+    - name: Update apt cache
+      ansible.builtin.apt:
+        update_cache: true
+        cache_valid_time: 3600
+
+    - name: Install required packages
+      ansible.builtin.apt:
+        name:
+          - curl
+          - jq
+          - open-iscsi
+          - nfs-common
+          - cryptsetup
+          - dmsetup
+          - nano
+          - vim
+          - qemu-guest-agent
+        state: present
+
+    - name: Enable services
+      ansible.builtin.systemd:
+        name: "{{ item }}"
+        enabled: true
+        state: started
+      loop:
+        - iscsid
+        - open-iscsi
+        - qemu-guest-agent
+
+    - name: Disable swap immediately
+      ansible.builtin.command: swapoff -a
+      when: ansible_swaptotal_mb | int > 0
+      changed_when: true
+
+    - name: Remove swap entries from /etc/fstab
+      ansible.builtin.replace:
+        path: /etc/fstab
+        regexp: '^(?!#)(.*\sswap\s+.*)$'
+        replace: '# \1'
+
+    - name: Ensure Longhorn mountpoint exists
+      ansible.builtin.file:
+        path: "{{ longhorn_data_path }}"
+        state: directory
+        mode: "0755"
+
+    - name: Check if /dev/sdb exists
+      ansible.builtin.stat:
+        path: /dev/sdb
+      register: sdb_stat
+
+    - name: Check current filesystem on /dev/sdb
+      ansible.builtin.command: blkid -o value -s TYPE /dev/sdb
+      register: sdb_fs
+      failed_when: false
+      changed_when: false
+      when: sdb_stat.stat.exists
+
+    - name: Create ext4 filesystem on /dev/sdb if blank
+      ansible.builtin.filesystem:
+        fstype: ext4
+        dev: /dev/sdb
+      when:
+        - sdb_stat.stat.exists
+        - sdb_fs.rc != 0 or (sdb_fs.stdout | trim) == ""
+
+    - name: Mount Longhorn disk
+      ansible.builtin.mount:
+        path: "{{ longhorn_data_path }}"
+        src: /dev/sdb
+        fstype: ext4
+        opts: defaults
+        state: mounted
+      when: sdb_stat.stat.exists
+
+    - name: Reboot after base prep
+      ansible.builtin.reboot:
+        reboot_timeout: 1200
