@@ -1,0 +1,142 @@
+---
+- name: Verify dedicated Longhorn mount exists on all k3s nodes
+  hosts: k3s
+  become: true
+  gather_facts: false
+  vars:
+    longhorn_new_disk_path: /mnt/longhorn
+
+  tasks:
+    - name: Check if Longhorn mount path exists
+      ansible.builtin.stat:
+        path: "{{ longhorn_new_disk_path }}"
+      register: longhorn_mount_path
+
+    - name: Fail if mount path does not exist
+      ansible.builtin.fail:
+        msg: "Longhorn disk path {{ longhorn_new_disk_path }} does not exist on {{ inventory_hostname }}"
+      when: not longhorn_mount_path.stat.exists
+
+    - name: Check if Longhorn path is a real mount
+      ansible.builtin.command: findmnt -n {{ longhorn_new_disk_path }}
+      register: longhorn_findmnt
+      changed_when: false
+      failed_when: longhorn_findmnt.rc != 0
+
+- name: Patch Longhorn nodes to use dedicated disk
+  hosts: k3s-1
+  become: true
+  gather_facts: false
+  vars:
+    kubeconfig_path: /etc/rancher/k3s/k3s.yaml
+    longhorn_namespace: longhorn-system
+
+    # existing bad path
+    longhorn_old_disk_path: /var/lib/longhorn
+
+    # correct dedicated mount
+    longhorn_new_disk_path: /mnt/longhorn
+
+    # logical disk name inside Longhorn
+    longhorn_new_disk_name: longhorn-disk
+
+    # phases:
+    # add_only  = add new disk, leave old disk alone
+    # evict_old = add new disk, disable old scheduling, request eviction
+    longhorn_fix_phase: add_only
+
+  tasks:
+    - name: Ensure jq is installed
+      ansible.builtin.package:
+        name: jq
+        state: present
+
+    - name: Patch Longhorn disk config on each node
+      ansible.builtin.shell: |
+        set -euo pipefail
+
+        NODE="{{ item }}"
+        PHASE="{{ longhorn_fix_phase }}"
+        OLD_PATH="{{ longhorn_old_disk_path }}"
+        NEW_PATH="{{ longhorn_new_disk_path }}"
+        NEW_NAME="{{ longhorn_new_disk_name }}"
+
+        CURRENT_JSON="$(kubectl -n {{ longhorn_namespace }} get node.longhorn.io "${NODE}" -o json)"
+
+        OLD_DISK_NAME="$(echo "${CURRENT_JSON}" | jq -r --arg OLD_PATH "${OLD_PATH}" '
+          .spec.disks
+          | to_entries[]
+          | select(.value.path == $OLD_PATH)
+          | .key
+        ')"
+
+        if [ -z "${OLD_DISK_NAME}" ] || [ "${OLD_DISK_NAME}" = "null" ]; then
+          echo "Could not find existing Longhorn disk for path ${OLD_PATH} on node ${NODE}"
+          exit 1
+        fi
+
+        if [ "${PHASE}" = "add_only" ]; then
+          NEW_DISKS="$(echo "${CURRENT_JSON}" | jq -c \
+            --arg NEW_NAME "${NEW_NAME}" \
+            --arg NEW_PATH "${NEW_PATH}" '
+            .spec.disks
+            | .[$NEW_NAME] = (
+                (.[$NEW_NAME] // {}) + {
+                  allowScheduling: true,
+                  diskDriver: "",
+                  diskType: "filesystem",
+                  evictionRequested: false,
+                  path: $NEW_PATH,
+                  storageReserved: 0,
+                  tags: []
+                }
+              )
+          ')"
+        elif [ "${PHASE}" = "evict_old" ]; then
+          NEW_DISKS="$(echo "${CURRENT_JSON}" | jq -c \
+            --arg NEW_NAME "${NEW_NAME}" \
+            --arg NEW_PATH "${NEW_PATH}" \
+            --arg OLD_DISK_NAME "${OLD_DISK_NAME}" '
+            .spec.disks
+            | .[$NEW_NAME] = (
+                (.[$NEW_NAME] // {}) + {
+                  allowScheduling: true,
+                  diskDriver: "",
+                  diskType: "filesystem",
+                  evictionRequested: false,
+                  path: $NEW_PATH,
+                  storageReserved: 0,
+                  tags: []
+                }
+              )
+            | .[$OLD_DISK_NAME].allowScheduling = false
+            | .[$OLD_DISK_NAME].evictionRequested = true
+          ')"
+        else
+          echo "Invalid longhorn_fix_phase: ${PHASE}"
+          exit 1
+        fi
+
+        kubectl -n {{ longhorn_namespace }} patch node.longhorn.io "${NODE}" \
+          --type merge \
+          -p "{\"spec\":{\"disks\":${NEW_DISKS}}}"
+      args:
+        executable: /bin/bash
+      environment:
+        KUBECONFIG: "{{ kubeconfig_path }}"
+      loop: "{{ groups['k3s'] }}"
+      loop_control:
+        label: "{{ item }}"
+      changed_when: true
+
+    - name: Show resulting Longhorn disk config
+      ansible.builtin.command: >
+        kubectl -n {{ longhorn_namespace }} get nodes.longhorn.io -o yaml
+      environment:
+        KUBECONFIG: "{{ kubeconfig_path }}"
+      register: longhorn_nodes_after
+      changed_when: false
+
+    - name: Print Longhorn node config
+      ansible.builtin.debug:
+        var: longhorn_nodes_after.stdout
