@@ -1,0 +1,106 @@
+---
+- name: Repair interrupted dpkg state if needed
+  ansible.builtin.command: dpkg --configure -a
+  register: dpkg_repair
+  changed_when: "'Setting up' in dpkg_repair.stdout or dpkg_repair.rc == 0"
+  failed_when: false
+
+- name: Fix broken apt dependencies if needed
+  ansible.builtin.command: apt-get -f install -y
+  register: apt_fix
+  changed_when: "'0 upgraded' not in apt_fix.stdout"
+  failed_when: false
+
+- name: Install required packages
+  ansible.builtin.apt:
+    name:
+      - curl
+      - git
+      - iproute2
+      - ca-certificates
+      - dnsutils
+      - keepalived
+    state: present
+    update_cache: true
+
+- name: Ensure Pi-hole directories exist
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    mode: "0755"
+  loop:
+    - /etc/pihole
+    - /etc/dnsmasq.d
+
+- name: Deploy setupVars.conf
+  ansible.builtin.template:
+    src: setupVars.conf.j2
+    dest: /etc/pihole/setupVars.conf
+    mode: "0644"
+
+- name: Download Pi-hole installer with curl
+  ansible.builtin.command:
+    argv:
+      - curl
+      - -fsSL
+      - https://install.pi-hole.net
+      - -o
+      - /root/basic-install.sh
+  args:
+    creates: /root/basic-install.sh
+
+- name: Make installer executable
+  ansible.builtin.file:
+    path: /root/basic-install.sh
+    mode: "0700"
+
+- name: Install Pi-hole unattended
+  ansible.builtin.command:
+    cmd: /bin/bash /root/basic-install.sh --unattended
+  environment:
+    PIHOLE_SKIP_OS_CHECK: "true"
+  args:
+    creates: /usr/local/bin/pihole
+
+- name: Force Pi-hole admin password
+  ansible.builtin.command:
+    cmd: pihole setpassword "{{ pihole_web_password }}"
+  changed_when: true
+
+- name: Deploy keepalived config
+  ansible.builtin.template:
+    src: keepalived.conf.j2
+    dest: /etc/keepalived/keepalived.conf
+    mode: "0644"
+  notify: Restart keepalived
+
+- name: Deploy Pi-hole health check script
+  ansible.builtin.template:
+    src: check_pihole.sh.j2
+    dest: /usr/local/bin/check_pihole.sh
+    mode: "0755"
+  notify: Restart keepalived
+
+- name: Enable Pi-hole FTL
+  ansible.builtin.systemd:
+    name: pihole-FTL
+    enabled: true
+    state: started
+
+- name: Enable lighttpd
+  ansible.builtin.systemd:
+    name: lighttpd
+    enabled: true
+    state: started
+  failed_when: false
+
+- name: Enable keepalived
+  ansible.builtin.systemd:
+    name: keepalived
+    enabled: true
+    state: started
+
+- name: Rebuild gravity
+  ansible.builtin.command:
+    cmd: pihole -g
+  changed_when: true

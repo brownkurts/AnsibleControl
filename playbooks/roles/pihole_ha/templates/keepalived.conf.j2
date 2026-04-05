@@ -1,0 +1,42 @@
+global_defs {
+    router_id {{ inventory_hostname }}
+    enable_script_security
+    script_user root
+}
+
+vrrp_script chk_pihole {
+    script "/usr/local/bin/check_pihole.sh"
+    interval 5
+    timeout 3
+    fall 2
+    rise 2
+    weight -25
+}
+
+vrrp_instance VI_PIHOLE {
+    state {{ keepalived_state }}
+    interface {{ pihole_iface }}
+    virtual_router_id {{ pihole_keepalived_router_id }}
+    priority {{ keepalived_priority }}
+    advert_int 1
+
+    authentication {
+        auth_type PASS
+        auth_pass {{ pihole_keepalived_auth_pass }}
+    }
+
+    unicast_src_ip {{ ansible_host }}
+    unicast_peer {
+{% for host in groups['pihole_ha'] if host != inventory_hostname %}
+        {{ hostvars[host].ansible_host }}
+{% endfor %}
+    }
+
+    virtual_ipaddress {
+        {{ pihole_vip }}/24 dev {{ pihole_iface }}
+    }
+
+    track_script {
+        chk_pihole
+    }
+}

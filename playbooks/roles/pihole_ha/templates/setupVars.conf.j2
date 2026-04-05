@@ -1,0 +1,14 @@
+PIHOLE_INTERFACE={{ pihole_iface }}
+IPV4_ADDRESS={{ ansible_host }}/{{ pihole_cidr | default(24) }}
+QUERY_LOGGING={{ pihole_query_logging | lower }}
+INSTALL_WEB_SERVER={{ pihole_install_web_server | lower }}
+INSTALL_WEB_INTERFACE={{ pihole_install_web_interface | lower }}
+LIGHTTPD_ENABLED={{ pihole_lighttpd_enabled | lower }}
+CACHE_SIZE=10000
+DNS_FQDN_REQUIRED=true
+DNS_BOGUS_PRIV=true
+DNSMASQ_LISTENING={{ pihole_dnsmasq_listening }}
+PIHOLE_DNS_1={{ pihole_dns_1 }}
+PIHOLE_DNS_2={{ pihole_dns_2 }}
+WEBPASSWORD={{ pihole_web_password }}
+REV_SERVER=false

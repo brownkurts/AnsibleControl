@@ -125,3 +125,55 @@ kube_vip_version: "v0.8.9"
 longhorn_version: "1.11.0"
 longhorn_default_replica_count: 2
 longhorn_data_path: "/var/lib/longhorn"
+
+# ----------------------------
+# Pi-hole HA
+# ----------------------------
+pihole_vip: "192.168.2.2"
+pihole_iface: "eth0"
+pihole_gateway: "192.168.2.254"
+pihole_cidr: 24
+
+pihole_keepalived_router_id: 52
+pihole_keepalived_auth_pass: "steven87"
+
+pihole_web_password: "steven87"
+pihole_dns_1: "1.1.1.1"
+pihole_dns_2: "1.0.0.1"
+
+pihole_install_web_server: true
+pihole_install_web_interface: true
+pihole_lighttpd_enabled: true
+pihole_dnsmasq_listening: "all"
+pihole_query_logging: true
+
+pihole_servers:
+  - name: "pihole-ha-1"
+    vmid: 2301
+    proxmox_node: "PROXMOX-01"
+    clone_template: "tpl-ubuntu-2404-proxmox-01"
+    ip: "192.168.2.3"
+    cidr: 24
+    gateway: "192.168.2.254"
+    vlan_tag: 1
+    cores: 2
+    memory: 2048
+    disk_gb: 20
+    storage: "local-lvm"
+    keepalived_state: "MASTER"
+    keepalived_priority: 200
+
+  - name: "pihole-ha-2"
+    vmid: 2302
+    proxmox_node: "proxmox03"
+    clone_template: "tpl-ubuntu-2404-proxmox03"
+    ip: "192.168.2.4"
+    cidr: 24
+    gateway: "192.168.2.254"
+    vlan_tag: 1
+    cores: 2
+    memory: 2048
+    disk_gb: 20
+    storage: "local-lvm"
+    keepalived_state: "BACKUP"
+    keepalived_priority: 100
