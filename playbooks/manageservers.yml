@@ -9,17 +9,6 @@
     - update_linux
     - reboot
 
-# - name: Rolling updates for swarm nodes (Ceph-aware)
-#   hosts: docker
-#   serial: 1
-#   any_errors_fatal: true
-#   become: true
-#   roles:
-#     - ipv6-disable
-#     - packages
-#     - qemu-guest-agent
-#     - swarm_ceph_rolling_update
-
 - name: Manage PiHole Servers
   hosts: pihole
   become: true
