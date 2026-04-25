@@ -1,0 +1,45 @@
+# playbooks/discovery/network_discovery.yml
+---
+- name: Scan networks for missing servers
+  hosts: localhost
+  gather_facts: false
+
+  vars:
+    discovery_networks:
+      - 192.168.2.0/24
+      - 192.168.201.0/24
+      - 10.3.1.0/24
+      - 192.168.1.0/24
+
+    discovery_ports: "22,80,443,3389,8006,6443,10050,623"
+    report_dir: "{{ playbook_dir }}/../../reports/discovery"
+
+  tasks:
+    - name: Ensure report dir exists
+      ansible.builtin.file:
+        path: "{{ report_dir }}"
+        state: directory
+        mode: "0755"
+
+    - name: Run nmap discovery
+      ansible.builtin.command: >
+        nmap -oX {{ report_dir }}/scan.xml
+        -sn {{ discovery_networks | join(' ') }}
+      changed_when: false
+
+    - name: Run service scan on likely server ports
+      ansible.builtin.command: >
+        nmap -oX {{ report_dir }}/services.xml
+        -sV -p {{ discovery_ports }}
+        {{ discovery_networks | join(' ') }}
+      changed_when: false
+
+    - name: Create text report
+      ansible.builtin.shell: |
+        nmap -oG - -sV -p {{ discovery_ports }} {{ discovery_networks | join(' ') }} \
+        | awk '/Ports:/{print}' > {{ report_dir }}/servers-found.txt
+      changed_when: false
+
+    - name: Show report location
+      ansible.builtin.debug:
+        msg: "Report written to {{ report_dir }}/servers-found.txt"
