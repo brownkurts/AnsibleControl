@@ -1,35 +1,47 @@
-- name: Manage Ubuntu Servers
+---
+- name: Manage Ubuntu servers
   hosts: ubuntu
   become: true
   gather_facts: true
+  tags: [ubuntu]
   roles:
-    - ipv6-disable
-    - packages
-    - qemu-guest-agent
-    - update_linux
-    - reboot
+    - { role: ipv6-disable, tags: [ipv6] }
+    - { role: packages, tags: [packages] }
+    - { role: qemu-guest-agent, tags: [qemu] }
+    - { role: update_linux, tags: [update] }
+    - { role: reboot, tags: [reboot] }
 
-- name: Manage PiHole Servers
+- name: Manage Pi-hole servers
   hosts: pihole
   become: true
   gather_facts: true
+  serial: 1
+  tags: [pihole]
   roles:
-    - ipv6-disable
-    - packages
-    - qemu-guest-agent
-    - update_linux
-    - PiHole_update
-    - reboot
+    - { role: ipv6-disable, tags: [ipv6] }
+    - { role: packages, tags: [packages] }
+    - { role: qemu-guest-agent, tags: [qemu] }
+    - { role: update_linux, tags: [update] }
+    - { role: PiHole_update, tags: [pihole_update] }
+    - { role: reboot, tags: [reboot] }
 
-- name: Manage proxmox Servers
-  hosts: proxmox, proxmoxNox
+- name: Manage K3s servers
+  hosts: k3s
+  become: true
+  gather_facts: true
+  serial: 1
+  tags: [k3s]
+  roles:
+    - { role: ipv6-disable, tags: [ipv6] }
+    - { role: packages, tags: [packages] }
+    - { role: qemu-guest-agent, tags: [qemu] }
+    - { role: update_linux, tags: [update] }
+    - { role: reboot, tags: [reboot] }
+    
+- name: Manage Proxmox servers
+  hosts: proxmox:proxmoxNox
   become: true
   gather_facts: false
+  tags: [proxmox]
   roles:
-    - update_proxmox
-
-
-
-
-        
-
+    - { role: update_proxmox, tags: [update] }
