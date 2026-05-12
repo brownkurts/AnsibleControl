@@ -1,31 +1,101 @@
 ---
-- name: Check if LinuxRMM agent is installed
-  stat:
+- name: Install required packages for LinuxRMM agent
+  ansible.builtin.apt:
+    name: "{{ linuxrmm_required_packages }}"
+    state: present
+    update_cache: true
+  when: ansible_os_family == "Debian"
+
+- name: Check if LinuxRMM agent binary exists
+  ansible.builtin.stat:
     path: "{{ rmm_installed_check }}"
   register: rmm_agent
 
-- name: Ensure installation directory exists
-  file:
+- name: Stop LinuxRMM services before force reinstall
+  ansible.builtin.systemd:
+    name: "{{ item }}"
+    state: stopped
+  loop: "{{ linuxrmm_services }}"
+  failed_when: false
+  when: linuxrmm_force_reinstall | bool
+
+- name: Kill stuck LinuxRMM and Mesh processes before force reinstall
+  ansible.builtin.shell: |
+    pkill -f rmmagent || true
+    pkill -f meshagent || true
+  changed_when: false
+  when: linuxrmm_force_reinstall | bool
+
+- name: Remove old LinuxRMM files before force reinstall
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: absent
+  loop:
+    - /usr/local/bin/rmmagent
+    - /etc/systemd/system/rmmagent.service
+    - /etc/systemd/system/meshagent.service
+    - /opt/tacticalagent
+    - /opt/meshagent
+  when: linuxrmm_force_reinstall | bool
+
+- name: Reload systemd after cleanup
+  ansible.builtin.systemd:
+    daemon_reload: true
+  when: linuxrmm_force_reinstall | bool
+
+- name: Ensure LinuxRMM installation directory exists
+  ansible.builtin.file:
     path: "{{ linuxrmm_install_dir }}"
     state: directory
-    mode: '0755'
-  when: not rmm_agent.stat.exists
+    mode: "0755"
 
-- name: Download LinuxRMM installation script
-  get_url:
-    url: "https://raw.githubusercontent.com/netvolt/LinuxRMM-Script/main/rmmagent-linux.sh"
-    dest: "{{ linuxrmm_install_dir }}/rmmagent-linux.sh"
-    mode: '0755'
-  when: not rmm_agent.stat.exists
+- name: Download latest LinuxRMM installation script
+  ansible.builtin.get_url:
+    url: "{{ linuxrmm_script_url }}"
+    dest: "{{ linuxrmm_script_path }}"
+    mode: "0755"
+    force: true
 
-- name: Run installation script
-  command:
+- name: Install or reinstall LinuxRMM agent
+  ansible.builtin.command:
     cmd: >
-      {{ linuxrmm_install_dir }}/rmmagent-linux.sh install
+      {{ linuxrmm_script_path }} install
       '{{ rmm_arch }}' '{{ mesh_url }}' '{{ api_url }}'
       '{{ param_4 }}' '{{ param_5 }}' '{{ auth_key }}' '{{ device_name }}'
   args:
     chdir: "{{ linuxrmm_install_dir }}"
   register: install_output
-  when: not rmm_agent.stat.exists
+  changed_when: true
+  when: >
+    linuxrmm_force_reinstall | bool
+    or not rmm_agent.stat.exists
 
+- name: Reload systemd after LinuxRMM install
+  ansible.builtin.systemd:
+    daemon_reload: true
+
+- name: Enable and start LinuxRMM services
+  ansible.builtin.systemd:
+    name: "{{ item }}"
+    enabled: true
+    state: restarted
+  loop: "{{ linuxrmm_services }}"
+  failed_when: false
+
+- name: Check rmmagent service status
+  ansible.builtin.command: systemctl is-active rmmagent
+  register: rmmagent_status
+  changed_when: false
+  failed_when: false
+
+- name: Check meshagent service status
+  ansible.builtin.command: systemctl is-active meshagent
+  register: meshagent_status
+  changed_when: false
+  failed_when: false
+
+- name: Show LinuxRMM status
+  ansible.builtin.debug:
+    msg:
+      - "rmmagent: {{ rmmagent_status.stdout | default('unknown') }}"
+      - "meshagent: {{ meshagent_status.stdout | default('unknown') }}"

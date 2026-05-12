@@ -9,6 +9,7 @@
     - { role: packages, tags: [packages] }
     - { role: qemu-guest-agent, tags: [qemu] }
     - { role: update_linux, tags: [update] }
+    - { role: Linuxrmm, tags: [rmm, linuxrmm, tactical] }
     - { role: reboot, tags: [reboot] }
 
 - name: Manage Pi-hole servers
@@ -23,6 +24,7 @@
     - { role: qemu-guest-agent, tags: [qemu] }
     - { role: update_linux, tags: [update] }
     - { role: PiHole_update, tags: [pihole_update] }
+    - { role: Linuxrmm, tags: [rmm, linuxrmm, tactical] }
     - { role: reboot, tags: [reboot] }
 
 - name: Manage K3s servers
@@ -36,6 +38,7 @@
     - { role: packages, tags: [packages] }
     - { role: qemu-guest-agent, tags: [qemu] }
     - { role: update_linux, tags: [update] }
+    - { role: Linuxrmm, tags: [rmm, linuxrmm, tactical] }
     - { role: reboot, tags: [reboot] }
     
 - name: Manage Proxmox servers
@@ -45,3 +48,4 @@
   tags: [proxmox]
   roles:
     - { role: update_proxmox, tags: [update] }
+    - { role: Linuxrmm, tags: [rmm, linuxrmm, tactical] }
