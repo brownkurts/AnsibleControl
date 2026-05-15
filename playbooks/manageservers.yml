@@ -12,6 +12,21 @@
     - { role: Linuxrmm, tags: [rmm, linuxrmm, tactical] }
     - { role: reboot, tags: [reboot] }
 
+
+- name: Manage Tactical RMM server
+  hosts: tactical
+  become: true
+  gather_facts: true
+  serial: 1
+  tags: [tactical]
+
+  roles:
+    - { role: ipv6-disable, tags: [ipv6] }
+    - { role: packages, tags: [packages] }
+    - { role: qemu-guest-agent, tags: [qemu] }
+    - { role: update_linux, tags: [update] }
+    - { role: reboot, tags: [reboot] }
+
 - name: Manage Pi-hole servers
   hosts: pihole
   become: true
@@ -44,8 +59,24 @@
 - name: Manage Proxmox servers
   hosts: proxmox:proxmoxNox
   become: true
-  gather_facts: false
+  gather_facts: true
+  serial: 1
   tags: [proxmox]
   roles:
+    - { role: Linuxrmm, tags: [linuxrmm, rmm, tactical] }
     - { role: update_proxmox, tags: [update] }
+
+
+- name: Manage Ansible control server
+  hosts: control
+  become: true
+  gather_facts: true
+  serial: 1
+  tags: [control, ansible_control]
+  roles:
+    - { role: ipv6-disable, tags: [ipv6] }
+    - { role: packages, tags: [packages] }
+    - { role: qemu-guest-agent, tags: [qemu] }
+    - { role: update_linux, tags: [update] }
     - { role: Linuxrmm, tags: [rmm, linuxrmm, tactical] }
+    - { role: reboot, tags: [never, reboot] }

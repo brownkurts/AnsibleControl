@@ -1,0 +1,41 @@
+---
+- name: Install ansible-pull dependencies
+  ansible.builtin.apt:
+    name: "{{ ansible_pull_required_packages }}"
+    state: present
+    update_cache: true
+
+- name: Fail if Git token is empty
+  ansible.builtin.fail:
+    msg: "ansible_pull_git_token is empty. Put it in Ansible Vault."
+  when: ansible_pull_git_token | length == 0
+
+- name: Configure root git credentials
+  ansible.builtin.copy:
+    dest: "{{ ansible_pull_git_credentials_file }}"
+    owner: root
+    group: root
+    mode: "0600"
+    content: |
+      https://{{ ansible_pull_git_user }}:{{ ansible_pull_git_token }}@github.com
+  no_log: true
+
+- name: Configure git credential helper for root
+  ansible.builtin.command: git config --global credential.helper store
+  environment:
+    HOME: /root
+  changed_when: false
+
+- name: Run ansible-pull once
+  ansible.builtin.command: >
+    ansible-pull -o
+    -U {{ ansible_pull_repo }}
+    -C {{ ansible_pull_branch }}
+    -i localhost,
+    -l localhost
+    {{ ansible_pull_playbook }}
+  environment:
+    HOME: /root
+  register: ansible_pull_result
+  changed_when: ansible_pull_result.rc == 0
+  when: ansible_pull_run_now | bool
