@@ -2,9 +2,9 @@
 pihole_iface: "eth0"
 pihole_vip: "192.168.2.2"
 pihole_keepalived_router_id: 52
-pihole_keepalived_auth_pass: "steven87"
+pihole_keepalived_auth_pass: "{{ vault_pihole_keepalived_auth_pass }}"
 
-pihole_web_password: "steven87"
+pihole_web_password: "{{ vault_pihole_web_password }}"
 pihole_upstreams: "1.1.1.1;1.0.0.1"
 
 pihole_data_dir: "/opt/pihole"

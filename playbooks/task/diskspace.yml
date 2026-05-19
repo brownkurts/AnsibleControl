@@ -8,7 +8,7 @@
 
     - name: Send notification via Gotify
       uri:
-        url: "https://gotify.kbtech.org/message?token=AsTCKdEFGMaMAb4"
+        url: "{{ gotify_base_url }}/message?token={{ gotify_token }}"
         method: POST
         body_format: json
         body:

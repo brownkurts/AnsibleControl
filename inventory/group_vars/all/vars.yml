@@ -5,3 +5,11 @@ default_sudo_password: "{{ vault_default_sudo_pass }}"
 
 grafana_admin_user: admin
 grafana_admin_password: "{{ vault_grafana_admin_password }}"
+
+k3s_cluster_token: "{{ vault_k3s_cluster_token }}"
+
+pihole_keepalived_auth_pass: "{{ vault_pihole_keepalived_auth_pass }}"
+pihole_web_password: "{{ vault_pihole_web_password }}"
+
+gotify_base_url: "https://gotify.kbtech.org"
+gotify_token: "{{ vault_gotify_token }}"

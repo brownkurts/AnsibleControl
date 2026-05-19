@@ -66,7 +66,6 @@ proxmox_template_targets:
 
 k3s_version: "v1.31"
 k3s_version_channel: "v1.31"
-k3s_cluster_token: "CHANGE_ME_LONG_RANDOM_TOKEN"
 k3s_disable_traefik: false
 k3s_disable_servicelb: true
 k3s_write_kubeconfig_mode: "0644"
@@ -135,9 +134,7 @@ pihole_gateway: "192.168.2.254"
 pihole_cidr: 24
 
 pihole_keepalived_router_id: 52
-pihole_keepalived_auth_pass: "steven87"
 
-pihole_web_password: "steven87"
 pihole_dns_1: "1.1.1.1"
 pihole_dns_2: "1.0.0.1"
 

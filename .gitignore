@@ -4,3 +4,6 @@
 .cache/ansible/
 __pycache__/
 *.pyc
+kubeseal
+kubeseal-*.tar.gz
+reports/discovery/
