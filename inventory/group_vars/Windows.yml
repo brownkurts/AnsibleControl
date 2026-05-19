@@ -1,0 +1,5 @@
+---
+ansible_user: "{{ default_linux_user }}"
+ansible_ssh_pass: "{{ default_ssh_password }}"
+ansible_connection: ssh
+ansible_shell_type: cmd

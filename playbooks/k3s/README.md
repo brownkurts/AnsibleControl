@@ -5,7 +5,7 @@ This replaces the old Docker Swarm workflow with a lightweight K3s cluster.
 ## Run
 
 ```bash
-ansible-playbook -i playbooks/k3s/inventory/hosts.ini playbooks/k3s.yml
+ansible-playbook -i playbooks/k3s/inventory/hosts.yml playbooks/k3s.yml
 ```
 
 The playbook installs the first server with `--cluster-init`, joins the remaining servers to the embedded etcd cluster, then joins the agents.
@@ -14,7 +14,7 @@ K3s writes the join token to `/var/lib/rancher/k3s/server/node-token` on the fir
 
 ## Inventory
 
-Edit `playbooks/k3s/inventory/hosts.ini` before running if the node names or IPs changed from the old Kubernetes lab range.
+Edit `playbooks/k3s/inventory/group_vars/k3s_cluster.yml` if the node subnet or node IP suffixes change.
 
 Server and agent options can be added through these inventory variables:
 

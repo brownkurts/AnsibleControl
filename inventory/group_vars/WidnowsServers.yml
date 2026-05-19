@@ -1,0 +1,5 @@
+---
+ansible_user: services
+ansible_ssh_pass: "{{ vault_windows_server_ssh_pass }}"
+ansible_connection: ssh
+ansible_shell_type: cmd

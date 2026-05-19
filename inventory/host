@@ -10,19 +10,8 @@ tactical-rrm ansible_host=107.150.55.52
 destiny ansible_host=192.168.201.10
 noc-docker1 ansible_host=10.3.1.102
 
-[ubuntu:vars]
-ansible_user=kurt
-ansible_ssh_pass=steven87
-ansible_sudo_pass=steven87
-
 [docker]
 destiny ansible_host=192.168.201.10
-
-
-[docker:vars]
-ansible_user=kurt
-ansible_ssh_pass=steven87
-ansible_sudo_pass=steven87
 
 [pihole]
 Pihole01 ansible_host=192.168.2.2
@@ -30,10 +19,10 @@ Pihole02 ansible_host=192.168.2.3
 Pihole03 ansible_host=192.168.1.2
 Pihole04 ansible_host=10.3.1.2
 
-[pihole:vars]
-ansible_user=kurt
-ansible_ssh_pass=steven87
-ansible_sudo_pass=steven87
+[linux_hosts:children]
+ubuntu
+docker
+pihole
 
 [proxmox]
 PROXMOX-01 ansible_host=192.168.2.201
@@ -45,9 +34,6 @@ PVE-1 ansible_host=192.168.200.200
 
 [proxmox:vars]
 ansible_python_interpreter=/usr/bin/python3
-ansible_user=root
-ansible_ssh_pass=steven87
-ansible_sudo_pass=steven87
 
 [WidnowsServers]
 Brown-DC1 ansible_host=192.168.2.5
@@ -55,21 +41,7 @@ Brown-print ansible_host=192.168.2.7
 Brown-Rapp ansible_host=192.168.2.12
 Brown-Broker ansible_host=192.168.2.6
 
-[WidnowsServers:vars]
-ANSIBLE_HOST_KEY_CHECKING=false
-ansible_user=services
-ansible_ssh_pass=Steven871!!
-ansible_connection=ssh
-ansible_shell_type=cmd
-
 [Windows]
 Desktop ansible_host=192.168.2.9
 Windows-11VM ansible_host=192.168.2.16 
 #Kurts-Laptop ansible_host=192.168.2.70
-
-[Windows:vars]
-ANSIBLE_HOST_KEY_CHECKING=false
-ansible_user=kurt
-ansible_ssh_pass=steven87
-ansible_connection=ssh
-ansible_shell_type=cmd

@@ -1,0 +1,4 @@
+---
+ansible_user: "{{ default_linux_user }}"
+ansible_ssh_pass: "{{ default_ssh_password }}"
+ansible_sudo_pass: "{{ default_sudo_password }}"

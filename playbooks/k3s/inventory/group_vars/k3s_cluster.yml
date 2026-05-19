@@ -1,0 +1,14 @@
+---
+ansible_user: kurt
+k3s_node_network: 192.168.201
+k3s_node_ip_suffixes:
+  k3s_c1: 31
+  k3s_c2: 32
+  k3s_c3: 33
+  k3s_w1: 34
+  k3s_w2: 35
+  k3s_w3: 36
+
+k3s_install_script: /tmp/k3s-install.sh
+k3s_server_args: --write-kubeconfig-mode=644
+k3s_agent_args:
