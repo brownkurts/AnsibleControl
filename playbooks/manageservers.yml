@@ -14,7 +14,7 @@
 
 
 - name: Manage Tactical RMM server
-  hosts: tactical
+  hosts: tactical_hosts
   become: true
   gather_facts: true
   serial: 1
