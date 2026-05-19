@@ -1,0 +1,113 @@
+---
+- name: Prepare K3s nodes
+  hosts: k3s_cluster
+  become: true
+  gather_facts: true
+  tasks:
+    - name: Enable IPv4 forwarding
+      ansible.posix.sysctl:
+        name: net.ipv4.ip_forward
+        value: "1"
+        state: present
+        reload: true
+
+    - name: Load br_netfilter kernel module
+      ansible.builtin.command: modprobe br_netfilter
+      changed_when: false
+      failed_when: false
+
+    - name: Enable bridged IPv4 traffic for iptables
+      ansible.posix.sysctl:
+        name: net.bridge.bridge-nf-call-iptables
+        value: "1"
+        state: present
+        reload: true
+      ignore_errors: true
+
+    - name: Install K3s prerequisites
+      ansible.builtin.apt:
+        name:
+          - curl
+          - open-iscsi
+          - nfs-common
+        state: present
+        update_cache: true
+      when: ansible_facts['os_family'] == 'Debian'
+
+    - name: Download K3s install script
+      ansible.builtin.get_url:
+        url: https://get.k3s.io
+        dest: "{{ k3s_install_script }}"
+        mode: "0755"
+
+- name: Install first K3s server
+  hosts: k3s_servers[0]
+  become: true
+  gather_facts: false
+  tasks:
+    - name: Install K3s server
+      ansible.builtin.command: "sh {{ k3s_install_script }}"
+      environment:
+        INSTALL_K3S_EXEC: "server --cluster-init {{ k3s_server_args | default('') }}"
+      args:
+        creates: /etc/systemd/system/k3s.service
+
+    - name: Wait for K3s node token
+      ansible.builtin.wait_for:
+        path: /var/lib/rancher/k3s/server/node-token
+
+    - name: Read K3s node token
+      ansible.builtin.slurp:
+        src: /var/lib/rancher/k3s/server/node-token
+      register: k3s_node_token
+      no_log: true
+
+    - name: Save K3s token for joining nodes
+      ansible.builtin.set_fact:
+        k3s_token: "{{ k3s_node_token.content | b64decode | trim }}"
+      no_log: true
+
+- name: Install additional K3s servers
+  hosts: k3s_servers[1:]
+  become: true
+  gather_facts: false
+  vars:
+    k3s_first_server: "{{ groups['k3s_servers'][0] }}"
+    k3s_server_url: "https://{{ hostvars[k3s_first_server].ansible_host | default(k3s_first_server) }}:6443"
+  tasks:
+    - name: Join K3s server to cluster
+      ansible.builtin.command: "sh {{ k3s_install_script }}"
+      environment:
+        K3S_URL: "{{ k3s_server_url }}"
+        K3S_TOKEN: "{{ hostvars[k3s_first_server].k3s_token }}"
+        INSTALL_K3S_EXEC: "server {{ k3s_server_args | default('') }}"
+      args:
+        creates: /etc/systemd/system/k3s.service
+      no_log: true
+
+- name: Install K3s agents
+  hosts: k3s_agents
+  become: true
+  gather_facts: false
+  vars:
+    k3s_first_server: "{{ groups['k3s_servers'][0] }}"
+    k3s_server_url: "https://{{ hostvars[k3s_first_server].ansible_host | default(k3s_first_server) }}:6443"
+  tasks:
+    - name: Join K3s agent to cluster
+      ansible.builtin.command: "sh {{ k3s_install_script }}"
+      environment:
+        K3S_URL: "{{ k3s_server_url }}"
+        K3S_TOKEN: "{{ hostvars[k3s_first_server].k3s_token }}"
+        INSTALL_K3S_EXEC: "agent {{ k3s_agent_args | default('') }}"
+      args:
+        creates: /etc/systemd/system/k3s-agent.service
+      no_log: true
+
+- name: Verify K3s cluster
+  hosts: k3s_servers[0]
+  become: true
+  gather_facts: false
+  tasks:
+    - name: Wait for nodes to report ready
+      ansible.builtin.command: k3s kubectl wait --for=condition=Ready nodes --all --timeout=300s
+      changed_when: false

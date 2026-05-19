@@ -16,7 +16,6 @@
         - zoom
         - 7zip
         - git
-        - rocketchat
         - github-desktop
         - obsidian
         state: present
