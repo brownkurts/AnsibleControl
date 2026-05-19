@@ -1,0 +1,237 @@
+---
+- name: Install required packages for LinuxRMM agent
+  ansible.builtin.apt:
+    name: "{{ linuxrmm_required_packages }}"
+    state: present
+    update_cache: true
+
+- name: Fail if LinuxRMM auth key is empty
+  ansible.builtin.fail:
+    msg: "auth_key is empty. LinuxRMM may install but will not register in Tactical."
+  when: auth_key | length == 0
+
+- name: Check if LinuxRMM agent binary exists
+  ansible.builtin.stat:
+    path: "{{ rmm_installed_check }}"
+  register: rmm_agent
+
+- name: Check if tacticalagent service exists
+  ansible.builtin.command: systemctl list-unit-files tacticalagent.service --no-legend
+  register: tacticalagent_service_exists
+  changed_when: false
+  failed_when: false
+
+- name: Check tacticalagent service status before repair
+  ansible.builtin.command: systemctl is-active tacticalagent
+  register: tacticalagent_status_pre
+  changed_when: false
+  failed_when: false
+
+- name: Check meshagent service status before repair
+  ansible.builtin.command: systemctl is-active meshagent
+  register: meshagent_status_pre
+  changed_when: false
+  failed_when: false
+
+- name: Determine if full LinuxRMM install is needed
+  ansible.builtin.set_fact:
+    linuxrmm_needs_install: >-
+      {{
+        not rmm_agent.stat.exists
+        or tacticalagent_service_exists.rc != 0
+      }}
+
+- name: Determine if LinuxRMM repair is needed
+  ansible.builtin.set_fact:
+    linuxrmm_needs_repair: >-
+      {{
+        linuxrmm_force_reinstall | bool
+        or linuxrmm_needs_install | bool
+        or (
+          linuxrmm_repair_if_broken | bool
+          and tacticalagent_status_pre.stdout | default('inactive') != 'active'
+        )
+      }}
+
+- name: Ensure LinuxRMM installation directory exists
+  ansible.builtin.file:
+    path: "{{ linuxrmm_install_dir }}"
+    state: directory
+    mode: "0755"
+
+- name: Download latest LinuxRMM installation script
+  ansible.builtin.shell: |
+    curl -fsSL "{{ linuxrmm_script_url }}" -o "{{ linuxrmm_script_path }}"
+    chmod 0755 "{{ linuxrmm_script_path }}"
+  args:
+    executable: /bin/bash
+  changed_when: false
+  when: linuxrmm_needs_install | bool or linuxrmm_force_reinstall | bool
+
+# Existing healthy installs: update binary only, do not re-register.
+- name: Download latest rmmagent binary for existing install
+  ansible.builtin.shell: |
+    set -e
+    curl -fsSL "{{ linuxrmm_agent_binary_url }}" -o /tmp/rmmagent.new
+    chmod 0755 /tmp/rmmagent.new
+  args:
+    executable: /bin/bash
+  changed_when: true
+  failed_when: false
+  register: rmmagent_binary_download
+  when:
+    - linuxrmm_update_existing | bool
+    - rmm_agent.stat.exists
+    - not linuxrmm_force_reinstall | bool
+    - linuxrmm_agent_binary_url | length > 0
+
+- name: Stop tacticalagent before binary update
+  ansible.builtin.systemd:
+    name: tacticalagent
+    state: stopped
+  failed_when: false
+  when:
+    - rmmagent_binary_download is defined
+    - rmmagent_binary_download.rc | default(1) == 0
+
+- name: Replace rmmagent binary only
+  ansible.builtin.copy:
+    src: /tmp/rmmagent.new
+    dest: "{{ rmm_installed_check }}"
+    owner: root
+    group: root
+    mode: "0755"
+    remote_src: true
+  when:
+    - rmmagent_binary_download is defined
+    - rmmagent_binary_download.rc | default(1) == 0
+
+- name: Start tacticalagent after binary update
+  ansible.builtin.systemd:
+    name: tacticalagent
+    enabled: true
+    state: started
+  failed_when: false
+  when:
+    - rmmagent_binary_download is defined
+    - rmmagent_binary_download.rc | default(1) == 0
+
+# Full installer only for missing/broken install or forced reinstall.
+- name: Stop LinuxRMM services before full install or force reinstall
+  ansible.builtin.systemd:
+    name: "{{ item }}"
+    state: stopped
+  loop: "{{ linuxrmm_services }}"
+  failed_when: false
+  when: linuxrmm_needs_repair | bool
+
+- name: Kill stuck LinuxRMM and Mesh processes before full install or force reinstall
+  ansible.builtin.shell: |
+    pgrep -x rmmagent | xargs -r kill -15 || true
+    pgrep -x tacticalagent | xargs -r kill -15 || true
+    pgrep -x meshagent | xargs -r kill -15 || true
+    sleep 2
+    pgrep -x rmmagent | xargs -r kill -9 || true
+    pgrep -x tacticalagent | xargs -r kill -9 || true
+    pgrep -x meshagent | xargs -r kill -9 || true
+  changed_when: false
+  failed_when: false
+  when: linuxrmm_needs_repair | bool
+
+- name: Remove old LinuxRMM binaries before force reinstall only
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: absent
+  loop:
+    - /usr/local/bin/rmmagent
+    - /etc/systemd/system/rmmagent.service
+    - /etc/systemd/system/tacticalagent.service
+    - /etc/systemd/system/meshagent.service
+  when: linuxrmm_force_reinstall | bool
+
+- name: Reload systemd before full install
+  ansible.builtin.systemd:
+    daemon_reload: true
+  when: linuxrmm_needs_repair | bool
+
+- name: Install missing or broken LinuxRMM agent
+  ansible.builtin.shell: |
+    set -e
+    {{ linuxrmm_script_path }} install \
+      '{{ mesh_url }}' '{{ api_url }}' \
+      '{{ client_id }}' '{{ site_id }}' \
+      '{{ auth_key }}' '{{ agent_type }}'
+  args:
+    chdir: "{{ linuxrmm_install_dir }}"
+    executable: /bin/bash
+  register: install_output
+  changed_when: true
+  when: linuxrmm_needs_install | bool or linuxrmm_force_reinstall | bool
+
+- name: Reload systemd after LinuxRMM install/update
+  ansible.builtin.systemd:
+    daemon_reload: true
+
+- name: Enable and start tacticalagent
+  ansible.builtin.systemd:
+    name: tacticalagent
+    enabled: true
+    state: restarted
+  failed_when: false
+
+- name: Enable and start meshagent
+  ansible.builtin.systemd:
+    name: meshagent
+    enabled: true
+    state: restarted
+  failed_when: false
+
+- name: Check tacticalagent service status
+  ansible.builtin.command: systemctl is-active tacticalagent
+  register: tacticalagent_status
+  changed_when: false
+  failed_when: false
+
+- name: Check meshagent service status
+  ansible.builtin.command: systemctl is-active meshagent
+  register: meshagent_status
+  changed_when: false
+  failed_when: false
+
+- name: Check Mesh agent binary paths
+  ansible.builtin.stat:
+    path: "{{ item }}"
+  loop: "{{ linuxrmm_mesh_paths }}"
+  register: mesh_path_checks
+
+- name: Set Mesh binary existence fact
+  ansible.builtin.set_fact:
+    linuxrmm_mesh_binary_exists: "{{ mesh_path_checks.results | selectattr('stat.exists') | list | length > 0 }}"
+
+- name: Fail if tacticalagent is not active
+  ansible.builtin.fail:
+    msg: "tacticalagent service is not active after install/update/repair."
+  when: tacticalagent_status.stdout != "active"
+
+- name: Warn if meshagent is not active
+  ansible.builtin.debug:
+    msg: "WARNING: meshagent is not active or missing. Tactical may work, but Mesh remote access may not."
+  when: meshagent_status.stdout != "active"
+
+- name: Fail if Mesh is required but not active
+  ansible.builtin.fail:
+    msg: "Mesh is required, but meshagent is not active."
+  when:
+    - linuxrmm_mesh_required | bool
+    - meshagent_status.stdout != "active"
+
+- name: Show LinuxRMM status
+  ansible.builtin.debug:
+    msg:
+      - "needs_install: {{ linuxrmm_needs_install }}"
+      - "needs_repair: {{ linuxrmm_needs_repair }}"
+      - "binary_update_attempted: {{ rmmagent_binary_download is defined }}"
+      - "binary_update_rc: {{ rmmagent_binary_download.rc | default('not_run') }}"
+      - "tacticalagent: {{ tacticalagent_status.stdout | default('unknown') }}"
+      - "meshagent: {{ meshagent_status.stdout | default('unknown') }}"
+      - "mesh_binary_exists: {{ linuxrmm_mesh_binary_exists | default(false) }}"

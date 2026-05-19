@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+systemctl is-active --quiet pihole-FTL
+dig @127.0.0.1 pi.hole +time=2 +tries=1 >/dev/null 2>&1

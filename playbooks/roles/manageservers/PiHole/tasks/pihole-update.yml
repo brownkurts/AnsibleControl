@@ -1,3 +1,0 @@
----
-  - name: pihole update
-    shell: pihole -up

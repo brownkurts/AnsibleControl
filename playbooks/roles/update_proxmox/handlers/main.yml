@@ -1,0 +1,5 @@
+---
+- name: Reboot if required
+  ansible.builtin.reboot:
+    msg: "Rebooting after upgrade"
+    reboot_timeout: "{{ reboot_timeout }}"

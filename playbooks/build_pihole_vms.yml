@@ -1,0 +1,156 @@
+---
+- name: Build Pi-hole VMs on Proxmox from local templates
+  hosts: localhost
+  gather_facts: false
+
+  tasks:
+    - name: Ensure community.proxmox collection is available
+      ansible.builtin.command: ansible-galaxy collection install community.proxmox
+      changed_when: false
+      failed_when: false
+
+    - name: Clone Pi-hole VM from template
+      community.proxmox.proxmox_kvm:
+        api_host: "{{ proxmox_api_host }}"
+        api_user: "{{ proxmox_api_user }}"
+        api_token_id: "{{ proxmox_api_token_id }}"
+        api_token_secret: "{{ vault_proxmox_api_token_secret }}"
+        validate_certs: "{{ proxmox_validate_certs | bool }}"
+        node: "{{ item.proxmox_node }}"
+        clone: "{{ item.clone_template }}"
+        newid: "{{ item.vmid }}"
+        name: "{{ item.name }}"
+        full: true
+        timeout: 600
+        storage: "{{ item.storage }}"
+        state: present
+      loop: "{{ pihole_servers }}"
+      loop_control:
+        label: "{{ item.name }}"
+
+    - name: Stop VM before qm set changes
+      ansible.builtin.command:
+        argv:
+          - qm
+          - stop
+          - "{{ item.vmid | string }}"
+      delegate_to: "{{ item.proxmox_node }}"
+      failed_when: false
+      changed_when: true
+      loop: "{{ pihole_servers }}"
+      loop_control:
+        label: "{{ item.name }}"
+
+    - name: Wait briefly after stop
+      ansible.builtin.pause:
+        seconds: 5
+
+    - name: Set VM CPU and memory
+      ansible.builtin.command:
+        argv:
+          - qm
+          - set
+          - "{{ item.vmid | string }}"
+          - --cores
+          - "{{ item.cores | string }}"
+          - --sockets
+          - "1"
+          - --memory
+          - "{{ item.memory | string }}"
+      delegate_to: "{{ item.proxmox_node }}"
+      changed_when: true
+      loop: "{{ pihole_servers }}"
+      loop_control:
+        label: "{{ item.name }}"
+
+    - name: Enable agent and onboot
+      ansible.builtin.command:
+        argv:
+          - qm
+          - set
+          - "{{ item.vmid | string }}"
+          - --agent
+          - "enabled=1"
+          - --onboot
+          - "1"
+      delegate_to: "{{ item.proxmox_node }}"
+      changed_when: true
+      loop: "{{ pihole_servers }}"
+      loop_control:
+        label: "{{ item.name }}"
+
+    - name: Set VM NIC with VLAN tag
+      ansible.builtin.command:
+        argv:
+          - qm
+          - set
+          - "{{ item.vmid | string }}"
+          - --net0
+          - "{{ proxmox_template_network_model }},bridge={{ proxmox_template_bridge }},tag={{ item.vlan_tag }}"
+      delegate_to: "{{ item.proxmox_node }}"
+      changed_when: true
+      loop: "{{ pihole_servers }}"
+      loop_control:
+        label: "{{ item.name }}"
+
+    - name: Set cloud-init user, DNS, and search domain
+      ansible.builtin.command:
+        argv:
+          - qm
+          - set
+          - "{{ item.vmid | string }}"
+          - --ciuser
+          - "{{ proxmox_template_ciuser }}"
+          - --nameserver
+          - "{{ proxmox_template_nameserver }}"
+          - --searchdomain
+          - "{{ proxmox_template_searchdomain }}"
+      delegate_to: "{{ item.proxmox_node }}"
+      changed_when: true
+      loop: "{{ pihole_servers }}"
+      loop_control:
+        label: "{{ item.name }}"
+
+    - name: Set cloud-init IP config
+      ansible.builtin.command:
+        argv:
+          - qm
+          - set
+          - "{{ item.vmid | string }}"
+          - --ipconfig0
+          - "ip={{ item.ip }}/{{ item.cidr | default(24) }},gw={{ item.gateway | default(pihole_gateway) }}"
+      delegate_to: "{{ item.proxmox_node }}"
+      changed_when: true
+      loop: "{{ pihole_servers }}"
+      loop_control:
+        label: "{{ item.name }}"
+
+    - name: Resize primary disk
+      ansible.builtin.command:
+        argv:
+          - qm
+          - resize
+          - "{{ item.vmid | string }}"
+          - scsi0
+          - "{{ item.disk_gb }}G"
+      delegate_to: "{{ item.proxmox_node }}"
+      failed_when: false
+      changed_when: true
+      loop: "{{ pihole_servers }}"
+      loop_control:
+        label: "{{ item.name }}"
+
+    - name: Start Pi-hole VMs
+      community.proxmox.proxmox_kvm:
+        api_host: "{{ proxmox_api_host }}"
+        api_user: "{{ proxmox_api_user }}"
+        api_token_id: "{{ proxmox_api_token_id }}"
+        api_token_secret: "{{ vault_proxmox_api_token_secret }}"
+        validate_certs: "{{ proxmox_validate_certs | bool }}"
+        node: "{{ item.proxmox_node }}"
+        vmid: "{{ item.vmid }}"
+        name: "{{ item.name }}"
+        state: started
+      loop: "{{ pihole_servers }}"
+      loop_control:
+        label: "{{ item.name }}"

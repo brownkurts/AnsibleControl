@@ -1,0 +1,23 @@
+---
+- name: Validate required variables
+  ansible.builtin.assert:
+    that:
+      - proxmox_api_host | length > 0
+      - proxmox_api_user | length > 0
+      - proxmox_api_token_id | length > 0
+      - proxmox_api_token_secret | length > 0
+      - proxmox_template_targets | length > 0
+      - proxmox_ubuntu_template.image_url | length > 0
+      - proxmox_ubuntu_template.image_filename | length > 0
+    fail_msg: "Required Proxmox template variables are missing."
+
+- name: Load SSH public key from controller
+  ansible.builtin.set_fact:
+    proxmox_template_ssh_key: "{{ lookup('file', proxmox_ubuntu_template.ssh_public_key_file) }}"
+
+- name: Build Ubuntu template on each target node
+  ansible.builtin.include_tasks: build_template.yml
+  loop: "{{ proxmox_template_targets }}"
+  loop_control:
+    loop_var: proxmox_template_target
+    label: "{{ proxmox_template_target.node }}"

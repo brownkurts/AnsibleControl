@@ -1,0 +1,7 @@
+---
+- name: Configure native Pi-hole HA
+  hosts: pihole_ha
+  become: true
+  roles:
+    - pihole_ha
+    - qemu-guest-agent

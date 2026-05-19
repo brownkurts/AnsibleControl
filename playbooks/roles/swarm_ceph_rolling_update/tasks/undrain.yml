@@ -1,0 +1,9 @@
+---
+- name: "Set node back to active (run from a manager)"
+  ansible.builtin.command: "docker node update --availability active {{ inventory_hostname }}"
+  delegate_to: "{{ swarm_delegate_manager }}"
+  when:
+    - in_swarm | default(false)
+    - should_drain | default(false)
+    - swarm_delegate_manager is defined
+    - swarm_delegate_manager | length > 0

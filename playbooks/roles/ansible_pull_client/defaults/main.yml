@@ -1,0 +1,14 @@
+---
+ansible_pull_repo: "https://github.com/brownkurts/ansible_pull_servers.git"
+ansible_pull_branch: "main"
+ansible_pull_playbook: "local.yml"
+
+ansible_pull_required_packages:
+  - ansible
+  - git
+
+ansible_pull_git_user: "brownkurts"
+ansible_pull_git_token: ""
+
+ansible_pull_git_credentials_file: "/root/.git-credentials"
+ansible_pull_run_now: true

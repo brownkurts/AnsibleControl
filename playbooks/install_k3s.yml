@@ -1,0 +1,121 @@
+- name: Install kube-vip static pod on all K3s servers
+  hosts: k3s
+  become: true
+  gather_facts: false
+  tasks:
+    - name: Remove old kube-vip manifests
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: absent
+      loop:
+        - /var/lib/rancher/k3s/server/manifests/kube-vip.yaml
+        - /var/lib/rancher/k3s/server/manifests/kube-vip-rbac.yaml
+
+    - name: Ensure manifests dir exists
+      ansible.builtin.file:
+        path: /var/lib/rancher/k3s/server/manifests
+        state: directory
+        mode: "0755"
+
+    - name: Install kube-vip RBAC
+      ansible.builtin.copy:
+        dest: /var/lib/rancher/k3s/server/manifests/kube-vip-rbac.yaml
+        mode: "0644"
+        content: |
+          apiVersion: v1
+          kind: ServiceAccount
+          metadata:
+            name: kube-vip
+            namespace: kube-system
+          ---
+          apiVersion: rbac.authorization.k8s.io/v1
+          kind: ClusterRole
+          metadata:
+            name: system:kube-vip-role
+          rules:
+            - apiGroups: [""]
+              resources: ["services", "services/status", "nodes", "endpoints"]
+              verbs: ["list","get","watch","update","patch"]
+            - apiGroups: [""]
+              resources: ["events"]
+              verbs: ["create","patch","update"]
+            - apiGroups: ["coordination.k8s.io"]
+              resources: ["leases"]
+              verbs: ["list","get","watch","create","update","patch"]
+          ---
+          apiVersion: rbac.authorization.k8s.io/v1
+          kind: ClusterRoleBinding
+          metadata:
+            name: system:kube-vip-role-binding
+          roleRef:
+            apiGroup: rbac.authorization.k8s.io
+            kind: ClusterRole
+            name: system:kube-vip-role
+          subjects:
+            - kind: ServiceAccount
+              name: kube-vip
+              namespace: kube-system
+
+    - name: Install kube-vip static pod manifest
+      ansible.builtin.copy:
+        dest: /var/lib/rancher/k3s/server/manifests/kube-vip.yaml
+        mode: "0644"
+        content: |
+          apiVersion: v1
+          kind: Pod
+          metadata:
+            name: kube-vip
+            namespace: kube-system
+            labels:
+              app.kubernetes.io/name: kube-vip
+          spec:
+            hostNetwork: true
+            serviceAccountName: kube-vip
+            containers:
+              - name: kube-vip
+                image: ghcr.io/kube-vip/kube-vip:{{ kube_vip_version }}
+                imagePullPolicy: IfNotPresent
+                args:
+                  - manager
+                env:
+                  - name: vip_arp
+                    value: "true"
+                  - name: port
+                    value: "6443"
+                  - name: vip_nodename
+                    valueFrom:
+                      fieldRef:
+                        fieldPath: spec.nodeName
+                  - name: vip_interface
+                    value: "{{ k3s_iface }}"
+                  - name: vip_address
+                    value: "{{ k3s_api_vip }}"
+                  - name: cp_enable
+                    value: "true"
+                  - name: cp_namespace
+                    value: "kube-system"
+                  - name: vip_leaderelection
+                    value: "true"
+                  - name: svc_enable
+                    value: "false"
+                securityContext:
+                  capabilities:
+                    add:
+                      - NET_ADMIN
+                      - NET_RAW
+                volumeMounts:
+                  - mountPath: /etc/kubernetes/admin.conf
+                    name: kubeconfig
+            volumes:
+              - name: kubeconfig
+                hostPath:
+                  path: /etc/rancher/k3s/k3s.yaml
+
+    - name: Restart k3s after kube-vip manifest change
+      ansible.builtin.systemd:
+        name: k3s
+        state: restarted
+
+    - name: Wait 15 seconds for kube-vip to settle
+      ansible.builtin.pause:
+        seconds: 15

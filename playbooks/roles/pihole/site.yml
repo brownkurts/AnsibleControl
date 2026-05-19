@@ -1,0 +1,3 @@
+---
+- import_playbook: build_pihole_vms.yml
+- import_playbook: configure_pihole_ha.yml

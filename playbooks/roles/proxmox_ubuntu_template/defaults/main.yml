@@ -1,0 +1,37 @@
+---
+proxmox_api_host: ""
+proxmox_api_user: ""
+proxmox_api_token_id: ""
+proxmox_api_token_secret: "{{ vault_proxmox_api_token_secret }}"
+proxmox_validate_certs: false
+
+proxmox_template_image_dir: "/var/lib/vz/template/qcow2"
+proxmox_template_snippet_storage: "local"
+proxmox_template_agent: 1
+proxmox_template_bridge: "vmbr0"
+proxmox_template_ciuser: "ubuntu"
+proxmox_template_nameserver: "1.1.1.1"
+proxmox_template_searchdomain: ""
+proxmox_template_memory: 2048
+proxmox_template_cores: 2
+proxmox_template_sockets: 1
+proxmox_template_cpu: "x86-64-v2-AES"
+proxmox_template_scsihw: "virtio-scsi-pci"
+proxmox_template_disk_format: "qcow2"
+proxmox_template_storage_default: "local-lvm"
+proxmox_template_network_model: "virtio"
+proxmox_template_ostype: "l26"
+proxmox_template_onboot: false
+proxmox_template_balloon: 0
+
+proxmox_ubuntu_template:
+  template_name_prefix: "tpl-ubuntu-2404"
+  image_url: "https://cloud-images.ubuntu.com/noble/current/noble-server-cloudimg-amd64.img"
+  image_filename: "noble-server-cloudimg-amd64.img"
+  checksum_url: "https://cloud-images.ubuntu.com/noble/current/SHA256SUMS"
+  image_checksum_algorithm: "sha256"
+  ssh_public_key_file: "~/.ssh/id_ed25519.pub"
+  reboot_after_template_build: false
+  force_rebuild: false
+
+proxmox_template_targets: []

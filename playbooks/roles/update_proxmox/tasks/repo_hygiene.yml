@@ -1,0 +1,109 @@
+---
+# Detect PVE major (falls back to OS if pveversion absent)
+- name: Read pveversion if present
+  ansible.builtin.shell: "pveversion -v | head -n1 | awk '{print $2}' | cut -d'.' -f1"
+  register: pve_major
+  changed_when: false
+  failed_when: false
+
+- name: Set facts for PVE/OS release
+  ansible.builtin.set_fact:
+    is_pve8: "{{ (pve_major.stdout | default('8')) | trim == '8' }}"
+    deb_codename: "{{ ansible_distribution_release | default('bookworm') }}"
+
+# ===== Proxmox repos =====
+- name: Disable/comment enterprise repo if present
+  ansible.builtin.replace:
+    path: /etc/apt/sources.list.d/pve-enterprise.list
+    regexp: '^(deb\s+http.*)$'
+    replace: '# \1'
+  ignore_errors: true
+
+# Keep exactly ONE no-subscription file
+- name: Ensure canonical pve-no-subscription.list exists
+  ansible.builtin.copy:
+    dest: /etc/apt/sources.list.d/pve-no-subscription.list
+    content: "deb http://download.proxmox.com/debian/pve {{ deb_codename }} pve-no-subscription\n"
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Remove duplicate PVE repo files that cause dup warnings
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: absent
+  loop:
+    - /etc/apt/sources.list.d/pve-install-repo.list
+    - /etc/apt/sources.list.d/pve-no-enterprise.list
+  ignore_errors: true
+
+# ===== Ceph repos (PVE 8 = Reef only) =====
+- name: Remove Ceph Quincy repos on PVE 8
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: absent
+  loop:
+    - /etc/apt/sources.list.d/download_proxmox_com_debian_ceph_quincy.list
+    - /etc/apt/sources.list.d/ceph-quincy.list
+  when: is_pve8
+  ignore_errors: true
+
+- name: Ensure Ceph Reef repo (no-subscription) on PVE 8
+  ansible.builtin.copy:
+    dest: /etc/apt/sources.list.d/ceph.list
+    content: "deb http://download.proxmox.com/debian/ceph reef {{ deb_codename }} no-subscription\n"
+    owner: root
+    group: root
+    mode: '0644'
+  when: is_pve8
+
+# If you’re actually on PVE 7/Bullseye, flip the logic: keep Quincy and remove Reef.
+# (Uncomment these two + set condition accordingly)
+# - file: { path: /etc/apt/sources.list.d/ceph.list, state: absent }   # remove reef on PVE 7
+# - copy: { dest: /etc/apt/sources.list.d/ceph-quincy.list, content: "deb http://download.proxmox.com/debian/ceph quincy bullseye no-subscription\n", owner: root, group: root, mode: '0644' }
+
+# ===== Unstick dpkg if a prior run hung mid-transaction =====
+- name: Make APT fully non-interactive
+  ansible.builtin.set_fact:
+    apt_env:
+      DEBIAN_FRONTEND: noninteractive
+      APT_LISTCHANGES_FRONTEND: none
+      NEEDRESTART_MODE: a
+      UCF_FORCE_CONFFNEW: "1"
+
+- name: Clean apt cache
+  ansible.builtin.apt:
+    autoclean: yes
+    force_apt_get: yes
+    lock_timeout: 600
+  environment: "{{ apt_env }}"
+
+- name: Remove stale locks if no dpkg/apt running
+  ansible.builtin.shell: |
+    set -e
+    if ! pgrep -f 'apt|dpkg' >/dev/null; then
+      rm -f /var/lib/dpkg/lock-frontend /var/lib/apt/lists/lock /var/cache/apt/archives/lock
+    fi
+  args: { executable: /bin/bash }
+
+- name: Ensure dpkg status is consistent
+  ansible.builtin.shell: |
+    set -e
+    dpkg --configure -a || true
+    apt-get -o Dpkg::Options::="--force-confdef" \
+            -o Dpkg::Options::="--force-confold" \
+            -y -f install
+  environment: "{{ apt_env }}"
+  args: { executable: /bin/bash }
+
+- name: Update apt cache after repo fixes
+  ansible.builtin.apt:
+    update_cache: yes
+    cache_valid_time: 3600
+    force_apt_get: yes
+    lock_timeout: 600
+  environment: "{{ apt_env }}"
+  register: _update
+  retries: 3
+  delay: 10
+  until: _update is succeeded

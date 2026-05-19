@@ -1,0 +1,19 @@
+---
+- name: check disk space
+  hosts: "ubuntu, docker, k3s, pihole"
+  tasks:
+    - name: get disk usage
+      shell: df -h / | awk 'NR==2 {print $5}'
+      register: disk_usage
+
+    - name: Send notification via Gotify
+      uri:
+        url: "https://gotify.kbtech.org/message?token=AsTCKdEFGMaMAb4"
+        method: POST
+        body_format: json
+        body:
+          message: "Disk space on {{ inventory_hostname }} is above 80%! (Used: {{ disk_usage.stdout }})"
+          title: "Disk Alert"
+          priority: 5
+        status_code: 200
+      when: disk_usage.stdout[:-1] | int > 80

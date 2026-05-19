@@ -1,0 +1,1872 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE nmaprun>
+<?xml-stylesheet href="file:///usr/bin/../share/nmap/nmap.xsl" type="text/xsl"?>
+<!-- Nmap 7.80 scan initiated Fri Apr 24 02:34:57 2026 as: nmap -oX /home/kurt/ansible/AnsibleControl/playbooks/discovery/../../reports/discovery/scan.xml -sn 192.168.2.0/24 192.168.201.0/24 10.3.1.0/24 192.168.1.0/24 -->
+<nmaprun scanner="nmap" args="nmap -oX /home/kurt/ansible/AnsibleControl/playbooks/discovery/../../reports/discovery/scan.xml -sn 192.168.2.0/24 192.168.201.0/24 10.3.1.0/24 192.168.1.0/24" start="1776998097" startstr="Fri Apr 24 02:34:57 2026" version="7.80" xmloutputversion="1.04">
+<verbose level="0"/>
+<debugging level="0"/>
+<host><status state="up" reason="syn-ack" reason_ttl="0"/>
+<address addr="192.168.2.2" addrtype="ipv4"/>
+<hostnames>
+<hostname name="pi.hole" type="PTR"/>
+</hostnames>
+<times srtt="569" rttvar="5000" to="100000"/>
+</host>
+<host><status state="up" reason="syn-ack" reason_ttl="0"/>
+<address addr="192.168.2.3" addrtype="ipv4"/>
+<hostnames>
+<hostname name="pi.hole" type="PTR"/>
+</hostnames>
+<times srtt="804" rttvar="5000" to="100000"/>
+</host>
+<host><status state="up" reason="syn-ack" reason_ttl="0"/>
+<address addr="192.168.2.4" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="901" rttvar="5000" to="100000"/>
+</host>
+<host><status state="up" reason="syn-ack" reason_ttl="0"/>
+<address addr="192.168.2.9" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="834" rttvar="5000" to="100000"/>
+</host>
+<host><status state="up" reason="syn-ack" reason_ttl="0"/>
+<address addr="192.168.2.21" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="360" rttvar="5000" to="100000"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.2.36" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="1960" rttvar="5000" to="100000"/>
+</host>
+<host><status state="up" reason="syn-ack" reason_ttl="0"/>
+<address addr="192.168.2.37" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="608" rttvar="5000" to="100000"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.2.40" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="969" rttvar="5000" to="100000"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.2.90" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="107387" rttvar="107387" to="536935"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.2.102" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="817" rttvar="5000" to="100000"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.2.110" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="843" rttvar="5000" to="100000"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.2.112" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="2544" rttvar="5000" to="100000"/>
+</host>
+<host><status state="up" reason="syn-ack" reason_ttl="0"/>
+<address addr="192.168.2.156" addrtype="ipv4"/>
+<hostnames>
+<hostname name="Ansible" type="PTR"/>
+</hostnames>
+<times srtt="82" rttvar="5000" to="100000"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.2.164" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="97810" rttvar="97810" to="489050"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.2.173" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="60568" rttvar="60568" to="302840"/>
+</host>
+<host><status state="up" reason="syn-ack" reason_ttl="0"/>
+<address addr="192.168.2.178" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="3666" rttvar="5000" to="100000"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.2.201" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="706" rttvar="5000" to="100000"/>
+</host>
+<host><status state="up" reason="syn-ack" reason_ttl="0"/>
+<address addr="192.168.2.202" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="1221" rttvar="5000" to="100000"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.2.204" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="123" rttvar="5000" to="100000"/>
+</host>
+<host><status state="up" reason="syn-ack" reason_ttl="0"/>
+<address addr="192.168.2.211" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="745" rttvar="5000" to="100000"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.2.212" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="330" rttvar="5000" to="100000"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.2.215" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="218" rttvar="5000" to="100000"/>
+</host>
+<host><status state="up" reason="syn-ack" reason_ttl="0"/>
+<address addr="192.168.2.216" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="795" rttvar="5000" to="100000"/>
+</host>
+<host><status state="up" reason="syn-ack" reason_ttl="0"/>
+<address addr="192.168.2.250" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="1385" rttvar="5000" to="100000"/>
+</host>
+<host><status state="up" reason="syn-ack" reason_ttl="0"/>
+<address addr="192.168.2.251" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="1286" rttvar="5000" to="100000"/>
+</host>
+<host><status state="up" reason="syn-ack" reason_ttl="0"/>
+<address addr="192.168.2.254" addrtype="ipv4"/>
+<hostnames>
+<hostname name="_gateway" type="PTR"/>
+</hostnames>
+<times srtt="914" rttvar="5000" to="100000"/>
+</host>
+<host><status state="up" reason="syn-ack" reason_ttl="0"/>
+<address addr="192.168.201.1" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="906" rttvar="5000" to="100000"/>
+</host>
+<host><status state="up" reason="syn-ack" reason_ttl="0"/>
+<address addr="192.168.201.10" addrtype="ipv4"/>
+<hostnames>
+<hostname name="prowlarr.kbtech.org" type="PTR"/>
+</hostnames>
+<times srtt="5184" rttvar="5184" to="100000"/>
+</host>
+<host><status state="up" reason="syn-ack" reason_ttl="0"/>
+<address addr="192.168.201.11" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="4916" rttvar="5000" to="100000"/>
+</host>
+<host><status state="up" reason="syn-ack" reason_ttl="0"/>
+<address addr="192.168.201.12" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="4710" rttvar="5000" to="100000"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.201.13" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="3756" rttvar="5000" to="100000"/>
+</host>
+<host><status state="up" reason="syn-ack" reason_ttl="0"/>
+<address addr="192.168.201.15" addrtype="ipv4"/>
+<hostnames>
+<hostname name="portainer.kbtech.org" type="PTR"/>
+</hostnames>
+<times srtt="1735" rttvar="5000" to="100000"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.201.51" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="644" rttvar="5000" to="100000"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.201.52" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="2609" rttvar="5000" to="100000"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.201.53" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="1964" rttvar="5000" to="100000"/>
+</host>
+<host><status state="up" reason="syn-ack" reason_ttl="0"/>
+<address addr="192.168.201.60" addrtype="ipv4"/>
+<hostnames>
+<hostname name="proxy.kbtech.org" type="PTR"/>
+</hostnames>
+<times srtt="4998" rttvar="5000" to="100000"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="10.3.1.0" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="25583" rttvar="25583" to="127915"/>
+</host>
+<host><status state="up" reason="syn-ack" reason_ttl="0"/>
+<address addr="10.3.1.1" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="19331" rttvar="19331" to="100000"/>
+</host>
+<host><status state="up" reason="syn-ack" reason_ttl="0"/>
+<address addr="10.3.1.2" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="20195" rttvar="20195" to="100975"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="10.3.1.10" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="38216" rttvar="38216" to="191080"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="10.3.1.12" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="25820" rttvar="25820" to="129100"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="10.3.1.13" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="30676" rttvar="30676" to="153380"/>
+</host>
+<host><status state="up" reason="syn-ack" reason_ttl="0"/>
+<address addr="10.3.1.15" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="17754" rttvar="17754" to="100000"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="10.3.1.18" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="31315" rttvar="31315" to="156575"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="10.3.1.20" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="31247" rttvar="31247" to="156235"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="10.3.1.21" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="22049" rttvar="22049" to="110245"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="10.3.1.23" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="63939" rttvar="63939" to="319695"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="10.3.1.24" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="51598" rttvar="51598" to="257990"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="10.3.1.27" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="29771" rttvar="29771" to="148855"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="10.3.1.28" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="15518" rttvar="15518" to="100000"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="10.3.1.29" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="93413" rttvar="93413" to="467065"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="10.3.1.30" addrtype="ipv4"/>
+<hostnames>
+<hostname name="agent.kbtech.org" type="PTR"/>
+</hostnames>
+<times srtt="30555" rttvar="30555" to="152775"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="10.3.1.32" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="46440" rttvar="46440" to="232200"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="10.3.1.33" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="46185" rttvar="46185" to="230925"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="10.3.1.39" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="29835" rttvar="29835" to="149175"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="10.3.1.41" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="68039" rttvar="68039" to="340195"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="10.3.1.45" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="27231" rttvar="27231" to="136155"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="10.3.1.46" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="18847" rttvar="18847" to="100000"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="10.3.1.52" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="39101" rttvar="39101" to="195505"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="10.3.1.53" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="22355" rttvar="22355" to="111775"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="10.3.1.54" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="65544" rttvar="65544" to="327720"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="10.3.1.55" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="16827" rttvar="16827" to="100000"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="10.3.1.56" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="103459" rttvar="103459" to="517295"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="10.3.1.59" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="123530" rttvar="123530" to="617650"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="10.3.1.62" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="23410" rttvar="23410" to="117050"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="10.3.1.66" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="57227" rttvar="57227" to="286135"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="10.3.1.68" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="40754" rttvar="40754" to="203770"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="10.3.1.69" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="37911" rttvar="37911" to="189555"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="10.3.1.72" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="37820" rttvar="37820" to="189100"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="10.3.1.73" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="33073" rttvar="33073" to="165365"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="10.3.1.74" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="22670" rttvar="22670" to="113350"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="10.3.1.76" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="17155" rttvar="17155" to="100000"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="10.3.1.77" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="17239" rttvar="17239" to="100000"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="10.3.1.81" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="32143" rttvar="32143" to="160715"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="10.3.1.82" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="31802" rttvar="31802" to="159010"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="10.3.1.85" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="28061" rttvar="28061" to="140305"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="10.3.1.87" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="46405" rttvar="46405" to="232025"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="10.3.1.89" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="24060" rttvar="24060" to="120300"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="10.3.1.90" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="17632" rttvar="17632" to="100000"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="10.3.1.93" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="33889" rttvar="33889" to="169445"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="10.3.1.95" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="77547" rttvar="77547" to="387735"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="10.3.1.96" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="21324" rttvar="21324" to="106620"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="10.3.1.97" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="53068" rttvar="53068" to="265340"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="10.3.1.98" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="70144" rttvar="70144" to="350720"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="10.3.1.99" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="70078" rttvar="70078" to="350390"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="10.3.1.100" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="23937" rttvar="23937" to="119685"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="10.3.1.103" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="67712" rttvar="67712" to="338560"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="10.3.1.106" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="67669" rttvar="67669" to="338345"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="10.3.1.107" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="114590" rttvar="114590" to="572950"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="10.3.1.109" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="20471" rttvar="20471" to="102355"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="10.3.1.110" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="15664" rttvar="15664" to="100000"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="10.3.1.111" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="24532" rttvar="24532" to="122660"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="10.3.1.113" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="18312" rttvar="18312" to="100000"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="10.3.1.114" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="20023" rttvar="20023" to="100115"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="10.3.1.116" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="43117" rttvar="43117" to="215585"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="10.3.1.118" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="55358" rttvar="55358" to="276790"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="10.3.1.119" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="84967" rttvar="84967" to="424835"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="10.3.1.121" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="16420" rttvar="16420" to="100000"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="10.3.1.122" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="55797" rttvar="55797" to="278985"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="10.3.1.123" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="21661" rttvar="21661" to="108305"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="10.3.1.130" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="38900" rttvar="38900" to="194500"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="10.3.1.131" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="59678" rttvar="59678" to="298390"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="10.3.1.134" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="84944" rttvar="84944" to="424720"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="10.3.1.139" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="21589" rttvar="21589" to="107945"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="10.3.1.141" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="16178" rttvar="16178" to="100000"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="10.3.1.143" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="37917" rttvar="37917" to="189585"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="10.3.1.145" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="52037" rttvar="52037" to="260185"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="10.3.1.146" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="57199" rttvar="57199" to="285995"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="10.3.1.147" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="23171" rttvar="23171" to="115855"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="10.3.1.148" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="23336" rttvar="23336" to="116680"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="10.3.1.149" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="33714" rttvar="33714" to="168570"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="10.3.1.151" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="22910" rttvar="22910" to="114550"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="10.3.1.153" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="79181" rttvar="79181" to="395905"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="10.3.1.156" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="132209" rttvar="132209" to="661045"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="10.3.1.158" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="35387" rttvar="35387" to="176935"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="10.3.1.159" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="29827" rttvar="29827" to="149135"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="10.3.1.160" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="19210" rttvar="19210" to="100000"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="10.3.1.161" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="65112" rttvar="65112" to="325560"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="10.3.1.162" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="22284" rttvar="22284" to="111420"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="10.3.1.163" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="33528" rttvar="33528" to="167640"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="10.3.1.166" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="65373" rttvar="65373" to="326865"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="10.3.1.172" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="28707" rttvar="28707" to="143535"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="10.3.1.173" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="84903" rttvar="84903" to="424515"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="10.3.1.175" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="80710" rttvar="80710" to="403550"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="10.3.1.178" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="46028" rttvar="46028" to="230140"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="10.3.1.181" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="53689" rttvar="53689" to="268445"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="10.3.1.182" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="33403" rttvar="33403" to="167015"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="10.3.1.183" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="75370" rttvar="75370" to="376850"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="10.3.1.184" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="103546" rttvar="103546" to="517730"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="10.3.1.188" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="69075" rttvar="69075" to="345375"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="10.3.1.190" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="29460" rttvar="29460" to="147300"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="10.3.1.194" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="107436" rttvar="107436" to="537180"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="10.3.1.202" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="24214" rttvar="24214" to="121070"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="10.3.1.206" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="17820" rttvar="17820" to="100000"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="10.3.1.208" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="35439" rttvar="35439" to="177195"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="10.3.1.209" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="39873" rttvar="39873" to="199365"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="10.3.1.211" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="28058" rttvar="28058" to="140290"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="10.3.1.213" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="27885" rttvar="27885" to="139425"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="10.3.1.214" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="21152" rttvar="21152" to="105760"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="10.3.1.216" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="16723" rttvar="16723" to="100000"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="10.3.1.217" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="101714" rttvar="101714" to="508570"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="10.3.1.218" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="23308" rttvar="23308" to="116540"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="10.3.1.220" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="25692" rttvar="25692" to="128460"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="10.3.1.221" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="69575" rttvar="69575" to="347875"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="10.3.1.223" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="66921" rttvar="66921" to="334605"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="10.3.1.224" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="38794" rttvar="38794" to="193970"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="10.3.1.225" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="41458" rttvar="41458" to="207290"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="10.3.1.227" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="91348" rttvar="91348" to="456740"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="10.3.1.231" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="23695" rttvar="23695" to="118475"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="10.3.1.232" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="88648" rttvar="88648" to="443240"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="10.3.1.233" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="17456" rttvar="17456" to="100000"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="10.3.1.235" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="88488" rttvar="88488" to="442440"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="10.3.1.238" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="17269" rttvar="17269" to="100000"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="10.3.1.239" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="75103" rttvar="75103" to="375515"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="10.3.1.240" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="17216" rttvar="17216" to="100000"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="10.3.1.241" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="16436" rttvar="16436" to="100000"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="10.3.1.242" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="37992" rttvar="37992" to="189960"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="10.3.1.243" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="34752" rttvar="34752" to="173760"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="10.3.1.247" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="24805" rttvar="24805" to="124025"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="10.3.1.248" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="18093" rttvar="18093" to="100000"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="10.3.1.249" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="18065" rttvar="18065" to="100000"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="10.3.1.251" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="60888" rttvar="60888" to="304440"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="10.3.1.252" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="30227" rttvar="30227" to="151135"/>
+</host>
+<host><status state="up" reason="syn-ack" reason_ttl="0"/>
+<address addr="192.168.1.1" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="35329" rttvar="35329" to="176645"/>
+</host>
+<host><status state="up" reason="syn-ack" reason_ttl="0"/>
+<address addr="192.168.1.2" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="35211" rttvar="35211" to="176055"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.1.4" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="45046" rttvar="45046" to="225230"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.1.5" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="61812" rttvar="61812" to="309060"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.1.6" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="55847" rttvar="55847" to="279235"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.1.7" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="43939" rttvar="43939" to="219695"/>
+</host>
+<host><status state="up" reason="syn-ack" reason_ttl="0"/>
+<address addr="192.168.1.9" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="41629" rttvar="41629" to="208145"/>
+</host>
+<host><status state="up" reason="syn-ack" reason_ttl="0"/>
+<address addr="192.168.1.10" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="38568" rttvar="38568" to="192840"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.1.11" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="61170" rttvar="61170" to="305850"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.1.12" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="74724" rttvar="74724" to="373620"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.1.15" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="62631" rttvar="62631" to="313155"/>
+</host>
+<host><status state="up" reason="syn-ack" reason_ttl="0"/>
+<address addr="192.168.1.16" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="59893" rttvar="59893" to="299465"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.1.17" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="75568" rttvar="75568" to="377840"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.1.20" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="33417" rttvar="33417" to="167085"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.1.21" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="92810" rttvar="92810" to="464050"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.1.22" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="38399" rttvar="38399" to="191995"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.1.23" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="67948" rttvar="67948" to="339740"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.1.24" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="65756" rttvar="65756" to="328780"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.1.25" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="58756" rttvar="58756" to="293780"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.1.27" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="64924" rttvar="64924" to="324620"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.1.31" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="34910" rttvar="34910" to="174550"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.1.35" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="46410" rttvar="46410" to="232050"/>
+</host>
+<host><status state="up" reason="syn-ack" reason_ttl="0"/>
+<address addr="192.168.1.36" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="70936" rttvar="70936" to="354680"/>
+</host>
+<host><status state="up" reason="syn-ack" reason_ttl="0"/>
+<address addr="192.168.1.37" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="37564" rttvar="37564" to="187820"/>
+</host>
+<host><status state="up" reason="syn-ack" reason_ttl="0"/>
+<address addr="192.168.1.38" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="37125" rttvar="37125" to="185625"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.1.40" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="62492" rttvar="62492" to="312460"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.1.41" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="48522" rttvar="48522" to="242610"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.1.42" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="37768" rttvar="37768" to="188840"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.1.44" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="59262" rttvar="59262" to="296310"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.1.45" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="57829" rttvar="57829" to="289145"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.1.46" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="76973" rttvar="76973" to="384865"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.1.50" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="34529" rttvar="34529" to="172645"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.1.53" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="74071" rttvar="74071" to="370355"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.1.54" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="39815" rttvar="39815" to="199075"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.1.55" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="37822" rttvar="37822" to="189110"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.1.56" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="39574" rttvar="39574" to="197870"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.1.57" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="36059" rttvar="36059" to="180295"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.1.65" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="43269" rttvar="43269" to="216345"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.1.67" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="120627" rttvar="120627" to="603135"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.1.68" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="41918" rttvar="41918" to="209590"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.1.71" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="43602" rttvar="43602" to="218010"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.1.72" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="37976" rttvar="37976" to="189880"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.1.74" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="41114" rttvar="41114" to="205570"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.1.75" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="35352" rttvar="35352" to="176760"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.1.78" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="56595" rttvar="56595" to="282975"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.1.79" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="32414" rttvar="32414" to="162070"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.1.82" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="94143" rttvar="94143" to="470715"/>
+</host>
+<host><status state="up" reason="syn-ack" reason_ttl="0"/>
+<address addr="192.168.1.83" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="68560" rttvar="68560" to="342800"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.1.85" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="46226" rttvar="46226" to="231130"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.1.87" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="42206" rttvar="42206" to="211030"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.1.88" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="69057" rttvar="69057" to="345285"/>
+</host>
+<host><status state="up" reason="syn-ack" reason_ttl="0"/>
+<address addr="192.168.1.89" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="75352" rttvar="75352" to="376760"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.1.90" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="32544" rttvar="32544" to="162720"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.1.91" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="72391" rttvar="72391" to="361955"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.1.93" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="32662" rttvar="32662" to="163310"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.1.94" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="64076" rttvar="64076" to="320380"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.1.95" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="78973" rttvar="78973" to="394865"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.1.96" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="115316" rttvar="115316" to="576580"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.1.97" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="38687" rttvar="38687" to="193435"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.1.99" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="46946" rttvar="46946" to="234730"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.1.100" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="42031" rttvar="42031" to="210155"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.1.101" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="87504" rttvar="87504" to="437520"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.1.104" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="34294" rttvar="34294" to="171470"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.1.107" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="32126" rttvar="32126" to="160630"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.1.108" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="49726" rttvar="49726" to="248630"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.1.109" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="32091" rttvar="32091" to="160455"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.1.111" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="76193" rttvar="76193" to="380965"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.1.112" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="39561" rttvar="39561" to="197805"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.1.113" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="43967" rttvar="43967" to="219835"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.1.114" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="34952" rttvar="34952" to="174760"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.1.120" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="72255" rttvar="72255" to="361275"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.1.126" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="44150" rttvar="44150" to="220750"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.1.127" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="33316" rttvar="33316" to="166580"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.1.128" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="118540" rttvar="118540" to="592700"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.1.129" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="39649" rttvar="39649" to="198245"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.1.130" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="74461" rttvar="74461" to="372305"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.1.132" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="114007" rttvar="114007" to="570035"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.1.133" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="113739" rttvar="113739" to="568695"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.1.134" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="36425" rttvar="36425" to="182125"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.1.135" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="36402" rttvar="36402" to="182010"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.1.138" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="124257" rttvar="124257" to="621285"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.1.139" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="32257" rttvar="32257" to="161285"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.1.144" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="64159" rttvar="64159" to="320795"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.1.148" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="59119" rttvar="59119" to="295595"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.1.149" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="44503" rttvar="44503" to="222515"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.1.154" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="59048" rttvar="59048" to="295240"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.1.155" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="73989" rttvar="73989" to="369945"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.1.156" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="34650" rttvar="34650" to="173250"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.1.160" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="34543" rttvar="34543" to="172715"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.1.161" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="39096" rttvar="39096" to="195480"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.1.163" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="62455" rttvar="62455" to="312275"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.1.164" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="49233" rttvar="49233" to="246165"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.1.168" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="41041" rttvar="41041" to="205205"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.1.170" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="48388" rttvar="48388" to="241940"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.1.171" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="48336" rttvar="48336" to="241680"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.1.172" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="36745" rttvar="36745" to="183725"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.1.173" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="40933" rttvar="40933" to="204665"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.1.174" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="59798" rttvar="59798" to="298990"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.1.176" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="40992" rttvar="40992" to="204960"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.1.177" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="64193" rttvar="64193" to="320965"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.1.178" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="74376" rttvar="74376" to="371880"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.1.179" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="32251" rttvar="32251" to="161255"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.1.181" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="87286" rttvar="87286" to="436430"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.1.183" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="61638" rttvar="61638" to="308190"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.1.184" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="53528" rttvar="53528" to="267640"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.1.186" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="35300" rttvar="35300" to="176500"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.1.188" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="35305" rttvar="35305" to="176525"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.1.189" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="109428" rttvar="109428" to="547140"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.1.190" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="120912" rttvar="120912" to="604560"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.1.191" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="80296" rttvar="80296" to="401480"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.1.192" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="40370" rttvar="40370" to="201850"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.1.194" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="40322" rttvar="40322" to="201610"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.1.198" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="39054" rttvar="39054" to="195270"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.1.199" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="102822" rttvar="102822" to="514110"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.1.200" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="32926" rttvar="32926" to="164630"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.1.201" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="89549" rttvar="89549" to="447745"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.1.204" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="123845" rttvar="123845" to="619225"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.1.205" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="35016" rttvar="35016" to="175080"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.1.206" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="34994" rttvar="34994" to="174970"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.1.207" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="80568" rttvar="80568" to="402840"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.1.208" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="65866" rttvar="65866" to="329330"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.1.210" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="65818" rttvar="65818" to="329090"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.1.213" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="36310" rttvar="36310" to="181550"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.1.214" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="52507" rttvar="52507" to="262535"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.1.215" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="52347" rttvar="52347" to="261735"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.1.216" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="32432" rttvar="32432" to="162160"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.1.217" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="33408" rttvar="33408" to="167040"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.1.221" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="34838" rttvar="34838" to="174190"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.1.222" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="50354" rttvar="50354" to="251770"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.1.223" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="42015" rttvar="42015" to="210075"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.1.224" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="111683" rttvar="111683" to="558415"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.1.225" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="39783" rttvar="39783" to="198915"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.1.226" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="41192" rttvar="41192" to="205960"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.1.227" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="34964" rttvar="34964" to="174820"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.1.228" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="34785" rttvar="34785" to="173925"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.1.231" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="82253" rttvar="82253" to="411265"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.1.239" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="34095" rttvar="34095" to="170475"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.1.241" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="49433" rttvar="49433" to="247165"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.1.245" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="84311" rttvar="84311" to="421555"/>
+</host>
+<host><status state="up" reason="syn-ack" reason_ttl="0"/>
+<address addr="192.168.1.246" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="37380" rttvar="37380" to="186900"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.1.248" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="32219" rttvar="32219" to="161095"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.1.249" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="74848" rttvar="74848" to="374240"/>
+</host>
+<host><status state="up" reason="syn-ack" reason_ttl="0"/>
+<address addr="192.168.1.250" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="35988" rttvar="35988" to="179940"/>
+</host>
+<host><status state="up" reason="syn-ack" reason_ttl="0"/>
+<address addr="192.168.1.251" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="44559" rttvar="44559" to="222795"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.1.253" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="107774" rttvar="107774" to="538870"/>
+</host>
+<host><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="192.168.1.254" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<times srtt="79206" rttvar="79206" to="396030"/>
+</host>
+<runstats><finished time="1776998127" timestr="Fri Apr 24 02:35:27 2026" elapsed="30.26" summary="Nmap done at Fri Apr 24 02:35:27 2026; 1024 IP addresses (309 hosts up) scanned in 30.26 seconds" exit="success"/><hosts up="309" down="715" total="1024"/>
+</runstats>
+</nmaprun>

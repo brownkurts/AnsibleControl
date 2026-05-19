@@ -1,0 +1,14 @@
+---
+- name: Check Ceph health after updates
+  ansible.builtin.command: ceph health
+  register: ceph_health_after
+  changed_when: false
+  failed_when: ceph_health_after.rc != 0
+  when: require_ceph_healthy
+
+- name: Fail if Ceph is not healthy after updates
+  ansible.builtin.fail:
+    msg: "Ceph not healthy after updates on {{ inventory_hostname }}: {{ ceph_health_after.stdout | default('no output') }}"
+  when:
+    - require_ceph_healthy
+    - ceph_health_after.stdout is not search(ceph_health_ok_regex)

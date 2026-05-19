@@ -1,0 +1,45 @@
+---
+linuxrmm_install_dir: "/opt/linuxrmm"
+linuxrmm_script_url: "https://raw.githubusercontent.com/netvolt/LinuxRMM-Script/main/rmmagent-linux.sh"
+linuxrmm_script_path: "{{ linuxrmm_install_dir }}/rmmagent-linux.sh"
+
+mesh_url: "https://mesh.kbtech.org/meshagents?script=1"
+api_url: "https://api.kbtech.org"
+
+client_id: "1"
+site_id: "1"
+auth_key: ""
+
+agent_type: "server"
+
+rmm_installed_check: "/usr/local/bin/rmmagent"
+
+# Existing agents:
+# true = download/update the rmmagent binary without re-registering device
+linuxrmm_update_existing: true
+
+# Only use this manually. It may create duplicate dashboard devices.
+linuxrmm_force_reinstall: false
+
+# Repair only if service/binary is missing or inactive
+linuxrmm_repair_if_broken: true
+
+linuxrmm_required_packages:
+  - curl
+  - wget
+  - ca-certificates
+  - sudo
+
+linuxrmm_services:
+  - tacticalagent
+  - meshagent
+
+# RMM agent binary download endpoint.
+# If this URL is wrong for your Tactical install, leave blank and update will restart only.
+linuxrmm_agent_binary_url: "https://api.kbtech.org/api/v3/agents/rmmagent-linux-amd64"
+
+# Mesh checks
+linuxrmm_mesh_required: false
+linuxrmm_mesh_paths:
+  - /opt/tacticalmesh/meshagent
+  - /opt/meshagent/meshagent

@@ -1,0 +1,25 @@
+---
+- name: Ensure .ssh directory exists
+  file:
+    path: "/home/{{ ansible_user }}/.ssh"
+    state: directory
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: '0700'
+
+- name: Check if SSH key exists
+  stat:
+    path: "{{ ssh_key_path }}"
+  register: ssh_key
+
+- name: Read public SSH key
+  slurp:
+    src: "{{ ssh_pub_key_path }}"
+  register: ssh_pub_key
+  when: ssh_key.stat.exists
+  
+- name: Add public key to authorized_keys
+  authorized_key:
+    user: "{{ ssh_key_user }}"
+    key: "{{ ssh_key_content['content'] | b64decode }}"
+    state: present

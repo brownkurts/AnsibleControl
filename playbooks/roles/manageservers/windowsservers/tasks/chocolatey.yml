@@ -1,8 +1,0 @@
----
-    - name: Install Apps with Choco
-      win_chocolatey:
-        name: 
-        - googlechrome
-        - adobereader
-        - notepadplusplus.install
-        state: present

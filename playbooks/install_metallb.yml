@@ -1,0 +1,46 @@
+---
+- name: Install MetalLB
+  hosts: k3s-1
+  become: true
+  gather_facts: false
+  tasks:
+    - name: Install MetalLB manifests
+      ansible.builtin.shell: |
+        /usr/local/bin/kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/{{ metallb_version }}/config/manifests/metallb-native.yaml
+      args:
+        executable: /bin/bash
+      changed_when: true
+
+    - name: Wait for MetalLB controller
+      ansible.builtin.shell: |
+        /usr/local/bin/kubectl -n metallb-system rollout status deploy/controller --timeout=300s
+      args:
+        executable: /bin/bash
+      changed_when: false
+
+    - name: Configure MetalLB IP pool
+      ansible.builtin.copy:
+        dest: /root/metallb-pool.yaml
+        mode: "0644"
+        content: |
+          apiVersion: metallb.io/v1beta1
+          kind: IPAddressPool
+          metadata:
+            name: {{ lb_pool_name }}
+            namespace: metallb-system
+          spec:
+            addresses:
+              - {{ lb_range }}
+          ---
+          apiVersion: metallb.io/v1beta1
+          kind: L2Advertisement
+          metadata:
+            name: {{ lb_pool_name }}-adv
+            namespace: metallb-system
+          spec:
+            ipAddressPools:
+              - {{ lb_pool_name }}
+
+    - name: Apply MetalLB pool
+      ansible.builtin.command: /usr/local/bin/kubectl apply -f /root/metallb-pool.yaml
+      changed_when: true
