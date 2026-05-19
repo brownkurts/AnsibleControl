@@ -1,19 +1,34 @@
 ---
 - name: check disk space
   hosts: "ubuntu, docker, k3s, pihole"
+  vars:
+    disk_alert_threshold: 80
   tasks:
     - name: get disk usage
       shell: df -h / | awk 'NR==2 {print $5}'
       register: disk_usage
 
-    - name: Send notification via Gotify
+    - name: Send notification via ntfy
       uri:
-        url: "{{ gotify_base_url }}/message?token={{ gotify_token }}"
+        url: "{{ ntfy_base_url | regex_replace('/+$', '') }}/{{ ntfy_topic }}"
         method: POST
-        body_format: json
-        body:
-          message: "Disk space on {{ inventory_hostname }} is above 80%! (Used: {{ disk_usage.stdout }})"
-          title: "Disk Alert"
-          priority: 5
-        status_code: 200
-      when: disk_usage.stdout[:-1] | int > 80
+        headers: "{{ ntfy_headers }}"
+        body: "Disk space on {{ inventory_hostname }} is above {{ disk_alert_threshold }}%! (Used: {{ disk_usage.stdout }})"
+        status_code:
+          - 200
+          - 201
+          - 202
+      vars:
+        ntfy_headers: >-
+          {{
+            {
+              'Title': 'Disk Alert',
+              'Priority': 'high',
+              'Tags': 'warning,floppy_disk'
+            }
+            | combine(
+                (ntfy_token | default('') | length > 0)
+                | ternary({'Authorization': 'Bearer ' ~ ntfy_token}, {})
+              )
+          }}
+      when: disk_usage.stdout | regex_replace('%', '') | int > disk_alert_threshold
