@@ -1,0 +1,49 @@
+---
+- name: Join dedicated worker nodes to the existing K3s cluster
+  hosts: k3s_workers
+  become: true
+  gather_facts: false
+  vars:
+    k3s_token_source_host: k3s-2
+    k3s_join_url: "https://{{ k3s_worker_join_server_ip }}:6443"
+
+  pre_tasks:
+    - name: Download K3s install script
+      ansible.builtin.shell: |
+        curl -sfL https://get.k3s.io -o {{ k3s_install_script | default('/tmp/k3s-install.sh') }}
+        chmod 0755 {{ k3s_install_script | default('/tmp/k3s-install.sh') }}
+      args:
+        executable: /bin/bash
+      changed_when: false
+
+    - name: Read existing K3s node token
+      ansible.builtin.slurp:
+        src: /var/lib/rancher/k3s/server/node-token
+      delegate_to: "{{ k3s_token_source_host }}"
+      run_once: true
+      register: k3s_existing_node_token
+      no_log: true
+
+    - name: Save existing K3s token for joining workers
+      ansible.builtin.set_fact:
+        k3s_join_token: "{{ k3s_existing_node_token.content | b64decode | trim }}"
+      run_once: true
+      no_log: true
+
+  tasks:
+    - name: Join worker to existing K3s cluster
+      ansible.builtin.command: "sh {{ k3s_install_script | default('/tmp/k3s-install.sh') }}"
+      environment:
+        K3S_URL: "{{ k3s_join_url }}"
+        K3S_TOKEN: "{{ hostvars[groups['k3s_workers'][0]].k3s_join_token }}"
+        INSTALL_K3S_VERSION: "{{ k3s_install_version }}"
+        INSTALL_K3S_EXEC: "agent {{ k3s_agent_args | default('') }}"
+      args:
+        creates: /etc/systemd/system/k3s-agent.service
+      no_log: true
+
+    - name: Ensure K3s agent is enabled and running
+      ansible.builtin.systemd:
+        name: k3s-agent
+        enabled: true
+        state: started
