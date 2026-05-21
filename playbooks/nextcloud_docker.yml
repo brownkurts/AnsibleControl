@@ -1,0 +1,154 @@
+---
+- name: Configure standalone Nextcloud Docker host
+  hosts: nextcloud
+  become: true
+  tasks:
+    - name: Install base packages
+      ansible.builtin.apt:
+        name:
+          - ca-certificates
+          - curl
+          - gnupg
+          - lsb-release
+          - mariadb-client
+          - rsync
+        state: present
+        update_cache: true
+
+    - name: Create apt keyring directory
+      ansible.builtin.file:
+        path: /etc/apt/keyrings
+        state: directory
+        mode: "0755"
+
+    - name: Download Docker apt key
+      ansible.builtin.command:
+        argv:
+          - curl
+          - -fsSL
+          - https://download.docker.com/linux/ubuntu/gpg
+          - -o
+          - /etc/apt/keyrings/docker.asc
+      changed_when: false
+
+    - name: Set Docker apt key permissions
+      ansible.builtin.file:
+        path: /etc/apt/keyrings/docker.asc
+        mode: "0644"
+
+    - name: Add Docker apt repository
+      ansible.builtin.apt_repository:
+        repo: "deb [arch=amd64 signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu noble stable"
+        filename: docker
+        state: present
+
+    - name: Install Docker packages
+      ansible.builtin.apt:
+        name:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+          - docker-buildx-plugin
+          - docker-compose-plugin
+        state: present
+        update_cache: true
+
+    - name: Add kurt to docker group
+      ansible.builtin.user:
+        name: kurt
+        groups: docker
+        append: true
+
+    - name: Create Nextcloud directories
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: directory
+        mode: "0755"
+      loop:
+        - /opt/nextcloud
+        - /opt/nextcloud/apache
+        - /opt/nextcloud/config
+        - /opt/nextcloud/custom_apps
+        - /opt/nextcloud/data
+        - /opt/nextcloud/db
+        - /opt/nextcloud/redis
+
+    - name: Install Nextcloud compose file
+      ansible.builtin.copy:
+        dest: /opt/nextcloud/compose.yml
+        mode: "0644"
+        content: |
+          services:
+            db:
+              image: mariadb:10.11
+              command: --transaction-isolation=READ-COMMITTED --binlog-format=ROW --innodb-file-per-table=1 --skip-name-resolve=1
+              restart: unless-stopped
+              environment:
+                MYSQL_DATABASE: ${MYSQL_DATABASE}
+                MYSQL_USER: ${MYSQL_USER}
+                MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+                MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+              volumes:
+                - /opt/nextcloud/db:/var/lib/mysql
+              healthcheck:
+                test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 --silent || exit 1"]
+                interval: 15s
+                timeout: 5s
+                retries: 10
+                start_period: 60s
+
+            redis:
+              image: redis:7-alpine
+              restart: unless-stopped
+              volumes:
+                - /opt/nextcloud/redis:/data
+
+            app:
+              image: nextcloud:apache
+              restart: unless-stopped
+              depends_on:
+                - db
+                - redis
+              ports:
+                - "8080:80"
+              environment:
+                MYSQL_HOST: db
+                MYSQL_DATABASE: ${MYSQL_DATABASE}
+                MYSQL_USER: ${MYSQL_USER}
+                MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+                REDIS_HOST: redis
+                NEXTCLOUD_ADMIN_USER: ${NEXTCLOUD_ADMIN_USER}
+                NEXTCLOUD_ADMIN_PASSWORD: ${NEXTCLOUD_ADMIN_PASSWORD}
+                NEXTCLOUD_TRUSTED_DOMAINS: nextcloud.kbtech.org 192.168.201.57
+                TRUSTED_PROXIES: 10.42.0.0/16 192.168.201.0/24
+                OVERWRITEHOST: nextcloud.kbtech.org
+                OVERWRITEPROTOCOL: https
+                OVERWRITECLIURL: https://nextcloud.kbtech.org
+                PHP_MEMORY_LIMIT: 1024M
+                PHP_UPLOAD_LIMIT: 10G
+                APACHE_BODY_LIMIT: 0
+              volumes:
+                - /opt/nextcloud/html:/var/www/html
+                - /opt/nextcloud/config:/var/www/html/config
+                - /opt/nextcloud/data:/var/www/html/data
+                - /opt/nextcloud/custom_apps:/var/www/html/custom_apps
+                - /opt/nextcloud/apache/apache-tuning.conf:/etc/apache2/conf-enabled/zzz-nextcloud-tuning.conf:ro
+              healthcheck:
+                test: ["CMD-SHELL", "php -r '$$s=@file_get_contents(\"http://127.0.0.1/status.php\"); if($$s===false) exit(1); $$j=json_decode($$s,true); if(!is_array($$j) || empty($$j[\"installed\"])) exit(1);'"]
+                interval: 30s
+                timeout: 10s
+                retries: 5
+                start_period: 120s
+
+            cron:
+              image: nextcloud:apache
+              restart: unless-stopped
+              entrypoint: /cron.sh
+              depends_on:
+                - db
+                - redis
+              volumes:
+                - /opt/nextcloud/html:/var/www/html
+                - /opt/nextcloud/config:/var/www/html/config
+                - /opt/nextcloud/data:/var/www/html/data
+                - /opt/nextcloud/custom_apps:/var/www/html/custom_apps

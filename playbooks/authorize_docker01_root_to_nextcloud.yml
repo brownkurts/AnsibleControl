@@ -1,0 +1,10 @@
+---
+- name: Allow docker-01 root rsync to Nextcloud during migration
+  hosts: nextcloud
+  become: true
+  tasks:
+    - name: Authorize docker-01 root SSH key
+      ansible.posix.authorized_key:
+        user: root
+        key: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIK7i9QV6PCZ/+qZBYTcwHct0l0Mwn97HXzQOQDI1O5PU cephadm"
+        state: present
