@@ -1,6 +1,6 @@
 ---
-- name: Bootstrap ansible-pull on all managed servers
-  hosts: all
+- name: Bootstrap ansible-pull on managed Linux servers
+  hosts: "{{ ansible_pull_target | default('control:ubuntu:nextcloud:tactical_hosts:docker:k3s_cluster:pihole') }}"
   become: true
   gather_facts: true
 
@@ -16,8 +16,8 @@
 
     ansible_pull_enable_cron: true
     ansible_pull_run_now: false
-    ansible_pull_cron_minute: "*/30"
-    ansible_pull_log_file: "/var/log/ansible-pull.log"
+    ansible_pull_cron_minute: "*/10"
+    ansible_pull_log_file: "/var/log/ansible-pull-servers.log"
 
   tasks:
     - name: Validate required GitHub token
@@ -34,6 +34,10 @@
           - git
         state: present
 
+    - name: Install required ansible-pull collection
+      ansible.builtin.command: ansible-galaxy collection install ansible.posix
+      changed_when: false
+
     - name: Write root Git credentials
       ansible.builtin.copy:
         dest: /root/.git-credentials
@@ -42,9 +46,12 @@
         mode: "0600"
         content: |
           https://{{ ansible_pull_git_username }}:{{ ansible_pull_git_token }}@github.com
+      no_log: true
 
     - name: Configure Git credential helper for root
       ansible.builtin.command: git config --global credential.helper store
+      environment:
+        HOME: /root
       changed_when: false
 
     - name: Create ansible-pull cron job
