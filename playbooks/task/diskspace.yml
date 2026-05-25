@@ -8,27 +8,19 @@
       shell: df -h / | awk 'NR==2 {print $5}'
       register: disk_usage
 
-    - name: Send notification via ntfy
+    - name: Send notification via Rocket.Chat
       uri:
-        url: "{{ ntfy_base_url | regex_replace('/+$', '') }}/{{ ntfy_topic }}"
+        url: "{{ rocketchat_alert_webhook_url }}"
         method: POST
-        headers: "{{ ntfy_headers }}"
-        body: "Disk space on {{ inventory_hostname }} is above {{ disk_alert_threshold }}%! (Used: {{ disk_usage.stdout }})"
+        body_format: json
+        body:
+          channel: "{{ rocketchat_alert_channel }}"
+          username: "{{ rocketchat_alert_username }}"
+          icon_emoji: ":warning:"
+          text: "Disk space on {{ inventory_hostname }} is above {{ disk_alert_threshold }}%! (Used: {{ disk_usage.stdout }})"
         status_code:
           - 200
           - 201
           - 202
-      vars:
-        ntfy_headers: >-
-          {{
-            {
-              'Title': 'Disk Alert',
-              'Priority': 'high',
-              'Tags': 'warning,floppy_disk'
-            }
-            | combine(
-                (ntfy_token | default('') | length > 0)
-                | ternary({'Authorization': 'Bearer ' ~ ntfy_token}, {})
-              )
-          }}
+      no_log: true
       when: disk_usage.stdout | regex_replace('%', '') | int > disk_alert_threshold
