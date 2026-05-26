@@ -1,0 +1,111 @@
+#cloud-config
+hostname: {{ item.name }}
+manage_etc_hosts: true
+ssh_pwauth: true
+
+users:
+  - default
+  - name: {{ item.ciuser | default(proxmox_template_ciuser) }}
+    gecos: Kurt Brown
+    shell: /bin/bash
+    groups: adm,cdrom,dip,plugdev,sudo
+    sudo: ALL=(ALL) ALL
+    lock_passwd: false
+    ssh_authorized_keys:
+      - {{ admin_desktop_ssh_public_key }}
+
+chpasswd:
+  expire: false
+  users:
+    - name: {{ item.ciuser | default(proxmox_template_ciuser) }}
+      password: {{ default_sudo_password | to_json }}
+      type: text
+
+package_update: true
+package_upgrade: false
+packages:
+{% for package in item.packages %}
+  - {{ package }}
+{% endfor %}
+
+write_files:
+  - path: /etc/ansible/ansible.cfg
+    owner: root:root
+    permissions: "0644"
+    content: |
+      [defaults]
+      host_key_checking = False
+      retry_files_enabled = False
+  - path: /usr/local/sbin/admin-desktop-bootstrap.sh
+    owner: root:root
+    permissions: "0755"
+    content: |
+      #!/usr/bin/env bash
+      set -euo pipefail
+      export DEBIAN_FRONTEND=noninteractive
+      user="{{ item.ciuser | default(proxmox_template_ciuser) }}"
+
+      install_admin_tools() {
+        install -d -m 0755 /etc/apt/keyrings /usr/share/keyrings
+
+        rm -f /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+        curl -fsSL "https://pkgs.k8s.io/core:/stable:/v1.31/deb/Release.key" |
+          gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+        printf '%s\n' "deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.31/deb/ /" \
+          > /etc/apt/sources.list.d/kubernetes.list
+
+        rm -f /usr/share/keyrings/helm.gpg
+        curl -fsSL https://packages.buildkite.com/helm-linux/helm-debian/gpgkey |
+          gpg --dearmor -o /usr/share/keyrings/helm.gpg
+        printf '%s\n' "deb [signed-by=/usr/share/keyrings/helm.gpg] https://packages.buildkite.com/helm-linux/helm-debian/any/ any main" \
+          > /etc/apt/sources.list.d/helm-stable-debian.list
+
+        curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg \
+          -o /etc/apt/keyrings/githubcli-archive-keyring.gpg
+        chmod 0644 /etc/apt/keyrings/githubcli-archive-keyring.gpg
+        printf '%s\n' "deb [arch=amd64 signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" \
+          > /etc/apt/sources.list.d/github-cli.list
+
+        apt-get update
+        apt-get install -y gh helm kubectl
+
+        latest_k9s="$(curl -fsSL https://api.github.com/repos/derailed/k9s/releases/latest | jq -r .tag_name)"
+        tmpdir="$(mktemp -d)"
+        trap 'rm -rf "${tmpdir}"' EXIT
+        curl -fsSL -o "${tmpdir}/k9s.tar.gz" "https://github.com/derailed/k9s/releases/download/${latest_k9s}/k9s_Linux_amd64.tar.gz"
+        tar -xzf "${tmpdir}/k9s.tar.gz" -C "${tmpdir}" k9s
+        install -m 0755 "${tmpdir}/k9s" /usr/local/bin/k9s
+      }
+
+      clone_homelab_repos() {
+        install -d -o "${user}" -g "${user}" "/home/${user}/GitHub"
+        for repo in \
+          AnsibleControl=https://github.com/brownkurts/AnsibleControl.git \
+          ansible_pull_desktop=https://github.com/brownkurts/ansible_pull_desktop.git \
+          ansible_pull_servers=https://github.com/brownkurts/ansible_pull_servers.git \
+          fleet=https://github.com/brownkurts/fleet.git \
+          home-lab-command-center=https://github.com/brownkurts/home-lab-command-center.git
+        do
+          name="${repo%%=*}"
+          url="${repo#*=}"
+          if [ ! -d "/home/${user}/GitHub/${name}/.git" ]; then
+            sudo -H -u "${user}" git clone "${url}" "/home/${user}/GitHub/${name}" || true
+          fi
+        done
+      }
+
+      install -d -o "${user}" -g "${user}" "/home/${user}/GitHub"
+      systemctl enable --now ssh qemu-guest-agent xrdp
+      usermod -aG ssl-cert "${user}" || true
+      if command -v gdm3 >/dev/null 2>&1; then
+        systemctl enable gdm3
+      fi
+      install_admin_tools
+      ansible-galaxy collection install community.general community.crypto
+      ANSIBLE_CONFIG=/etc/ansible/ansible.cfg ansible-pull -o --accept-host-key -i localhost, -c local -U {{ item.desktop_repo_url }} -C {{ item.desktop_repo_branch }} local.yml >> /var/log/ansible-pull.log 2>&1
+      clone_homelab_repos
+
+runcmd:
+  - [bash, -lc, "/usr/local/sbin/admin-desktop-bootstrap.sh"]
+
+final_message: "Admin desktop {{ item.name }} cloud-init complete after $UPTIME seconds."

@@ -1,0 +1,207 @@
+---
+- name: Build admin Ubuntu Desktop VMs on Proxmox
+  hosts: localhost
+  gather_facts: false
+
+  vars:
+    admin_desktop_ssh_public_key_file: "{{ proxmox_ubuntu_template.ssh_public_key_file }}"
+
+  tasks:
+    - name: Ensure community.proxmox collection is available
+      ansible.builtin.command: ansible-galaxy collection install community.proxmox
+      changed_when: false
+      failed_when: false
+
+    - name: Read admin desktop SSH public key
+      ansible.builtin.set_fact:
+        admin_desktop_ssh_public_key: "{{ lookup('file', admin_desktop_ssh_public_key_file) }}"
+
+    - name: Clone admin desktop VM from template
+      community.proxmox.proxmox_kvm:
+        api_host: "{{ item.proxmox_api_host | default(proxmox_api_host) }}"
+        api_user: "{{ item.proxmox_api_user | default(proxmox_api_user) }}"
+        api_token_id: "{{ item.proxmox_api_token_id | default(proxmox_api_token_id) }}"
+        api_token_secret: "{{ item.proxmox_api_token_secret | default(vault_proxmox_api_token_secret) }}"
+        validate_certs: "{{ item.proxmox_validate_certs | default(proxmox_validate_certs) | bool }}"
+        node: "{{ item.proxmox_node }}"
+        clone: "{{ item.clone_template }}"
+        newid: "{{ item.vmid }}"
+        name: "{{ item.name }}"
+        full: true
+        timeout: 600
+        storage: "{{ item.storage }}"
+        state: present
+      loop: "{{ admin_desktop_servers }}"
+      loop_control:
+        label: "{{ item.name }}"
+
+    - name: Stop VM before qm set changes
+      ansible.builtin.command:
+        argv:
+          - qm
+          - stop
+          - "{{ item.vmid | string }}"
+      delegate_to: "{{ item.delegate_host | default(item.proxmox_node) }}"
+      failed_when: false
+      changed_when: true
+      loop: "{{ admin_desktop_servers }}"
+      loop_control:
+        label: "{{ item.name }}"
+
+    - name: Wait briefly after stop
+      ansible.builtin.pause:
+        seconds: 5
+
+    - name: Render admin desktop cloud-init user-data
+      ansible.builtin.template:
+        src: templates/admin-desktop-user-data.yml.j2
+        dest: "/var/lib/vz/snippets/{{ item.name }}-user-data.yml"
+        owner: root
+        group: root
+        mode: "0600"
+      delegate_to: "{{ item.delegate_host | default(item.proxmox_node) }}"
+      no_log: true
+      loop: "{{ admin_desktop_servers }}"
+      loop_control:
+        label: "{{ item.name }}"
+
+    - name: Set VM CPU and memory
+      ansible.builtin.command:
+        argv:
+          - qm
+          - set
+          - "{{ item.vmid | string }}"
+          - --cores
+          - "{{ item.cores | string }}"
+          - --sockets
+          - "1"
+          - --memory
+          - "{{ item.memory | string }}"
+      delegate_to: "{{ item.delegate_host | default(item.proxmox_node) }}"
+      changed_when: true
+      loop: "{{ admin_desktop_servers }}"
+      loop_control:
+        label: "{{ item.name }}"
+
+    - name: Configure desktop-friendly VM hardware
+      ansible.builtin.command:
+        argv:
+          - qm
+          - set
+          - "{{ item.vmid | string }}"
+          - --agent
+          - enabled=1
+          - --onboot
+          - "1"
+          - --tablet
+          - "1"
+          - --vga
+          - "{{ item.vga | default('virtio') }}"
+      delegate_to: "{{ item.delegate_host | default(item.proxmox_node) }}"
+      changed_when: true
+      loop: "{{ admin_desktop_servers }}"
+      loop_control:
+        label: "{{ item.name }}"
+
+    - name: Remove serial console from desktop VM
+      ansible.builtin.command:
+        argv:
+          - qm
+          - set
+          - "{{ item.vmid | string }}"
+          - --delete
+          - serial0
+      delegate_to: "{{ item.delegate_host | default(item.proxmox_node) }}"
+      failed_when: false
+      changed_when: true
+      loop: "{{ admin_desktop_servers }}"
+      loop_control:
+        label: "{{ item.name }}"
+
+    - name: Set VM NIC bridge and optional VLAN tag
+      ansible.builtin.command:
+        argv:
+          - qm
+          - set
+          - "{{ item.vmid | string }}"
+          - --net0
+          - "{{ item.network_model | default(proxmox_template_network_model) }},bridge={{ item.bridge | default(proxmox_template_bridge) }}{{ (',tag=' ~ item.vlan_tag) if (item.vlan_tag is defined and item.vlan_tag | string | length > 0) else '' }}"
+      delegate_to: "{{ item.delegate_host | default(item.proxmox_node) }}"
+      changed_when: true
+      loop: "{{ admin_desktop_servers }}"
+      loop_control:
+        label: "{{ item.name }}"
+
+    - name: Set cloud-init user, DNS, search domain, and custom user-data
+      ansible.builtin.command:
+        argv:
+          - qm
+          - set
+          - "{{ item.vmid | string }}"
+          - --ciuser
+          - "{{ item.ciuser | default(proxmox_template_ciuser) }}"
+          - --nameserver
+          - "{{ proxmox_template_nameserver }}"
+          - --searchdomain
+          - "{{ proxmox_template_searchdomain }}"
+          - --cicustom
+          - "user={{ proxmox_template_snippet_storage }}:snippets/{{ item.name }}-user-data.yml"
+      delegate_to: "{{ item.delegate_host | default(item.proxmox_node) }}"
+      changed_when: true
+      loop: "{{ admin_desktop_servers }}"
+      loop_control:
+        label: "{{ item.name }}"
+
+    - name: Set cloud-init IP config
+      ansible.builtin.command:
+        argv:
+          - qm
+          - set
+          - "{{ item.vmid | string }}"
+          - --ipconfig0
+          - "ip={{ item.ip }}/{{ item.cidr | default(24) }},gw={{ item.gateway }}"
+      delegate_to: "{{ item.delegate_host | default(item.proxmox_node) }}"
+      changed_when: true
+      loop: "{{ admin_desktop_servers }}"
+      loop_control:
+        label: "{{ item.name }}"
+
+    - name: Resize primary disk
+      ansible.builtin.command:
+        argv:
+          - qm
+          - resize
+          - "{{ item.vmid | string }}"
+          - scsi0
+          - "{{ item.disk_gb }}G"
+      delegate_to: "{{ item.delegate_host | default(item.proxmox_node) }}"
+      failed_when: false
+      changed_when: true
+      loop: "{{ admin_desktop_servers }}"
+      loop_control:
+        label: "{{ item.name }}"
+
+    - name: Start admin desktop VMs
+      community.proxmox.proxmox_kvm:
+        api_host: "{{ item.proxmox_api_host | default(proxmox_api_host) }}"
+        api_user: "{{ item.proxmox_api_user | default(proxmox_api_user) }}"
+        api_token_id: "{{ item.proxmox_api_token_id | default(proxmox_api_token_id) }}"
+        api_token_secret: "{{ item.proxmox_api_token_secret | default(vault_proxmox_api_token_secret) }}"
+        validate_certs: "{{ item.proxmox_validate_certs | default(proxmox_validate_certs) | bool }}"
+        node: "{{ item.proxmox_node }}"
+        vmid: "{{ item.vmid }}"
+        name: "{{ item.name }}"
+        state: started
+      loop: "{{ admin_desktop_servers }}"
+      loop_control:
+        label: "{{ item.name }}"
+
+    - name: Wait for SSH to become reachable
+      ansible.builtin.wait_for:
+        host: "{{ item.ip }}"
+        port: 22
+        delay: 20
+        timeout: 900
+      loop: "{{ admin_desktop_servers }}"
+      loop_control:
+        label: "{{ item.name }}"

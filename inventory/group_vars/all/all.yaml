@@ -184,6 +184,42 @@ nextcloud_servers:
     disk_gb: 200
     storage: "data1"
 
+admin_desktop_servers:
+  - name: "admin-01"
+    vmid: 2401
+    proxmox_node: "PROXMOX-01"
+    clone_template: "tpl-ubuntu-2404-proxmox-01"
+    ip: "192.168.2.31"
+    cidr: 24
+    gateway: "192.168.2.254"
+    vlan_tag: 1
+    cores: 4
+    memory: 8192
+    disk_gb: 120
+    storage: "local-lvm"
+    vga: "virtio"
+    ciuser: "kurt"
+    desktop_repo_url: "https://github.com/brownkurts/ansible_pull_desktop.git"
+    desktop_repo_branch: "master"
+    packages:
+      - ubuntu-desktop-minimal
+      - gnome-session-flashback
+      - xrdp
+      - xorgxrdp
+      - qemu-guest-agent
+      - spice-vdagent
+      - openssh-server
+      - xserver-xorg-input-all
+      - ansible
+      - apt-transport-https
+      - ca-certificates
+      - curl
+      - git
+      - gpg
+      - jq
+      - dbus-x11
+      - dconf-cli
+
 # ----------------------------
 # Pi-hole HA
 # ----------------------------
