@@ -160,10 +160,10 @@
         state: present
       loop:
         - { vid: 1,   name: "Management",  description: "192.168.2.0/24 — servers, hypervisors, infrastructure" }
-        - { vid: 9,   name: "ISP",         description: "WAN/ISP-facing VLAN" }
-        - { vid: 10,  name: "Boys",        description: "192.168.10.0/24 — kids devices" }
-        - { vid: 11,  name: "VLAN11",      description: "" }
-        - { vid: 99,  name: "VLAN99",      description: "" }
+        - { vid: 9,   name: "ISP",          description: "WAN/ISP-facing VLAN" }
+        - { vid: 10,  name: "Boys",         description: "192.168.10.0/24 — kids devices" }
+        - { vid: 11,  name: "VLAN11",       description: "" }
+        - { vid: 99,  name: "Backup-ISP",   description: "5G backup WAN — GL-X750 GL.iNet router, GoogleFi SIM; pfSense WAN2 + out-of-band desktop path" }
         - { vid: 107, name: "IoT",         description: "192.168.107.0/24 — smart home / IoT devices" }
         - { vid: 150, name: "Cameras",     description: "192.168.150.0/24 — security cameras (no internet)" }
         - { vid: 200, name: "Lab",         description: "192.168.200.0/24 — general lab / testing" }
