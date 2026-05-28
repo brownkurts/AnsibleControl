@@ -32,16 +32,16 @@
 
       - name: "proxmox-farm"
         host: "192.168.1.200"
-        token_id: "{{ vault_proxmox_home_token_id }}"
-        token_secret: "{{ vault_proxmox_home_token_secret }}"
+        token_id: "{{ vault_proxmox_farm_token_id }}"
+        token_secret: "{{ vault_proxmox_farm_token_secret }}"
         site: "Farm"
         nodes:
           - { name: "PVE3", ip: "192.168.1.200", device_type: "Custom Build" }
 
       - name: "proxmox-noc"
         host: "74.91.16.2"
-        token_id: "{{ vault_proxmox_home_token_id }}"
-        token_secret: "{{ vault_proxmox_home_token_secret }}"
+        token_id: "{{ vault_proxmox_noc_token_id }}"
+        token_secret: "{{ vault_proxmox_noc_token_secret }}"
         site: "NOC / Knox Colo"
         nodes:
           - { name: "Proxmox-NOC", ip: "74.91.16.2", device_type: "Custom Build" }
