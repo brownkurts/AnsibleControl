@@ -1,0 +1,39 @@
+---
+# install_node_exporter.yml
+#
+# Installs prometheus-node-exporter on bare-metal Proxmox hosts and
+# ensures it is running and enabled. Safe to re-run (idempotent).
+#
+# Run: ansible-playbook playbooks/install_node_exporter.yml
+# Targets: [proxmox] + [proxmoxNox] groups (all bare-metal PVE hosts)
+
+- name: Install node_exporter on Proxmox hosts
+  hosts: proxmox:proxmoxNox
+  gather_facts: false
+
+  tasks:
+    - name: Install prometheus-node-exporter
+      apt:
+        name: prometheus-node-exporter
+        state: present
+        update_cache: true
+      register: pkg_install
+
+    - name: Enable and start node_exporter
+      systemd:
+        name: prometheus-node-exporter
+        enabled: true
+        state: started
+
+    - name: Restart node_exporter if newly installed
+      systemd:
+        name: prometheus-node-exporter
+        state: restarted
+      when: pkg_install.changed
+
+    - name: Verify node_exporter is listening on 9100
+      wait_for:
+        port: 9100
+        host: "{{ ansible_host }}"
+        timeout: 15
+      delegate_to: localhost
