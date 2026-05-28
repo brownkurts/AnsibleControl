@@ -1,0 +1,19 @@
+---
+# netbox_sync.yml — master wrapper
+#
+# Runs full Netbox sync in order:
+#   1. Bootstrap taxonomy (sites, roles, types, VLANs, prefixes)
+#   2. Sync Proxmox nodes + VMs
+#   3. Sync switch devices + interfaces + VLANs
+#
+# Run: ansible-playbook playbooks/netbox_sync.yml
+# Dry-run: ansible-playbook playbooks/netbox_sync.yml --check
+
+- name: "Step 1: Bootstrap Netbox taxonomy"
+  ansible.builtin.import_playbook: netbox_bootstrap.yml
+
+- name: "Step 2: Sync Proxmox nodes and VMs"
+  ansible.builtin.import_playbook: netbox_sync_proxmox.yml
+
+- name: "Step 3: Sync switch devices and interfaces"
+  ansible.builtin.import_playbook: netbox_sync_switches.yml

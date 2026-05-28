@@ -1,0 +1,132 @@
+---
+# netbox_sync_switches.yml
+#
+# Pulls live switch data from switch-api and syncs devices, interfaces,
+# and VLANs into Netbox.  Safe to re-run (idempotent).
+#
+# Run: ansible-playbook playbooks/netbox_sync_switches.yml
+
+- name: Sync Cisco switch data to Netbox
+  hosts: localhost
+  gather_facts: false
+
+  vars:
+    netbox_url: "https://netbox.kbtech.org"
+    netbox_token: "{{ vault_netbox_token }}"
+    validate_certs: false
+    switch_api_url: "http://192.168.2.30:8766"
+
+    switches:
+      - api_name: "desktop-sw1"
+        label: "DESKTOP-SW1"
+        ip: "192.168.2.250"
+        site: "Homelab (620)"
+      - api_name: "brown-sw1"
+        label: "BROWN-SW1"
+        ip: "192.168.2.251"
+        site: "Homelab (620)"
+
+  tasks:
+
+    # ── Register switches as physical devices ──────────────────────────────
+    - name: Register switches as devices in Netbox
+      netbox.netbox.netbox_device:
+        netbox_url: "{{ netbox_url }}"
+        netbox_token: "{{ netbox_token }}"
+        validate_certs: "{{ validate_certs }}"
+        data:
+          name: "{{ item.label }}"
+          device_type: "WS-C3750G-48PS"
+          role: "Network Switch"
+          site: "{{ item.site }}"
+        state: present
+      loop: "{{ switches }}"
+      loop_control:
+        label: "{{ item.label }}"
+
+    # ── Management IPs ─────────────────────────────────────────────────────
+    - name: Set management IPs for switches
+      netbox.netbox.netbox_ip_address:
+        netbox_url: "{{ netbox_url }}"
+        netbox_token: "{{ netbox_token }}"
+        validate_certs: "{{ validate_certs }}"
+        data:
+          address: "{{ item.ip }}/24"
+          status: active
+          description: "Management IP — {{ item.label }}"
+        state: present
+      loop: "{{ switches }}"
+      loop_control:
+        label: "{{ item.label }}"
+
+    # ── Pull live switch facts from switch-api ──────────────────────────────
+    - name: Fetch live switch facts from switch-api
+      ansible.builtin.uri:
+        url: "{{ switch_api_url }}/switches/{{ item.api_name }}"
+        method: GET
+        return_content: true
+        timeout: 45
+      loop: "{{ switches }}"
+      loop_control:
+        label: "{{ item.label }}"
+      register: switch_facts_raw
+      ignore_errors: true
+
+    # ── Build flat list of (switch_label, port) for interface sync ──────────
+    - name: Build flat port list across all switches
+      ansible.builtin.set_fact:
+        all_switch_ports: >-
+          {{ all_switch_ports | default([]) + (
+               item.json.ports | default([])
+               | map('combine', {'_switch_label': switches[idx].label,
+                                 '_switch_site':  switches[idx].site})
+               | list
+             )
+          }}
+      loop: "{{ switch_facts_raw.results }}"
+      loop_control:
+        index_var: idx
+        label: "{{ switches[idx].label }}"
+      when: not item.failed | default(false) and item.json is defined
+
+    # ── Sync VLANs (from first switch — both have same VLAN DB) ────────────
+    - name: Sync VLANs into Netbox
+      netbox.netbox.netbox_vlan:
+        netbox_url: "{{ netbox_url }}"
+        netbox_token: "{{ netbox_token }}"
+        validate_certs: "{{ validate_certs }}"
+        data:
+          vid: "{{ item.id | int }}"
+          name: "{{ item.name }}"
+          site: "Homelab (620)"
+          status: "{{ 'active' if item.status == 'active' else 'deprecated' }}"
+        state: present
+      loop: "{{ (switch_facts_raw.results | selectattr('json', 'defined') | first).json.vlans | default([]) }}"
+      loop_control:
+        label: "VLAN {{ item.id }} — {{ item.name }}"
+      when:
+        - item.id | int > 0
+        - item.id | int < 4094
+        - item.status == 'active'
+      ignore_errors: true
+
+    # ── Sync interfaces for all switches ───────────────────────────────────
+    - name: Sync switch interfaces to Netbox
+      netbox.netbox.netbox_device_interface:
+        netbox_url: "{{ netbox_url }}"
+        netbox_token: "{{ netbox_token }}"
+        validate_certs: "{{ validate_certs }}"
+        data:
+          device: "{{ item._switch_label }}"
+          name: "{{ item.id }}"
+          type: "1000base-t"
+          mode: "{{ 'tagged' if item.mode == 'trunk' else 'access' }}"
+          description: "{{ item.description | default('') }}"
+          enabled: "{{ item.status != 'disabled' }}"
+        state: present
+      loop: "{{ all_switch_ports | default([]) }}"
+      loop_control:
+        label: "{{ item._switch_label }} {{ item.id }}"
+        pause: 0.1
+      when: all_switch_ports is defined
+      ignore_errors: true

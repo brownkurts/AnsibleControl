@@ -1,0 +1,194 @@
+---
+# netbox_bootstrap.yml
+#
+# One-time (idempotent) setup of Netbox taxonomy:
+#   Sites, Device Roles, Manufacturers, Device Types,
+#   Cluster Types, VLAN Groups, VLANs, IP Prefixes.
+#
+# Run: ansible-playbook playbooks/netbox_bootstrap.yml
+# Requires: netbox_url and netbox_token vars (see group_vars/all or --extra-vars)
+
+- name: Bootstrap Netbox taxonomy
+  hosts: localhost
+  gather_facts: false
+
+  vars:
+    netbox_url: "https://netbox.kbtech.org"
+    netbox_token: "{{ vault_netbox_token }}"
+    validate_certs: false
+
+  tasks:
+
+    # ── Sites ──────────────────────────────────────────────────────────────
+    - name: Create sites
+      netbox.netbox.netbox_site:
+        netbox_url: "{{ netbox_url }}"
+        netbox_token: "{{ netbox_token }}"
+        validate_certs: "{{ validate_certs }}"
+        data:
+          name: "{{ item.name }}"
+          slug: "{{ item.slug }}"
+          description: "{{ item.description }}"
+          physical_address: "{{ item.address | default(omit) }}"
+        state: present
+      loop:
+        - name: "Homelab (620)"
+          slug: homelab-620
+          description: "Primary home network — pfSense, Proxmox, K3s"
+        - name: "Farm"
+          slug: farm
+          description: "Remote farm site — flat network, single Proxmox node"
+        - name: "NOC / Knox Colo"
+          slug: noc-knox-colo
+          description: "Colo facility — bare metal Proxmox, public /29 block"
+
+    # ── Device Roles ───────────────────────────────────────────────────────
+    - name: Create device roles
+      netbox.netbox.netbox_device_role:
+        netbox_url: "{{ netbox_url }}"
+        netbox_token: "{{ netbox_token }}"
+        validate_certs: "{{ validate_certs }}"
+        data:
+          name: "{{ item.name }}"
+          slug: "{{ item.slug }}"
+          color: "{{ item.color }}"
+          vm_role: "{{ item.vm_role | default(false) }}"
+        state: present
+      loop:
+        - { name: "Hypervisor",      slug: hypervisor,       color: "aa1409" }
+        - { name: "Network Switch",  slug: network-switch,   color: "2196f3" }
+        - { name: "K8s Node",        slug: k8s-node,         color: "4caf50" }
+        - { name: "NAS",             slug: nas,              color: "ff9800" }
+        - { name: "Server",          slug: server,           color: "9c27b0" }
+        - { name: "Firewall/Router", slug: firewall-router,  color: "f44336" }
+        - { name: "Virtual Machine", slug: virtual-machine,  color: "607d8b", vm_role: true }
+
+    # ── Manufacturers ──────────────────────────────────────────────────────
+    - name: Create manufacturers
+      netbox.netbox.netbox_manufacturer:
+        netbox_url: "{{ netbox_url }}"
+        netbox_token: "{{ netbox_token }}"
+        validate_certs: "{{ validate_certs }}"
+        data:
+          name: "{{ item.name }}"
+          slug: "{{ item.slug }}"
+        state: present
+      loop:
+        - { name: "Cisco",      slug: cisco }
+        - { name: "Dell",       slug: dell }
+        - { name: "Supermicro", slug: supermicro }
+        - { name: "HP",         slug: hp }
+        - { name: "Liqtech",    slug: liqtech }
+        - { name: "Generic",    slug: generic }
+
+    # ── Device Types ───────────────────────────────────────────────────────
+    - name: Create device types
+      netbox.netbox.netbox_device_type:
+        netbox_url: "{{ netbox_url }}"
+        netbox_token: "{{ netbox_token }}"
+        validate_certs: "{{ validate_certs }}"
+        data:
+          model: "{{ item.model }}"
+          slug: "{{ item.slug }}"
+          manufacturer: "{{ item.manufacturer }}"
+          u_height: "{{ item.u | default(1) }}"
+        state: present
+      loop:
+        - { model: "WS-C3750G-48PS",  slug: ws-c3750g-48ps,  manufacturer: "Cisco",      u: 1 }
+        - { model: "PowerEdge R720",  slug: poweredge-r720,  manufacturer: "Dell",       u: 2 }
+        - { model: "PowerEdge R620",  slug: poweredge-r620,  manufacturer: "Dell",       u: 1 }
+        - { model: "Custom Build",    slug: custom-build,    manufacturer: "Generic",    u: 1 }
+
+    # ── Cluster Types ──────────────────────────────────────────────────────
+    - name: Create cluster types
+      netbox.netbox.netbox_cluster_type:
+        netbox_url: "{{ netbox_url }}"
+        netbox_token: "{{ netbox_token }}"
+        validate_certs: "{{ validate_certs }}"
+        data:
+          name: "{{ item.name }}"
+          slug: "{{ item.slug }}"
+        state: present
+      loop:
+        - { name: "Proxmox VE",  slug: proxmox-ve }
+        - { name: "K3s",         slug: k3s }
+
+    # ── Clusters ───────────────────────────────────────────────────────────
+    - name: Create Proxmox clusters
+      netbox.netbox.netbox_cluster:
+        netbox_url: "{{ netbox_url }}"
+        netbox_token: "{{ netbox_token }}"
+        validate_certs: "{{ validate_certs }}"
+        data:
+          name: "{{ item.name }}"
+          cluster_type: "Proxmox VE"
+        state: present
+      loop:
+        - name: "proxmox-home"
+          site: "Homelab (620)"
+          description: "4-node Proxmox cluster at 620 — nodes .201/.212/.215/.204"
+        - name: "proxmox-farm"
+          site: "Farm"
+          description: "Single Proxmox node at Farm — pve3 (192.168.1.200)"
+        - name: "proxmox-noc"
+          site: "NOC / Knox Colo"
+          description: "Bare metal Proxmox at colo — pve-noc (74.91.16.2)"
+
+    # ── VLAN Group ─────────────────────────────────────────────────────────
+    - name: Create VLAN group for Homelab
+      netbox.netbox.netbox_vlan_group:
+        netbox_url: "{{ netbox_url }}"
+        netbox_token: "{{ netbox_token }}"
+        validate_certs: "{{ validate_certs }}"
+        data:
+          name: "Homelab (620) VLANs"
+          slug: homelab-620-vlans
+          site: "Homelab (620)"
+        state: present
+
+    # ── VLANs ──────────────────────────────────────────────────────────────
+    - name: Create VLANs
+      netbox.netbox.netbox_vlan:
+        netbox_url: "{{ netbox_url }}"
+        netbox_token: "{{ netbox_token }}"
+        validate_certs: "{{ validate_certs }}"
+        data:
+          vid: "{{ item.vid }}"
+          name: "{{ item.name }}"
+          site: "Homelab (620)"
+          description: "{{ item.description | default('') }}"
+        state: present
+      loop:
+        - { vid: 1,   name: "Management",  description: "192.168.2.0/24 — servers, hypervisors, infrastructure" }
+        - { vid: 9,   name: "ISP",         description: "WAN/ISP-facing VLAN" }
+        - { vid: 10,  name: "Boys",        description: "192.168.10.0/24 — kids devices" }
+        - { vid: 11,  name: "VLAN11",      description: "" }
+        - { vid: 99,  name: "VLAN99",      description: "" }
+        - { vid: 107, name: "IoT",         description: "192.168.107.0/24 — smart home / IoT devices" }
+        - { vid: 150, name: "Cameras",     description: "192.168.150.0/24 — security cameras (no internet)" }
+        - { vid: 200, name: "Lab",         description: "192.168.200.0/24 — general lab / testing" }
+        - { vid: 201, name: "K3s",         description: "192.168.201.0/24 — K3s cluster node traffic" }
+        - { vid: 202, name: "Lab2",        description: "" }
+        - { vid: 300, name: "VLAN300",     description: "" }
+
+    # ── IP Prefixes ────────────────────────────────────────────────────────
+    - name: Create IP prefixes
+      netbox.netbox.netbox_prefix:
+        netbox_url: "{{ netbox_url }}"
+        netbox_token: "{{ netbox_token }}"
+        validate_certs: "{{ validate_certs }}"
+        data:
+          prefix: "{{ item.prefix }}"
+          vlan: "{{ {'vid': item.vlan_id} if item.vlan_id is defined else omit }}"
+          description: "{{ item.description | default('') }}"
+        state: present
+      loop:
+        - { prefix: "192.168.2.0/24",   site: "Homelab (620)", vlan_id: 1,   description: "Management" }
+        - { prefix: "192.168.10.0/24",  site: "Homelab (620)", vlan_id: 10,  description: "Boys" }
+        - { prefix: "192.168.107.0/24", site: "Homelab (620)", vlan_id: 107, description: "IoT" }
+        - { prefix: "192.168.150.0/24", site: "Homelab (620)", vlan_id: 150, description: "Cameras" }
+        - { prefix: "192.168.200.0/24", site: "Homelab (620)", vlan_id: 200, description: "Lab" }
+        - { prefix: "192.168.201.0/24", site: "Homelab (620)", vlan_id: 201, description: "K3s" }
+        - { prefix: "192.168.1.0/24",   site: "Farm",            description: "Farm flat LAN" }
+        - { prefix: "74.91.16.0/29",    site: "NOC / Knox Colo", description: "NOC public /29" }
+        - { prefix: "10.3.1.0/24",      site: "NOC / Knox Colo", description: "NOC internal VM network" }

@@ -1,0 +1,145 @@
+---
+# netbox_sync_proxmox.yml
+#
+# Syncs Proxmox nodes (as devices) and all VMs/LXC containers
+# (as virtual machines) into Netbox.  Safe to re-run — all operations
+# are idempotent (state: present, policy: upsert).
+#
+# Run: ansible-playbook playbooks/netbox_sync_proxmox.yml
+# Requires: netbox_url, netbox_token, proxmox_* vars in group_vars/all
+
+- name: Sync Proxmox infrastructure to Netbox
+  hosts: localhost
+  gather_facts: false
+
+  vars:
+    netbox_url: "https://netbox.kbtech.org"
+    netbox_token: "{{ vault_netbox_token }}"
+    validate_certs: false
+
+    # Proxmox clusters to sync — each entry maps to one API endpoint
+    proxmox_clusters:
+      - name: "proxmox-home"
+        host: "192.168.2.201"       # PROXMOX-01 — cluster VIP or any node
+        token_id: "{{ vault_proxmox_home_token_id }}"
+        token_secret: "{{ vault_proxmox_home_token_secret }}"
+        site: "Homelab (620)"
+        nodes:
+          - { name: "PROXMOX-01", ip: "192.168.2.201", device_type: "Custom Build" }
+          - { name: "proxmox03",  ip: "192.168.2.212", device_type: "Custom Build" }
+          - { name: "proxmox05",  ip: "192.168.2.215", device_type: "Custom Build" }
+          - { name: "pve-4",      ip: "192.168.2.204", device_type: "Custom Build" }
+
+      - name: "proxmox-farm"
+        host: "192.168.1.200"
+        token_id: "{{ vault_proxmox_home_token_id }}"
+        token_secret: "{{ vault_proxmox_home_token_secret }}"
+        site: "Farm"
+        nodes:
+          - { name: "PVE3", ip: "192.168.1.200", device_type: "Custom Build" }
+
+      - name: "proxmox-noc"
+        host: "74.91.16.2"
+        token_id: "{{ vault_proxmox_home_token_id }}"
+        token_secret: "{{ vault_proxmox_home_token_secret }}"
+        site: "NOC / Knox Colo"
+        nodes:
+          - { name: "Proxmox-NOC", ip: "74.91.16.2", device_type: "Custom Build" }
+
+  tasks:
+
+    # ── Proxmox nodes as physical devices ──────────────────────────────────
+    - name: Register Proxmox nodes as devices
+      netbox.netbox.netbox_device:
+        netbox_url: "{{ netbox_url }}"
+        netbox_token: "{{ netbox_token }}"
+        validate_certs: "{{ validate_certs }}"
+        data:
+          name: "{{ node.name }}"
+          device_type: "{{ node.device_type }}"
+          role: "Hypervisor"
+          site: "{{ cluster.site }}"
+          cluster: "{{ cluster.name }}"
+          custom_fields:
+            proxmox_cluster: "{{ cluster.name }}"
+        state: present
+      loop: "{{ proxmox_clusters | subelements('nodes') }}"
+      loop_control:
+        label: "{{ item[1].name }}"
+      vars:
+        cluster: "{{ item[0] }}"
+        node: "{{ item[1] }}"
+
+    # ── Management IPs for Proxmox nodes ───────────────────────────────────
+    - name: Set management IPs for Proxmox nodes
+      netbox.netbox.netbox_ip_address:
+        netbox_url: "{{ netbox_url }}"
+        netbox_token: "{{ netbox_token }}"
+        validate_certs: "{{ validate_certs }}"
+        data:
+          address: "{{ node.ip }}/{{ '24' if node.ip.startswith('192.168') else '29' }}"
+          status: active
+          description: "Management IP — {{ node.name }}"
+        state: present
+      loop: "{{ proxmox_clusters | subelements('nodes') }}"
+      loop_control:
+        label: "{{ item[1].name }} — {{ item[1].ip }}"
+      vars:
+        cluster: "{{ item[0] }}"
+        node: "{{ item[1] }}"
+
+    # ── Query Proxmox API for VMs on each cluster ───────────────────────────
+    - name: Query Proxmox API for all VMs and LXC containers
+      ansible.builtin.uri:
+        url: "https://{{ cluster.host }}:8006/api2/json/cluster/resources?type=vm"
+        method: GET
+        headers:
+          Authorization: "PVEAPIToken={{ cluster.token_id }}={{ cluster.token_secret }}"
+        validate_certs: false
+        return_content: true
+        timeout: 20
+      loop: "{{ proxmox_clusters }}"
+      loop_control:
+        label: "{{ cluster.name }}"
+      vars:
+        cluster: "{{ item }}"
+      register: proxmox_responses
+      ignore_errors: true
+
+    # ── Flatten all VM data from all clusters ───────────────────────────────
+    - name: Build combined VM list
+      ansible.builtin.set_fact:
+        all_vms: "{{ all_vms | default([]) + item.json.data | default([])
+                     | selectattr('type', 'in', ['qemu', 'lxc'])
+                     | map('combine', {'_cluster': proxmox_clusters[idx]['name'],
+                                       '_site':    proxmox_clusters[idx]['site']})
+                     | list }}"
+      loop: "{{ proxmox_responses.results }}"
+      loop_control:
+        index_var: idx
+        label: "cluster {{ idx }}"
+      when: not item.failed | default(false)
+
+    # ── Sync each VM/LXC to Netbox as a virtual machine ────────────────────
+    - name: Sync VMs to Netbox
+      netbox.netbox.netbox_virtual_machine:
+        netbox_url: "{{ netbox_url }}"
+        netbox_token: "{{ netbox_token }}"
+        validate_certs: "{{ validate_certs }}"
+        data:
+          name: "{{ vm.name | default('vm-' + vm.vmid | string) }}"
+          cluster: "{{ vm._cluster }}"
+          site: "{{ vm._site }}"
+          status: "{{ 'active' if vm.status == 'running' else 'offline' }}"
+          vcpus: "{{ vm.maxcpu | default(omit) }}"
+          memory: "{{ ((vm.maxmem | default(0)) / 1024 / 1024) | int | default(omit) }}"
+          disk: "{{ ((vm.maxdisk | default(0)) / 1024 / 1024 / 1024) | int | default(omit) }}"
+          comments: "vmid={{ vm.vmid }} type={{ vm.type }} node={{ vm.node }}"
+        state: present
+      loop: "{{ all_vms | default([]) }}"
+      loop_control:
+        label: "{{ vm.name | default(vm.vmid) }} ({{ vm._cluster }})"
+        pause: 0.3
+      vars:
+        vm: "{{ item }}"
+      when: all_vms is defined and all_vms | length > 0
