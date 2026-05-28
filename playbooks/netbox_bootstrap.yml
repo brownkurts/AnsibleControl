@@ -38,8 +38,8 @@
         - name: "Farm"
           slug: farm
           description: "Remote farm site — flat network, single Proxmox node"
-        - name: "NOC / Knox Colo"
-          slug: noc-knox-colo
+        - name: "NOC / NOCIX Colo"
+          slug: noc-nocix-colo
           description: "Colo facility — bare metal Proxmox, public /29 block"
 
     # ── Device Roles ───────────────────────────────────────────────────────
@@ -131,7 +131,7 @@
           site: "Farm"
           description: "Single Proxmox node at Farm — pve3 (192.168.1.200)"
         - name: "proxmox-noc"
-          site: "NOC / Knox Colo"
+          site: "NOC / NOCIX Colo"
           description: "Bare metal Proxmox at colo — pve-noc (74.91.16.2)"
 
     # ── VLAN Group ─────────────────────────────────────────────────────────
@@ -190,5 +190,5 @@
         - { prefix: "192.168.200.0/24", site: "Homelab (620)", vlan_id: 200, description: "Lab" }
         - { prefix: "192.168.201.0/24", site: "Homelab (620)", vlan_id: 201, description: "K3s" }
         - { prefix: "192.168.1.0/24",   site: "Farm",            description: "Farm flat LAN" }
-        - { prefix: "74.91.16.0/29",    site: "NOC / Knox Colo", description: "NOC public /29" }
-        - { prefix: "10.3.1.0/24",      site: "NOC / Knox Colo", description: "NOC internal VM network" }
+        - { prefix: "74.91.16.0/29",    site: "NOC / NOCIX Colo", description: "NOC public /29" }
+        - { prefix: "10.3.1.0/24",      site: "NOC / NOCIX Colo", description: "NOC internal VM network" }

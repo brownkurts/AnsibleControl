@@ -42,7 +42,7 @@
         host: "74.91.16.2"
         token_id: "{{ vault_proxmox_noc_token_id }}"
         token_secret: "{{ vault_proxmox_noc_token_secret }}"
-        site: "NOC / Knox Colo"
+        site: "NOC / NOCIX Colo"
         nodes:
           - { name: "Proxmox-NOC", ip: "74.91.16.2", device_type: "Custom Build" }
 
