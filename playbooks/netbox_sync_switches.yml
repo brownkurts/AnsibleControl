@@ -37,7 +37,7 @@
         data:
           name: "{{ item.label }}"
           device_type: "WS-C3750G-48PS"
-          role: "Network Switch"
+          device_role: "Network Switch"
           site: "{{ item.site }}"
         state: present
       loop: "{{ switches }}"

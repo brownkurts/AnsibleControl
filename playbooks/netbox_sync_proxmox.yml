@@ -57,11 +57,9 @@
         data:
           name: "{{ node.name }}"
           device_type: "{{ node.device_type }}"
-          role: "Hypervisor"
+          device_role: "Hypervisor"
           site: "{{ cluster.site }}"
           cluster: "{{ cluster.name }}"
-          custom_fields:
-            proxmox_cluster: "{{ cluster.name }}"
         state: present
       loop: "{{ proxmox_clusters | subelements('nodes') }}"
       loop_control:
