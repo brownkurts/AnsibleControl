@@ -1,0 +1,31 @@
+---
+- name: Fix Longhorn multipath conflict
+  hosts: k3s_workers
+  become: true
+  tasks:
+    - name: Write multipath.conf blacklisting IET virtual disks
+      copy:
+        dest: /etc/multipath.conf
+        content: |
+          defaults {
+              user_friendly_names yes
+          }
+
+          blacklist {
+              device {
+                  vendor "IET"
+                  product "VIRTUAL-DISK"
+              }
+          }
+        owner: root
+        group: root
+        mode: '0644'
+
+    - name: Flush existing multipath maps
+      command: multipath -F
+      ignore_errors: true
+
+    - name: Reload multipathd
+      systemd:
+        name: multipathd
+        state: reloaded
