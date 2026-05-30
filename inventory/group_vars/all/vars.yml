@@ -11,6 +11,7 @@ k3s_cluster_token: "{{ vault_k3s_cluster_token }}"
 pihole_keepalived_auth_pass: "{{ vault_pihole_keepalived_auth_pass }}"
 pihole_web_password: "{{ vault_pihole_web_password }}"
 
-rocketchat_alert_webhook_url: "https://chat.kbtech.org/hooks/6a1386d362346b177900922f/2RDcRTNRp363H2DKA7wAckS27AGFqozN2kWnzkh9YSgJAD6S"
+rocketchat_alert_webhook_url: "https://chat.kbtech.org/hooks/6a1a39575e4d1d1534a099b6/t5Cwbo8vccmQzmKjNwNz9QmcxE5BJoxKnsuma8KCsmCcGxBx"
 rocketchat_alert_channel: "#alerts"
 rocketchat_alert_username: "Ansible"
+rocketchat_ansible_webhook_url: "https://chat.kbtech.org/hooks/6a1a38975e4d1d1534a099a2/fotj4pMYY6JweCsKS8YxcjYkRGHvDNH5N6NWNPDakvRHRuKM"
