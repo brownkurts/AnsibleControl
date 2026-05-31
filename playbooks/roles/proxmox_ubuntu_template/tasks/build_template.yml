@@ -84,6 +84,7 @@
     onboot: "{{ proxmox_template_onboot }}"
     balloon: "{{ proxmox_template_balloon }}"
     ostype: "{{ proxmox_template_ostype }}"
+    machine: "{{ proxmox_template_machine }}"
     scsihw: "{{ proxmox_template_scsihw }}"
     net:
       net0: "{{ proxmox_template_network_model }},bridge={{ proxmox_template_bridge }}"

@@ -15,7 +15,8 @@ proxmox_template_searchdomain: ""
 proxmox_template_memory: 2048
 proxmox_template_cores: 2
 proxmox_template_sockets: 1
-proxmox_template_cpu: "x86-64-v2-AES"
+proxmox_template_cpu: "host"
+proxmox_template_machine: "q35"
 proxmox_template_scsihw: "virtio-scsi-pci"
 proxmox_template_disk_format: "qcow2"
 proxmox_template_storage_default: "local-lvm"
