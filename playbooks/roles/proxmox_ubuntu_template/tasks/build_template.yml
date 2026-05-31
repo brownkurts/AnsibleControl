@@ -13,12 +13,17 @@
   delegate_to: "{{ proxmox_template_target.node }}"
   become: true
 
-- name: Download Ubuntu cloud image on target node
-  ansible.builtin.get_url:
-    url: "{{ proxmox_ubuntu_template.image_url }}"
-    dest: "{{ proxmox_template_image_path }}"
-    mode: "0644"
-    force: false
+- name: Check if image already exists
+  ansible.builtin.stat:
+    path: "{{ proxmox_template_image_path }}"
+  register: proxmox_template_image_stat
+  delegate_to: "{{ proxmox_template_target.node }}"
+  become: true
+
+- name: Download Ubuntu cloud image on target node with curl
+  ansible.builtin.shell:
+    cmd: "curl -L -o {{ proxmox_template_image_path }} {{ proxmox_ubuntu_template.image_url }}"
+  when: not proxmox_template_image_stat.stat.exists
   delegate_to: "{{ proxmox_template_target.node }}"
   become: true
 
