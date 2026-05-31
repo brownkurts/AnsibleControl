@@ -1,0 +1,238 @@
+---
+# K3s Stargate Cluster Installation
+# Installs HA k3s with kube-vip across 3 CPs + 3 workers
+# Run AFTER all 6 VMs are SSHable
+#
+# Usage: ansible-playbook playbooks/install_k3s_stargate.yml
+
+- name: Pre-flight checks
+  hosts: k3s_cluster
+  gather_facts: true
+  tasks:
+    - name: Ping all nodes
+      ansible.builtin.ping:
+
+    - name: Disable swap
+      ansible.builtin.command: swapoff -a
+      changed_when: false
+
+    - name: Remove swap from fstab
+      ansible.builtin.lineinfile:
+        path: /etc/fstab
+        regexp: '.*swap.*'
+        state: absent
+
+    - name: Load br_netfilter module
+      community.general.modprobe:
+        name: br_netfilter
+        state: present
+
+    - name: Set sysctl for k3s
+      ansible.posix.sysctl:
+        name: "{{ item }}"
+        value: "1"
+        sysctl_set: true
+      loop:
+        - net.bridge.bridge-nf-call-iptables
+        - net.ipv4.ip_forward
+
+# ── First Control Plane (Prometheus) ─────────────────────────────────
+- name: Install k3s on first control plane (Prometheus)
+  hosts: k3s_cp_primary
+  become: true
+  vars:
+    k3s_vip: "192.168.201.50"
+    k3s_version: "v1.32.4+k3s1"
+  tasks:
+    - name: Install kube-vip manifest dir
+      ansible.builtin.file:
+        path: /var/lib/rancher/k3s/server/manifests
+        state: directory
+        mode: "0755"
+
+    - name: Deploy kube-vip DaemonSet manifest
+      ansible.builtin.copy:
+        dest: /var/lib/rancher/k3s/server/manifests/kube-vip.yaml
+        mode: "0644"
+        content: |
+          apiVersion: v1
+          kind: ServiceAccount
+          metadata:
+            name: kube-vip
+            namespace: kube-system
+          ---
+          apiVersion: rbac.authorization.k8s.io/v1
+          kind: ClusterRole
+          metadata:
+            name: system:kube-vip-role
+          rules:
+            - apiGroups: [""]
+              resources: ["services", "services/status", "nodes", "endpoints"]
+              verbs: ["list","get","watch","update"]
+            - apiGroups: ["coordination.k8s.io"]
+              resources: ["leases"]
+              verbs: ["list","get","watch","create","update"]
+          ---
+          apiVersion: rbac.authorization.k8s.io/v1
+          kind: ClusterRoleBinding
+          metadata:
+            name: system:kube-vip-binding
+          roleRef:
+            apiGroup: rbac.authorization.k8s.io
+            kind: ClusterRole
+            name: system:kube-vip-role
+          subjects:
+            - kind: ServiceAccount
+              name: kube-vip
+              namespace: kube-system
+          ---
+          apiVersion: apps/v1
+          kind: DaemonSet
+          metadata:
+            name: kube-vip-ds
+            namespace: kube-system
+          spec:
+            selector:
+              matchLabels:
+                name: kube-vip-ds
+            template:
+              metadata:
+                labels:
+                  name: kube-vip-ds
+              spec:
+                serviceAccountName: kube-vip
+                hostNetwork: true
+                nodeSelector:
+                  node-role.kubernetes.io/control-plane: "true"
+                tolerations:
+                  - effect: NoSchedule
+                    operator: Exists
+                containers:
+                  - name: kube-vip
+                    image: ghcr.io/kube-vip/kube-vip:v0.8.9
+                    args: ["manager"]
+                    env:
+                      - name: vip_arp
+                        value: "true"
+                      - name: vip_interface
+                        value: "eth0"
+                      - name: address
+                        value: "{{ k3s_vip }}"
+                      - name: port
+                        value: "6443"
+                      - name: cp_enable
+                        value: "true"
+                      - name: prometheus_server
+                        value: ":2112"
+                    securityContext:
+                      capabilities:
+                        add: ["NET_ADMIN","NET_RAW","SYS_TIME"]
+
+    - name: Install k3s first control plane with cluster-init
+      ansible.builtin.shell: |
+        curl -sfL https://get.k3s.io | \
+          INSTALL_K3S_VERSION="{{ k3s_version }}" \
+          sh -s - server \
+          --cluster-init \
+          --tls-san {{ k3s_vip }} \
+          --tls-san prometheus \
+          --tls-san 192.168.201.51 \
+          --disable traefik \
+          --disable servicelb \
+          --node-taint node-role.kubernetes.io/control-plane=true:NoSchedule \
+          --flannel-backend=vxlan \
+          --cluster-cidr=10.42.0.0/16 \
+          --service-cidr=10.43.0.0/16
+      args:
+        creates: /usr/local/bin/k3s
+
+    - name: Wait for k3s to be ready
+      ansible.builtin.wait_for:
+        path: /etc/rancher/k3s/k3s.yaml
+        timeout: 120
+
+    - name: Get cluster token
+      ansible.builtin.slurp:
+        src: /var/lib/rancher/k3s/server/token
+      register: k3s_token_b64
+
+    - name: Set token fact
+      ansible.builtin.set_fact:
+        k3s_token: "{{ k3s_token_b64.content | b64decode | trim }}"
+
+# ── Additional Control Planes ─────────────────────────────────────────
+- name: Join additional control planes (Odyssey + Apollo)
+  hosts: k3s_cp_secondary
+  become: true
+  vars:
+    k3s_vip: "192.168.201.50"
+    k3s_version: "v1.32.4+k3s1"
+    k3s_token: "{{ hostvars['prometheus']['k3s_token'] }}"
+  tasks:
+    - name: Join as additional control plane
+      ansible.builtin.shell: |
+        curl -sfL https://get.k3s.io | \
+          INSTALL_K3S_VERSION="{{ k3s_version }}" \
+          K3S_TOKEN="{{ k3s_token }}" \
+          sh -s - server \
+          --server https://192.168.201.51:6443 \
+          --tls-san {{ k3s_vip }} \
+          --disable traefik \
+          --disable servicelb \
+          --node-taint node-role.kubernetes.io/control-plane=true:NoSchedule
+      args:
+        creates: /usr/local/bin/k3s
+
+    - name: Wait for k3s
+      ansible.builtin.wait_for:
+        path: /etc/rancher/k3s/k3s.yaml
+        timeout: 180
+
+# ── Workers ───────────────────────────────────────────────────────────
+- name: Join workers (Abydos, Chulak, Dakara)
+  hosts: k3s_workers
+  become: true
+  vars:
+    k3s_version: "v1.32.4+k3s1"
+    k3s_token: "{{ hostvars['prometheus']['k3s_token'] }}"
+  tasks:
+    - name: Join as worker
+      ansible.builtin.shell: |
+        curl -sfL https://get.k3s.io | \
+          INSTALL_K3S_VERSION="{{ k3s_version }}" \
+          K3S_TOKEN="{{ k3s_token }}" \
+          K3S_URL="https://192.168.201.50:6443" \
+          sh -s - agent
+      args:
+        creates: /usr/local/bin/k3s
+
+# ── Fetch kubeconfig ──────────────────────────────────────────────────
+- name: Fetch kubeconfig to Ansible server
+  hosts: k3s_cp_primary
+  become: true
+  vars:
+    k3s_vip: "192.168.201.50"
+  tasks:
+    - name: Read kubeconfig
+      ansible.builtin.slurp:
+        src: /etc/rancher/k3s/k3s.yaml
+      register: kubeconfig
+
+    - name: Save kubeconfig locally with VIP
+      ansible.builtin.copy:
+        content: "{{ kubeconfig.content | b64decode | replace('127.0.0.1', k3s_vip) }}"
+        dest: /home/kurt/.kube/config
+        owner: kurt
+        mode: "0600"
+      delegate_to: localhost
+
+    - name: Verify cluster
+      ansible.builtin.command: >
+        kubectl --kubeconfig /home/kurt/.kube/config get nodes -o wide
+      delegate_to: localhost
+      register: nodes_out
+      become: false
+
+    - name: Show nodes
+      ansible.builtin.debug:
+        msg: "{{ nodes_out.stdout_lines }}"

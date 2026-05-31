@@ -1,0 +1,388 @@
+---
+# KBTECH Admin Desktop VM Setup
+# Run against a fresh Ubuntu 24.04 VM to build the admin workstation
+# Usage: ansible-playbook playbooks/setup_admin_vm.yml -i "192.168.2.31," -u kurt --become
+#
+# What this builds:
+#   - Ubuntu Desktop (minimal) + XRDP for remote access
+#   - All homelab admin tools (kubectl, ansible, docker, helm)
+#   - VS Code, Chrome, Remmina
+#   - Claude Code CLI
+#   - Tailscale
+#   - ansible-mcp server (moves MCP from .30 to this VM)
+#   - Static IP, Tailscale, SSH hardened
+
+- name: KBTECH Admin Desktop VM
+  hosts: all
+  become: true
+  vars:
+    admin_user: kurt
+    admin_ip: "{{ ansible_host }}"
+    tailscale_auth_key: "{{ vault_tailscale_auth_key }}"
+    mcp_install_dir: /opt/ansible-mcp
+    kubectl_version: "1.31"
+
+  tasks:
+
+    # ── Base packages ────────────────────────────────────────────────
+    - name: Update apt cache
+      ansible.builtin.apt:
+        update_cache: true
+        cache_valid_time: 3600
+
+    - name: Install base packages
+      ansible.builtin.apt:
+        name:
+          - git
+          - curl
+          - wget
+          - unzip
+          - jq
+          - python3
+          - python3-pip
+          - python3-venv
+          - ansible
+          - openssh-server
+          - xrdp
+          - ubuntu-desktop-minimal
+          - firefox
+          - remmina
+          - remmina-plugin-rdp
+          - remmina-plugin-vnc
+          - screen
+          - tmux
+          - htop
+          - net-tools
+          - nmap
+          - dnsutils
+          - acl
+        state: present
+        install_recommends: false
+      environment:
+        DEBIAN_FRONTEND: noninteractive
+      async: 3600
+      poll: 30
+
+    # ── XRDP for remote desktop access ───────────────────────────────
+    - name: Enable XRDP
+      ansible.builtin.service:
+        name: xrdp
+        state: started
+        enabled: true
+
+    - name: Add xrdp user to ssl-cert group
+      ansible.builtin.user:
+        name: xrdp
+        groups: ssl-cert
+        append: true
+
+    # ── Docker ───────────────────────────────────────────────────────
+    - name: Add Docker GPG key
+      ansible.builtin.get_url:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        dest: /etc/apt/keyrings/docker.asc
+        mode: "0644"
+
+    - name: Add Docker repository
+      ansible.builtin.apt_repository:
+        repo: "deb [arch=amd64 signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable"
+        filename: docker
+        state: present
+        update_cache: true
+
+    - name: Install Docker
+      ansible.builtin.apt:
+        name:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+          - docker-buildx-plugin
+          - docker-compose-plugin
+        state: present
+
+    - name: Add admin user to docker group
+      ansible.builtin.user:
+        name: "{{ admin_user }}"
+        groups: docker
+        append: true
+
+    # ── kubectl ──────────────────────────────────────────────────────
+    - name: Add kubectl repo key
+      ansible.builtin.get_url:
+        url: https://pkgs.k8s.io/core:/stable:/v{{ kubectl_version }}/deb/Release.key
+        dest: /etc/apt/keyrings/kubernetes.asc
+        mode: "0644"
+
+    - name: Add kubectl repository
+      ansible.builtin.apt_repository:
+        repo: "deb [signed-by=/etc/apt/keyrings/kubernetes.asc] https://pkgs.k8s.io/core:/stable:/v{{ kubectl_version }}/deb/ /"
+        filename: kubernetes
+        state: present
+        update_cache: true
+
+    - name: Install kubectl
+      ansible.builtin.apt:
+        name: kubectl
+        state: present
+
+    # ── Helm ─────────────────────────────────────────────────────────
+    - name: Install Helm via script
+      ansible.builtin.shell: |
+        curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+      args:
+        creates: /usr/local/bin/helm
+
+    # ── VS Code ──────────────────────────────────────────────────────
+    - name: Add VS Code signing key
+      ansible.builtin.get_url:
+        url: https://packages.microsoft.com/keys/microsoft.asc
+        dest: /etc/apt/keyrings/packages-microsoft.asc
+        mode: "0644"
+        force: true
+
+    - name: Add VS Code repository
+      ansible.builtin.apt_repository:
+        repo: "deb [arch=amd64 signed-by=/etc/apt/keyrings/packages-microsoft.asc] https://packages.microsoft.com/repos/code stable main"
+        filename: vscode
+        state: present
+        update_cache: true
+
+    - name: Install VS Code
+      ansible.builtin.apt:
+        name: code
+        state: present
+
+    # ── Node.js + Claude Code CLI ─────────────────────────────────────
+    - name: Install Node.js 20 via NodeSource
+      ansible.builtin.shell: |
+        curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
+        apt-get install -y nodejs
+      args:
+        creates: /usr/bin/node
+
+    - name: Install Claude Code CLI globally
+      ansible.builtin.npm:
+        name: "@anthropic-ai/claude-code"
+        global: true
+        state: present
+
+    # ── Tailscale ────────────────────────────────────────────────────
+    - name: Install Tailscale
+      ansible.builtin.shell: |
+        curl -fsSL https://tailscale.com/install.sh | sh
+      args:
+        creates: /usr/bin/tailscale
+
+    - name: Connect Tailscale (accept-routes=false — critical for LAN hosts)
+      ansible.builtin.command: >
+        tailscale up
+        --authkey={{ tailscale_auth_key }}
+        --hostname=admin-vm
+        --accept-routes=false
+        --accept-dns=false
+      register: ts_result
+      changed_when: "'already' not in ts_result.stderr"
+      failed_when: false
+
+    # ── ansible-mcp server ───────────────────────────────────────────
+    - name: Clone ansible-mcp-server repo
+      ansible.builtin.git:
+        repo: https://github.com/brownkurts/ansible-mcp-server.git
+        dest: /home/{{ admin_user }}/GitHub/ansible-mcp-server
+        version: main
+        force: false
+      become_user: "{{ admin_user }}"
+
+    - name: Create MCP install dir
+      ansible.builtin.file:
+        path: "{{ mcp_install_dir }}"
+        state: directory
+        mode: "0755"
+
+    - name: Install MCP dependencies
+      ansible.builtin.pip:
+        requirements: /home/{{ admin_user }}/GitHub/ansible-mcp-server/requirements.txt
+        virtualenv: "{{ mcp_install_dir }}/venv"
+        virtualenv_command: python3 -m venv
+      failed_when: false
+
+    - name: Copy MCP server binary
+      ansible.builtin.copy:
+        src: /home/{{ admin_user }}/GitHub/ansible-mcp-server/server.py
+        dest: "{{ mcp_install_dir }}/server.py"
+        remote_src: true
+        mode: "0755"
+
+    - name: Install ansible-mcp systemd service
+      ansible.builtin.copy:
+        dest: /etc/systemd/system/ansible-mcp.service
+        mode: "0644"
+        content: |
+          [Unit]
+          Description=KBTECH Ansible MCP Server
+          After=network.target
+
+          [Service]
+          Type=simple
+          User={{ admin_user }}
+          WorkingDirectory=/home/{{ admin_user }}/ansible/AnsibleControl
+          ExecStart={{ mcp_install_dir }}/venv/bin/python {{ mcp_install_dir }}/server.py
+          Restart=always
+          RestartSec=10
+
+          [Install]
+          WantedBy=multi-user.target
+
+    - name: Enable ansible-mcp
+      ansible.builtin.systemd:
+        name: ansible-mcp
+        enabled: true
+        daemon_reload: true
+
+    # ── SSH key for Ansible operations ───────────────────────────────
+    - name: Ensure .ssh dir exists
+      ansible.builtin.file:
+        path: /home/{{ admin_user }}/.ssh
+        state: directory
+        owner: "{{ admin_user }}"
+        mode: "0700"
+
+    - name: Add homelab SSH authorized key
+      ansible.posix.authorized_key:
+        user: "{{ admin_user }}"
+        key: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGs8e1xn2rNm4khYFUUHZxYkvqRlUosajkq0j9SrTR8t ansible"
+        state: present
+
+    # ── Git config ───────────────────────────────────────────────────
+    - name: Set git user config
+      community.general.git_config:
+        name: "{{ item.name }}"
+        value: "{{ item.value }}"
+        scope: global
+      become_user: "{{ admin_user }}"
+      loop:
+        - { name: "user.name", value: "Kurt Brown" }
+        - { name: "user.email", value: "kurt@kbtech.org" }
+      failed_when: false
+
+    # ── Clone AnsibleControl ─────────────────────────────────────────
+    - name: Create Ansible dirs
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: directory
+        owner: "{{ admin_user }}"
+      loop:
+        - /home/{{ admin_user }}/ansible
+        - /home/{{ admin_user }}/GitHub
+
+    - name: Clone AnsibleControl
+      ansible.builtin.git:
+        repo: https://github.com/brownkurts/AnsibleControl.git
+        dest: /home/{{ admin_user }}/ansible/AnsibleControl
+        version: master
+        force: false
+      become_user: "{{ admin_user }}"
+      failed_when: false
+
+    - name: Show completion
+      ansible.builtin.debug:
+        msg: |
+          ✅ Admin VM setup complete!
+          - XRDP: {{ ansible_host }}:3389
+          - Tailscale: run 'tailscale ip' to get TS IP
+          - VS Code: installed
+          - kubectl: installed
+          - Claude Code: installed (npm -g)
+          - MCP server: systemd service 'ansible-mcp'
+          Next: copy .vault_pass and kubeconfig to this VM
+
+    # ── OOB Failover Daemon ──────────────────────────────────────────
+    # eth0 = primary LAN (192.168.2.x via pfSense)
+    # eth1 = VLAN 99 OOB (DHCP from GL-X750, metric 200)
+    # This daemon monitors pfSense gateway and auto-fails over routing
+
+    - name: Install OOB failover daemon
+      ansible.builtin.copy:
+        dest: /usr/local/bin/oob-failover.sh
+        mode: "0755"
+        content: |
+          #!/bin/bash
+          # OOB Failover — monitors internet reachability, not just pfSense gateway
+          # Covers: pfSense down AND pfSense up but ISP down
+          GATEWAY="192.168.2.254"
+          PRIMARY_DEV="eth0"
+          OOB_DEV="eth1"
+          OOB_GATEWAY="192.168.99.1"  # GL-X750 LAN gateway
+          FAIL_THRESHOLD=3
+          CHECK_INTERVAL=30
+          fails=0
+          in_failover=false
+
+          log() { logger -t oob-failover "$*"; }
+
+          }
+
+          while true; do
+          if ping -c1 -W3 -I $PRIMARY_DEV 1.1.1.1 >/dev/null 2>&1 || \
+             ping -c1 -W3 -I $PRIMARY_DEV 8.8.8.8 >/dev/null 2>&1; then
+              if $in_failover; then
+                log "Internet restored via primary — restoring primary route"
+                ip route add default via $GATEWAY dev $PRIMARY_DEV metric 100 2>/dev/null
+                in_failover=false
+              fi
+              fails=0
+            else
+              fails=$((fails+1))
+              log "Internet unreachable via primary (fail $fails/$FAIL_THRESHOLD)"
+              if [ $fails -ge $FAIL_THRESHOLD ] && ! $in_failover; then
+                log "FAILOVER: internet down via primary — switching to OOB (GL-X750 192.168.99.1)"
+                ip route del default via $GATEWAY dev $PRIMARY_DEV 2>/dev/null
+                ip route add default via $OOB_GATEWAY dev $OOB_DEV metric 200 2>/dev/null
+                in_failover=true
+              fi
+            fi
+            sleep $CHECK_INTERVAL
+          done
+
+    - name: Install OOB failover systemd service
+      ansible.builtin.copy:
+        dest: /etc/systemd/system/oob-failover.service
+        mode: "0644"
+        content: |
+          [Unit]
+          Description=OOB Network Failover — auto-switches to GL-X750 when pfSense dies
+          After=network-online.target
+          Wants=network-online.target
+
+          [Service]
+          Type=simple
+          ExecStart=/usr/local/bin/oob-failover.sh
+          Restart=always
+          RestartSec=10
+
+          [Install]
+          WantedBy=multi-user.target
+
+    - name: Enable OOB failover service
+      ansible.builtin.systemd:
+        name: oob-failover
+        enabled: true
+        daemon_reload: true
+
+    # ── Netplan: eth1 DHCP, no-default-route (failover daemon manages it) ──
+    - name: Configure eth1 (OOB) via netplan — DHCP, no automatic default route
+      ansible.builtin.copy:
+        dest: /etc/netplan/99-oob.yaml
+        mode: "0600"
+        content: |
+          network:
+            version: 2
+            ethernets:
+              eth1:
+                dhcp4: true
+                dhcp4-overrides:
+                  use-routes: false
+                  use-dns: false
+                  route-metric: 200
+                # OOB subnet: 192.168.99.0/24 — GL-X750 GL.iNet router
+                # Gateway: 192.168.99.1 — managed by oob-failover daemon

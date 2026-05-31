@@ -1,0 +1,62 @@
+---
+- name: Install and configure Tailscale on all hosts
+  hosts: "{{ target_hosts | default('proxmox') }}"
+  gather_facts: true
+
+  vars:
+    tailscale_auth_key: "{{ vault_tailscale_auth_key }}"
+    tailscale_args: "--accept-routes=false --accept-dns=false"
+    # NOTE: accept-routes=false is critical on Proxmox hosts!
+    # pfSense advertises 192.168.2.0/24 via Tailscale subnet router.
+    # If accept-routes=true, Proxmox nodes route LAN traffic via Tailscale
+    # which breaks all inbound LAN connections (responses go via wrong path).
+
+  tasks:
+    - name: Check if Tailscale is already installed
+      command: tailscale version
+      register: ts_check
+      failed_when: false
+      changed_when: false
+
+    - name: Download Tailscale install script
+      get_url:
+        url: https://tailscale.com/install.sh
+        dest: /tmp/tailscale-install.sh
+        mode: '0755'
+      when: ts_check.rc != 0
+
+    - name: Install Tailscale
+      command: sh /tmp/tailscale-install.sh
+      when: ts_check.rc != 0
+
+    - name: Enable and start tailscaled
+      systemd:
+        name: tailscaled
+        enabled: true
+        state: started
+
+    - name: Check Tailscale status
+      command: tailscale status --json
+      register: ts_status
+      failed_when: false
+      changed_when: false
+
+    - name: Authenticate Tailscale (if not already connected)
+      command: >
+        tailscale up
+        --authkey={{ tailscale_auth_key }}
+        --hostname={{ inventory_hostname | lower }}
+        {{ tailscale_args }}
+      when: >
+        ts_status.rc != 0 or
+        (ts_status.stdout | from_json).BackendState != 'Running'
+      register: ts_up
+
+    - name: Get Tailscale IP
+      command: tailscale ip -4
+      register: ts_ip
+      changed_when: false
+
+    - name: Show Tailscale IP
+      debug:
+        msg: "{{ inventory_hostname }} Tailscale IP: {{ ts_ip.stdout }}"
