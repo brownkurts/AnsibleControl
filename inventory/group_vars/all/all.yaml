@@ -65,6 +65,21 @@ proxmox_template_targets:
     name_suffix: "proxmox05"
     storage: "fast"
 
+  - node: "pve-4"
+    vmid: 9004
+    name_suffix: "pve-4"
+    storage: "nvme4"
+
+  - node: "PVE3"
+    vmid: 9005
+    name_suffix: "pve3"
+    storage: "local-lvm"
+
+  - node: "Proxmox-NOC"
+    vmid: 9006
+    name_suffix: "proxmox-noc"
+    storage: "local-zfs"
+
 k3s_version: "v1.31"
 k3s_install_version: "v1.31.14+k3s1"
 k3s_version_channel: "v1.31"
