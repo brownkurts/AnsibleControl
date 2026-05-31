@@ -153,6 +153,7 @@
       loop: "{{ k3s_workers }}"
       loop_control:
         label: "{{ item.name }}"
+      when: item.longhorn_disk_gb | int > 0
 
     - name: Start K3s worker VMs
       community.proxmox.proxmox_kvm:

@@ -137,36 +137,36 @@ k3s_servers:
     storage: "fast"
 
 k3s_workers:
-  - name: "k3s-w1"
-    vmid: 2104
-    proxmox_node: "PROXMOX-01"
-    clone_template: "tpl-ubuntu-2404-proxmox-01"
+  - name: "abydos"
+    vmid: 2204
+    proxmox_node: "proxmox03"
+    clone_template: "tpl-ubuntu-2404-proxmox03"
     ip: "192.168.201.54"
     cidr: 24
     gateway: "192.168.201.1"
     vlan_tag: 201
-    cores: 6
-    memory: 16384
-    disk_gb: 80
-    longhorn_disk_gb: 200
-    storage: "data1"
+    cores: 4
+    memory: 8192
+    disk_gb: 150
+    longhorn_disk_gb: 0
+    storage: "local-lvm"
 
-  - name: "k3s-w2"
-    vmid: 2105
-    proxmox_node: "proxmox03"
-    clone_template: "tpl-ubuntu-2404-proxmox03"
+  - name: "chulak"
+    vmid: 2205
+    proxmox_node: "PROXMOX-01"
+    clone_template: "tpl-ubuntu-2404-proxmox-01"
     ip: "192.168.201.55"
     cidr: 24
     gateway: "192.168.201.1"
     vlan_tag: 201
-    cores: 6
-    memory: 16384
-    disk_gb: 80
-    longhorn_disk_gb: 200
-    storage: "local-lvm"
+    cores: 4
+    memory: 8192
+    disk_gb: 180
+    longhorn_disk_gb: 0
+    storage: "hdd1"
 
-  - name: "k3s-w3"
-    vmid: 2106
+  - name: "dakara"
+    vmid: 2206
     proxmox_node: "proxmox05"
     clone_template: "tpl-ubuntu-2404-proxmox05"
     ip: "192.168.201.56"
@@ -175,7 +175,7 @@ k3s_workers:
     vlan_tag: 201
     cores: 4
     memory: 8192
-    disk_gb: 80
+    disk_gb: 150
     longhorn_disk_gb: 200
     storage: "fast"
 
