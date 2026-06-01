@@ -4,7 +4,7 @@
   become: true
   gather_facts: false
   vars:
-    k3s_token_source_host: k3s-2
+    k3s_token_source_host: odyssey
     k3s_join_url: "https://{{ k3s_worker_join_server_ip }}:6443"
 
   pre_tasks:

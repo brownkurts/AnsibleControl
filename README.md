@@ -27,7 +27,8 @@ C:\Users\KURT\Documents\GitHub\fleet
 
 ## Current Focus Areas
 
-- Production K3s inventory: `k3s-1` through `k3s-3`, `k3s-w1` through `k3s-w3`
+- Production Stargate K3s inventory: `prometheus`, `odyssey`, `apollo`,
+  `abydos`, `chulak`, and `dakara`
 - Proxmox hosts including home, NOC, and remote site nodes
 - Ubuntu server inventory including `admin-01`, `nextcloud-01`, Kasm, Destiny, Docker hosts, and Tactical RMM
 - Pi-hole HA and remote replicas

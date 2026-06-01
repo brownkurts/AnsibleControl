@@ -3,7 +3,5 @@
   hosts: "{{ tactical_onboard_target | default('none') }}"
   become: true
   gather_facts: true
-  vars:
-    auth_key: "{{ lookup('env', 'TACTICAL_RMM_AUTH_KEY') }}"
   roles:
     - { role: Linuxrmm, tags: [rmm, linuxrmm, tactical] }

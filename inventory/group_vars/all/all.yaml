@@ -94,8 +94,8 @@ k3s_dns_servers:
   - "8.8.8.8"
 
 k3s_servers:
-  - name: "k3s-1"
-    vmid: 2101
+  - name: "prometheus"
+    vmid: 2201
     proxmox_node: "PROXMOX-01"
     clone_template: "tpl-ubuntu-2404-proxmox-01"
     ip: "192.168.201.51"
@@ -108,8 +108,8 @@ k3s_servers:
     longhorn_disk_gb: 100
     storage: "local-lvm"
 
-  - name: "k3s-2"
-    vmid: 2102
+  - name: "odyssey"
+    vmid: 2202
     proxmox_node: "proxmox03"
     clone_template: "tpl-ubuntu-2404-proxmox03"
     ip: "192.168.201.52"
@@ -122,8 +122,8 @@ k3s_servers:
     longhorn_disk_gb: 100
     storage: "local-lvm"
 
-  - name: "k3s-3"
-    vmid: 2103
+  - name: "apollo"
+    vmid: 2203
     proxmox_node: "proxmox05"
     clone_template: "tpl-ubuntu-2404-proxmox05"
     ip: "192.168.201.53"

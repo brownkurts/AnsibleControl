@@ -44,14 +44,11 @@ runtime, filters Tactical agents to the `homelab` client, and compares them to
 
 Use `--strict` for a scheduled check after reviewed exceptions are recorded.
 Do not commit Tactical API keys or enrollment auth keys. The API key used for
-the audit is not an enrollment key. To onboard a reviewed Linux inventory
-host, export the Tactical enrollment auth key only for the targeted run:
+the audit is not an enrollment key. The targeted onboarding playbook reads
+the encrypted `auth_key` from `inventory/group_vars/all/vault_tac.yml`:
 
 ```bash
-read -s TACTICAL_RMM_AUTH_KEY
-export TACTICAL_RMM_AUTH_KEY
 ansible-playbook -i inventory/hosts.ini playbooks/tactical-onboard.yml -e tactical_onboard_target=<host>
-unset TACTICAL_RMM_AUTH_KEY
 ```
 
 Workstations and family endpoints can remain Tactical-only. Add them to

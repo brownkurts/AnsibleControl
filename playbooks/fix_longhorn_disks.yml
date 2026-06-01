@@ -24,7 +24,7 @@
       failed_when: longhorn_findmnt.rc != 0
 
 - name: Patch Longhorn nodes to use dedicated disk
-  hosts: k3s-1
+  hosts: prometheus
   become: true
   gather_facts: false
   vars:

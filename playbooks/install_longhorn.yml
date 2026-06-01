@@ -1,6 +1,6 @@
 ---
 - name: Install Longhorn
-  hosts: k3s-1
+  hosts: prometheus
   become: true
   gather_facts: false
 
