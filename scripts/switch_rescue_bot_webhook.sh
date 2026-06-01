@@ -29,12 +29,12 @@ INTEGRATIONS="$(
 )"
 
 MATCHES="$(
-  jq '[.integrations[] | select(any(.urls[]?; contains("claude-bot.chat.svc.cluster.local")))]' \
+  jq '[.integrations[] | select(.name | startswith("claude-bot-"))]' \
     <<< "${INTEGRATIONS}"
 )"
 MATCH_COUNT="$(jq 'length' <<< "${MATCHES}")"
 if [[ "${MATCH_COUNT}" == "0" ]]; then
-  echo "No in-cluster claude-bot outgoing webhooks were found." >&2
+  echo "No claude-bot outgoing webhooks were found." >&2
   exit 1
 fi
 
