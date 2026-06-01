@@ -108,9 +108,90 @@
           - "uvicorn[standard]"
         virtualenv: /opt/rescue-bot/venv
 
+    - name: Create rescue remediator directories
+      ansible.builtin.file:
+        path: "{{ item.path }}"
+        state: directory
+        owner: root
+        group: root
+        mode: "{{ item.mode }}"
+      loop:
+        - { path: /opt/rescue-remediator, mode: "0755" }
+        - { path: /etc/rescue-remediator, mode: "0755" }
+        - { path: /var/lib/rescue-remediator, mode: "0750" }
+        - { path: /var/log/rescue-remediator, mode: "0750" }
+
+    - name: Install rescue remediator
+      ansible.builtin.copy:
+        src: files/rescue-remediator.py
+        dest: /opt/rescue-remediator/remediator.py
+        owner: root
+        group: root
+        mode: "0755"
+      notify: Restart rescue remediator
+
+    - name: Configure rescue remediator
+      ansible.builtin.copy:
+        dest: /etc/rescue-remediator/remediator.env
+        owner: root
+        group: root
+        mode: "0644"
+        content: |
+          AUTO_REMEDIATE=true
+          CHECK_INTERVAL=60
+          FAILURE_THRESHOLD=3
+          POST_ACTION_WAIT=180
+          COOLDOWN_SECONDS=1800
+          MAX_ATTEMPTS=2
+          ATTEMPT_WINDOW_SECONDS=21600
+          WATCHDOG_URL=http://192.168.2.30:8769
+          ANSIBLE_HOST=kurt@192.168.2.30
+          SSH_KEY=/ssh/id_ed25519
+          KUBECONFIG=/opt/rescue-bot/kubeconfig
+          RESCUE_BOT_ENV=/etc/rescue-bot/rescue-bot.env
+      notify: Restart rescue remediator
+
+    - name: Install rescue remediator systemd service
+      ansible.builtin.copy:
+        dest: /etc/systemd/system/rescue-remediator.service
+        owner: root
+        group: root
+        mode: "0644"
+        content: |
+          [Unit]
+          Description=KBTech guarded K3s rescue remediator
+          After=network-online.target
+          Wants=network-online.target
+          ConditionPathExists=/ssh/id_ed25519
+          ConditionPathExists=/opt/rescue-bot/kubeconfig
+
+          [Service]
+          Type=simple
+          EnvironmentFile=/etc/rescue-remediator/remediator.env
+          ExecStart=/opt/rescue-bot/venv/bin/python /opt/rescue-remediator/remediator.py
+          Restart=always
+          RestartSec=10
+
+          [Install]
+          WantedBy=multi-user.target
+      notify: Restart rescue remediator
+
+    - name: Enable rescue remediator
+      ansible.builtin.systemd:
+        name: rescue-remediator
+        enabled: true
+        state: started
+        daemon_reload: true
+
   handlers:
     - name: Restart Ollama
       ansible.builtin.systemd:
         name: ollama
+        state: restarted
+        daemon_reload: true
+
+    - name: Restart rescue remediator
+      ansible.builtin.systemd:
+        name: rescue-remediator
         state: restarted
         daemon_reload: true

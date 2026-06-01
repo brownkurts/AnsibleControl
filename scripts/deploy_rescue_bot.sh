@@ -71,7 +71,10 @@ RestartSec=10
 WantedBy=multi-user.target
 EOF
 sudo systemctl daemon-reload
-sudo systemctl enable --now rescue-bot'
+sudo systemctl enable --now rescue-bot
+if systemctl list-unit-files rescue-remediator.service >/dev/null 2>&1; then
+  sudo systemctl restart rescue-remediator
+fi'
 
 for _ in $(seq 1 20); do
   if curl -fsS "http://${RESCUE_HOST#*@}:8080/health"; then
