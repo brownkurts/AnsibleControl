@@ -54,9 +54,16 @@
         HOME: /root
       changed_when: false
 
-    - name: Create ansible-pull cron job
+    - name: Remove legacy ansible-pull cron job
       ansible.builtin.cron:
         name: "ansible-pull"
+        user: root
+        state: absent
+      when: ansible_pull_enable_cron | bool
+
+    - name: Create ansible-pull cron job
+      ansible.builtin.cron:
+        name: "ansible-pull server bootstrap"
         user: root
         minute: "{{ ansible_pull_cron_minute }}"
         job: >-

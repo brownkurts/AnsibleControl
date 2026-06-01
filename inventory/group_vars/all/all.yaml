@@ -236,6 +236,22 @@ admin_desktop_servers:
       - dconf-cli
 
 # ----------------------------
+# Rescue server
+# ----------------------------
+rescue_servers:
+  - name: "rescue-01"
+    vmid: 2501
+    proxmox_node: "proxmox03"
+    clone_template: "tpl-ubuntu-2404-proxmox03"
+    ip: "192.168.2.32"
+    cidr: 24
+    gateway: "192.168.2.254"
+    cores: 8
+    memory: 32768
+    disk_gb: 100
+    storage: "local-lvm"
+
+# ----------------------------
 # Pi-hole HA
 # ----------------------------
 pihole_vip: "192.168.2.2"
