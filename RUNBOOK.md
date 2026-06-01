@@ -26,6 +26,37 @@ When adding a host:
 4. Add Remmina entries in `ansible_pull_desktop` when desktops should reach it.
 5. Add DNS, Uptime Kuma, backup/snapshot expectations, and Command Center entries when relevant.
 
+## Tactical RMM Inventory Audit
+
+Run the Tactical reconciliation after adding hosts and as a regular review:
+
+```bash
+python3 scripts/audit_tactical_inventory.py
+```
+
+The script reads the `command-center/tactical-rmm-credentials` K3s secret at
+runtime, filters Tactical agents to the `homelab` client, and compares them to
+`inventory/hosts.ini` by hostname or IP address. It reports:
+
+- inventory hosts that may still need a Tactical agent;
+- Tactical endpoints that may need a central Ansible inventory entry;
+- intentionally ignored entries from `inventory/tactical-audit.json`.
+
+Use `--strict` for a scheduled check after reviewed exceptions are recorded.
+Do not commit Tactical API keys or enrollment auth keys. The API key used for
+the audit is not an enrollment key. To onboard a reviewed Linux inventory
+host, export the Tactical enrollment auth key only for the targeted run:
+
+```bash
+read -s TACTICAL_RMM_AUTH_KEY
+export TACTICAL_RMM_AUTH_KEY
+ansible-playbook -i inventory/hosts.ini playbooks/tactical-onboard.yml -e tactical_onboard_target=<host>
+unset TACTICAL_RMM_AUTH_KEY
+```
+
+Workstations and family endpoints can remain Tactical-only. Add them to
+central Ansible inventory only when they need central orchestration.
+
 ## VM Build Flow
 
 Use Proxmox build playbooks for repeatable VM creation. Current admin desktop work is represented by:

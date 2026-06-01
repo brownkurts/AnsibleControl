@@ -1,0 +1,9 @@
+{
+  "ignored_inventory_groups": [
+    "cisco_switches"
+  ],
+  "ignored_inventory_hosts": {
+    "tactical": "The Tactical RMM server is intentionally not enrolled in itself."
+  },
+  "ignored_tactical_hosts": {}
+}

@@ -117,6 +117,9 @@ Docker Swarm is being retired. Do not reintroduce Swarm dependencies unless expl
 - Do not run broad destructive playbooks without confirming target hosts and backups.
 - Preserve Proxmox Ceph references; Docker Swarm Ceph references should stay retired.
 - Prefer targeted inventory groups over `all` unless the playbook is explicitly designed for all hosts.
+- Run `python3 scripts/audit_tactical_inventory.py` after inventory changes to
+  review Tactical RMM onboarding and central inventory gaps. Keep reviewed
+  exceptions in `inventory/tactical-audit.json`.
 
 ## Validation
 
