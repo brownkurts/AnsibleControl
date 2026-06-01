@@ -51,6 +51,18 @@ the encrypted `auth_key` from `inventory/group_vars/all/vault_tac.yml`:
 ansible-playbook -i inventory/hosts.ini playbooks/tactical-onboard.yml -e tactical_onboard_target=<host>
 ```
 
+The Tactical Linux installer does not always install Mesh. Repair reviewed
+agents through Tactical's configured Linux Mesh script, then verify systemd:
+
+```bash
+python3 scripts/install_tactical_mesh.py <host> [<host> ...]
+ansible-playbook -i inventory/hosts.ini playbooks/verify-tactical-mesh.yml -e tactical_mesh_target=<host-or-group>
+```
+
+The helper reads the Tactical API credential from the K3s secret at runtime
+and intentionally suppresses installer output because the configured Mesh
+binding is sensitive.
+
 Workstations and family endpoints can remain Tactical-only. Add them to
 central Ansible inventory only when they need central orchestration.
 

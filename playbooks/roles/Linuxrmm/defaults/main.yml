@@ -41,5 +41,6 @@ linuxrmm_agent_binary_url: "https://api.kbtech.org/api/v3/agents/rmmagent-linux-
 # Mesh checks
 linuxrmm_mesh_required: false
 linuxrmm_mesh_paths:
+  - /usr/local/mesh_services/meshagent/meshagent
   - /opt/tacticalmesh/meshagent
   - /opt/meshagent/meshagent

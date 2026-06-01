@@ -1,0 +1,21 @@
+---
+- name: Verify Tactical Mesh agent
+  hosts: "{{ tactical_mesh_target | default('none') }}"
+  become: true
+  gather_facts: false
+  tasks:
+    - name: Check Mesh agent service
+      ansible.builtin.command: systemctl is-active meshagent
+      register: meshagent_status
+      changed_when: false
+      failed_when: meshagent_status.stdout != "active"
+
+    - name: Check Mesh agent binary
+      ansible.builtin.stat:
+        path: /usr/local/mesh_services/meshagent/meshagent
+      register: meshagent_binary
+
+    - name: Fail if Mesh agent binary is missing
+      ansible.builtin.fail:
+        msg: "Mesh agent service is active, but the expected binary is missing."
+      when: not meshagent_binary.stat.exists

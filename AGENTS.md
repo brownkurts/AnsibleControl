@@ -120,6 +120,9 @@ Docker Swarm is being retired. Do not reintroduce Swarm dependencies unless expl
 - Run `python3 scripts/audit_tactical_inventory.py` after inventory changes to
   review Tactical RMM onboarding and central inventory gaps. Keep reviewed
   exceptions in `inventory/tactical-audit.json`.
+- Repair missing Linux Mesh agents with `scripts/install_tactical_mesh.py`,
+  then verify with `playbooks/verify-tactical-mesh.yml`. Do not print the
+  Tactical Mesh installer response because it contains a sensitive binding.
 
 ## Validation
 
