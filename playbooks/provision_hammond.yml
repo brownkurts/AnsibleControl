@@ -1,0 +1,218 @@
+---
+# Hammond — KBTECH Dedicated Automation & MCP Server
+# Named after General George Hammond, commander of Stargate Command.
+# Handles all homelab automation, alerting, and MCP services.
+#
+# Usage:
+#   Step 1 - Provision VM:
+#     ansible-playbook playbooks/provision_hammond.yml --tags vm
+#   Step 2 - Configure (run against 192.168.2.33 after VM boots):
+#     ansible-playbook playbooks/provision_hammond.yml --tags configure -i "192.168.2.33," -u kurt --become
+
+- name: Hammond — Provision VM on Proxmox
+  hosts: localhost
+  gather_facts: false
+  tags: vm
+
+  vars:
+    hammond_vmid: 131
+    hammond_name: hammond
+    hammond_node: PROXMOX-01
+    hammond_ip: 192.168.2.33
+    hammond_gw: 192.168.2.1
+    hammond_cores: 2
+    hammond_memory: 4096
+    hammond_disk: 40
+    hammond_storage: local-lvm
+    hammond_template: tpl-ubuntu-2404-proxmox-01
+
+  tasks:
+    - name: Clone Hammond VM from Ubuntu 24.04 template
+      community.proxmox.proxmox_kvm:
+        api_host: "{{ proxmox_api_host }}"
+        api_user: "{{ proxmox_api_user }}"
+        api_token_id: "{{ proxmox_api_token_id }}"
+        api_token_secret: "{{ vault_proxmox_api_token_secret }}"
+        validate_certs: "{{ proxmox_validate_certs | bool }}"
+        node: "{{ hammond_node }}"
+        clone: "{{ hammond_template }}"
+        newid: "{{ hammond_vmid }}"
+        name: "{{ hammond_name }}"
+        full: true
+        timeout: 600
+        storage: "{{ hammond_storage }}"
+        state: present
+
+    - name: Stop VM for configuration
+      ansible.builtin.command:
+        argv: [qm, stop, "{{ hammond_vmid | string }}"]
+      delegate_to: "{{ hammond_node }}"
+      failed_when: false
+      changed_when: true
+
+    - name: Pause after stop
+      ansible.builtin.pause:
+        seconds: 5
+
+    - name: Set CPU, memory, agent and onboot
+      ansible.builtin.command:
+        argv:
+          - qm
+          - set
+          - "{{ hammond_vmid | string }}"
+          - --cores
+          - "{{ hammond_cores | string }}"
+          - --sockets
+          - "1"
+          - --memory
+          - "{{ hammond_memory | string }}"
+          - --agent
+          - "enabled=1"
+          - --onboot
+          - "1"
+      delegate_to: "{{ hammond_node }}"
+      changed_when: true
+
+    - name: Resize disk to {{ hammond_disk }}G
+      ansible.builtin.command:
+        argv: [qm, resize, "{{ hammond_vmid | string }}", scsi0, "{{ hammond_disk }}G"]
+      delegate_to: "{{ hammond_node }}"
+      changed_when: true
+      failed_when: false
+
+    - name: Set cloud-init network and DNS
+      ansible.builtin.command:
+        argv:
+          - qm
+          - set
+          - "{{ hammond_vmid | string }}"
+          - --ipconfig0
+          - "ip={{ hammond_ip }}/24,gw={{ hammond_gw }}"
+          - --nameserver
+          - "192.168.2.2"
+          - --searchdomain
+          - "brown.local"
+      delegate_to: "{{ hammond_node }}"
+      changed_when: true
+
+    - name: Set cloud-init user and SSH key
+      ansible.builtin.command:
+        argv:
+          - qm
+          - set
+          - "{{ hammond_vmid | string }}"
+          - --ciuser
+          - "{{ proxmox_template_ciuser }}"
+          - --sshkeys
+          - "/root/.ssh/authorized_keys"
+      delegate_to: "{{ hammond_node }}"
+      changed_when: true
+      failed_when: false
+
+    - name: Start Hammond
+      ansible.builtin.command:
+        argv: [qm, start, "{{ hammond_vmid | string }}"]
+      delegate_to: "{{ hammond_node }}"
+      changed_when: true
+
+    - name: Wait for SSH on 192.168.2.33
+      ansible.builtin.wait_for:
+        host: "{{ hammond_ip }}"
+        port: 22
+        delay: 20
+        timeout: 180
+
+    - name: Hammond VM ready
+      ansible.builtin.debug:
+        msg: "Hammond is up at {{ hammond_ip }} — run configure tag next"
+
+
+- name: Hammond — Install automation & MCP services
+  hosts: all
+  become: true
+  tags: configure
+
+  vars:
+    hammond_user: kurt
+
+  tasks:
+    - name: Set hostname to hammond
+      ansible.builtin.hostname:
+        name: hammond
+
+    - name: Update apt and install base packages
+      ansible.builtin.apt:
+        name:
+          - git
+          - curl
+          - wget
+          - python3
+          - python3-pip
+          - python3-requests
+          - tmux
+          - htop
+          - jq
+          - net-tools
+          - openssh-server
+        update_cache: true
+        state: present
+
+    - name: Install Node.js 20
+      ansible.builtin.shell: |
+        curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
+        apt-get install -y nodejs
+      args:
+        creates: /usr/bin/node
+      changed_when: true
+
+    - name: Create /opt/hammond automation directory
+      ansible.builtin.file:
+        path: /opt/hammond
+        state: directory
+        owner: "{{ hammond_user }}"
+        group: "{{ hammond_user }}"
+        mode: '0755'
+
+    - name: Install Proxmox MCP globally
+      community.general.npm:
+        name: "@bldg-7/proxmox-mcp"
+        global: true
+        state: present
+
+    - name: Install Home Assistant MCP globally
+      community.general.npm:
+        name: ha-mcp
+        global: true
+        state: present
+
+    - name: Clone plex-mcp-server to Hammond
+      ansible.builtin.git:
+        repo: https://github.com/niavasha/plex-mcp-server.git
+        dest: /opt/hammond/plex-mcp-server
+        version: main
+        force: true
+      become_user: "{{ hammond_user }}"
+
+    - name: npm install plex-mcp-server
+      ansible.builtin.command:
+        argv: [npm, install]
+        chdir: /opt/hammond/plex-mcp-server
+      become_user: "{{ hammond_user }}"
+      changed_when: false
+
+    - name: npm build plex-mcp-server
+      ansible.builtin.command:
+        argv: [npm, run, build]
+        chdir: /opt/hammond/plex-mcp-server
+      become_user: "{{ hammond_user }}"
+      changed_when: false
+
+    - name: Reload systemd
+      ansible.builtin.systemd:
+        daemon_reload: true
+
+    - name: Hammond configure complete
+      ansible.builtin.debug:
+        msg: |
+          Hammond (192.168.2.33) is configured.
+          Next: migrate scripts from Ansible, create Desktop Extension.
