@@ -63,6 +63,11 @@ The helper reads the Tactical API credential from the K3s secret at runtime
 and intentionally suppresses installer output because the configured Mesh
 binding is sensitive.
 
+Tactical policy `1` also includes the Linux-only onboarding task
+`install Mesh Linux`, backed by script `141`. Tactical runs this once after a
+new Linux agent enrolls. Keep the manual helper for recovery when an existing
+agent is missing Mesh or the onboarding run fails.
+
 Workstations and family endpoints can remain Tactical-only. Add them to
 central Ansible inventory only when they need central orchestration.
 

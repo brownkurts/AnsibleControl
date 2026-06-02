@@ -1,0 +1,197 @@
+---
+- name: Configure standalone rescue VM
+  hosts: rescue
+  become: true
+  gather_facts: true
+
+  vars:
+    rescue_ollama_model: "llama3.2:1b"
+
+  pre_tasks:
+    - name: Wait for cloud-init to finish
+      ansible.builtin.command: cloud-init status --wait
+      changed_when: false
+      failed_when: false
+
+  tasks:
+    - name: Install rescue server packages
+      ansible.builtin.apt:
+        name:
+          - ca-certificates
+          - ansible
+          - curl
+          - git
+          - jq
+          - openssh-server
+          - python3
+          - python3-pip
+          - python3-venv
+          - qemu-guest-agent
+        state: present
+        update_cache: true
+
+    - name: Enable QEMU guest agent
+      ansible.builtin.systemd:
+        name: qemu-guest-agent
+        enabled: true
+        state: started
+
+    - name: Check whether Ollama is installed
+      ansible.builtin.command: ollama --version
+      register: rescue_ollama_version
+      changed_when: false
+      failed_when: false
+
+    - name: Install Ollama
+      ansible.builtin.shell: |
+        set -o pipefail
+        curl -fsSL https://ollama.com/install.sh | sh
+      args:
+        executable: /bin/bash
+      when: rescue_ollama_version.rc != 0
+
+    - name: Create Ollama systemd override directory
+      ansible.builtin.file:
+        path: /etc/systemd/system/ollama.service.d
+        state: directory
+        mode: "0755"
+
+    - name: Configure CPU-only Ollama service
+      ansible.builtin.copy:
+        dest: /etc/systemd/system/ollama.service.d/rescue.conf
+        mode: "0644"
+        content: |
+          [Service]
+          Environment="OLLAMA_HOST=0.0.0.0:11434"
+          Environment="OLLAMA_KEEP_ALIVE=-1"
+          Environment="OLLAMA_CONTEXT_LENGTH=8192"
+          Environment="OLLAMA_MAX_LOADED_MODELS=1"
+          Environment="OLLAMA_NUM_PARALLEL=1"
+      notify: Restart Ollama
+
+    - name: Enable Ollama
+      ansible.builtin.systemd:
+        name: ollama
+        enabled: true
+        state: started
+        daemon_reload: true
+
+    - name: Pull rescue model
+      ansible.builtin.command: "ollama pull {{ rescue_ollama_model }}"
+      register: rescue_ollama_pull
+      changed_when: "'pulling manifest' in rescue_ollama_pull.stdout"
+
+    - name: Create rescue bot directories
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: directory
+        owner: kurt
+        group: kurt
+        mode: "0750"
+      loop:
+        - /opt/rescue-bot
+        - /etc/rescue-bot
+        - /config
+        - /ssh
+
+    - name: Create rescue bot virtual environment
+      ansible.builtin.command: python3 -m venv /opt/rescue-bot/venv
+      args:
+        creates: /opt/rescue-bot/venv/bin/python
+
+    - name: Install rescue bot Python dependencies
+      ansible.builtin.pip:
+        name:
+          - fastapi
+          - httpx
+          - kubernetes
+          - "uvicorn[standard]"
+        virtualenv: /opt/rescue-bot/venv
+
+    - name: Create rescue remediator directories
+      ansible.builtin.file:
+        path: "{{ item.path }}"
+        state: directory
+        owner: root
+        group: root
+        mode: "{{ item.mode }}"
+      loop:
+        - { path: /opt/rescue-remediator, mode: "0755" }
+        - { path: /etc/rescue-remediator, mode: "0755" }
+        - { path: /var/lib/rescue-remediator, mode: "0750" }
+        - { path: /var/log/rescue-remediator, mode: "0750" }
+
+    - name: Install rescue remediator
+      ansible.builtin.copy:
+        src: files/rescue-remediator.py
+        dest: /opt/rescue-remediator/remediator.py
+        owner: root
+        group: root
+        mode: "0755"
+      notify: Restart rescue remediator
+
+    - name: Configure rescue remediator
+      ansible.builtin.copy:
+        dest: /etc/rescue-remediator/remediator.env
+        owner: root
+        group: root
+        mode: "0644"
+        content: |
+          AUTO_REMEDIATE=true
+          CHECK_INTERVAL=60
+          FAILURE_THRESHOLD=3
+          POST_ACTION_WAIT=180
+          COOLDOWN_SECONDS=1800
+          MAX_ATTEMPTS=2
+          ATTEMPT_WINDOW_SECONDS=21600
+          WATCHDOG_URL=http://192.168.2.30:8769
+          ANSIBLE_HOST=kurt@192.168.2.30
+          SSH_KEY=/ssh/id_ed25519
+          KUBECONFIG=/opt/rescue-bot/kubeconfig
+          RESCUE_BOT_ENV=/etc/rescue-bot/rescue-bot.env
+      notify: Restart rescue remediator
+
+    - name: Install rescue remediator systemd service
+      ansible.builtin.copy:
+        dest: /etc/systemd/system/rescue-remediator.service
+        owner: root
+        group: root
+        mode: "0644"
+        content: |
+          [Unit]
+          Description=KBTech guarded K3s rescue remediator
+          After=network-online.target
+          Wants=network-online.target
+          ConditionPathExists=/ssh/id_ed25519
+          ConditionPathExists=/opt/rescue-bot/kubeconfig
+
+          [Service]
+          Type=simple
+          EnvironmentFile=/etc/rescue-remediator/remediator.env
+          ExecStart=/opt/rescue-bot/venv/bin/python /opt/rescue-remediator/remediator.py
+          Restart=always
+          RestartSec=10
+
+          [Install]
+          WantedBy=multi-user.target
+      notify: Restart rescue remediator
+
+    - name: Enable rescue remediator
+      ansible.builtin.systemd:
+        name: rescue-remediator
+        enabled: true
+        state: started
+        daemon_reload: true
+
+  handlers:
+    - name: Restart Ollama
+      ansible.builtin.systemd:
+        name: ollama
+        state: restarted
+        daemon_reload: true
+
+    - name: Restart rescue remediator
+      ansible.builtin.systemd:
+        name: rescue-remediator
+        state: restarted
+        daemon_reload: true
