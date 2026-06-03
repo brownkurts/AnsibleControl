@@ -39,6 +39,11 @@ write_files:
       export DESKTOP_SESSION=gnome-flashback-metacity
       exec gnome-session --session=gnome-flashback-metacity
 
+  - path: /etc/tactical-rmm/auth_key
+    owner: root:root
+    permissions: "0600"
+    content: "{{ auth_key }}"
+
   - path: /etc/polkit-1/localauthority/50-local.d/45-colord.pkla
     owner: root:root
     permissions: "0644"
