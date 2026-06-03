@@ -29,8 +29,8 @@ packages:
 {% endfor %}
 
 write_files:
-  - path: /home/{{ item.ciuser | default(proxmox_template_ciuser) }}/.xsession
-    owner: "{{ item.ciuser | default(proxmox_template_ciuser) }}:{{ item.ciuser | default(proxmox_template_ciuser) }}"
+  - path: /etc/skel/.xsession
+    owner: root:root
     permissions: "0755"
     content: |
       export GNOME_SHELL_SESSION_MODE=gnome-classic
@@ -116,6 +116,8 @@ write_files:
       }
 
       install -d -o "${user}" -g "${user}" "/home/${user}/GitHub"
+      # copy skel .xsession (write_files runs before users_groups, so can't write directly to home)
+      install -m 0755 -o "${user}" -g "${user}" /etc/skel/.xsession "/home/${user}/.xsession"
       systemctl enable --now ssh qemu-guest-agent xrdp
       usermod -aG ssl-cert "${user}" || true
 
