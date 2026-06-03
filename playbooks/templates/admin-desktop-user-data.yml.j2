@@ -29,6 +29,27 @@ packages:
 {% endfor %}
 
 write_files:
+  - path: /home/{{ item.ciuser | default(proxmox_template_ciuser) }}/.xsession
+    owner: "{{ item.ciuser | default(proxmox_template_ciuser) }}:{{ item.ciuser | default(proxmox_template_ciuser) }}"
+    permissions: "0755"
+    content: |
+      export GNOME_SHELL_SESSION_MODE=gnome-classic
+      export XDG_CURRENT_DESKTOP=GNOME-Flashback:GNOME
+      export XDG_SESSION_TYPE=x11
+      export DESKTOP_SESSION=gnome-flashback-metacity
+      exec gnome-session --session=gnome-flashback-metacity
+
+  - path: /etc/polkit-1/localauthority/50-local.d/45-colord.pkla
+    owner: root:root
+    permissions: "0644"
+    content: |
+      [Allow colord for all users]
+      Identity=unix-user:*
+      Action=org.freedesktop.color-manager.create-device;org.freedesktop.color-manager.create-profile;org.freedesktop.color-manager.delete-device;org.freedesktop.color-manager.delete-profile;org.freedesktop.color-manager.modify-device;org.freedesktop.color-manager.modify-profile
+      ResultAny=yes
+      ResultInactive=yes
+      ResultActive=yes
+
   - path: /etc/ansible/ansible.cfg
     owner: root:root
     permissions: "0644"
@@ -97,6 +118,18 @@ write_files:
       install -d -o "${user}" -g "${user}" "/home/${user}/GitHub"
       systemctl enable --now ssh qemu-guest-agent xrdp
       usermod -aG ssl-cert "${user}" || true
+
+      # Disable Wayland so XRDP gets an X11 session
+      if [ -f /etc/gdm3/custom.conf ]; then
+        sed -i 's/#WaylandEnable=false/WaylandEnable=false/' /etc/gdm3/custom.conf
+      else
+        mkdir -p /etc/gdm3
+        printf '[daemon]\nWaylandEnable=false\n' > /etc/gdm3/custom.conf
+      fi
+
+      # polkit colord file written by cloud-init write_files; ensure parent dir exists
+      mkdir -p /etc/polkit-1/localauthority/50-local.d/
+
       if command -v gdm3 >/dev/null 2>&1; then
         systemctl enable gdm3
       fi

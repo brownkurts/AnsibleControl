@@ -228,14 +228,13 @@ nextcloud_servers:
     storage: "data1"
 
 admin_desktop_servers:
-  - name: "admin-01"
-    vmid: 2401
+  - name: "thor"
+    vmid: 130
     proxmox_node: "PROXMOX-01"
     clone_template: "tpl-ubuntu-2404-proxmox-01"
     ip: "192.168.2.31"
     cidr: 24
     gateway: "192.168.2.254"
-    vlan_tag: 1
     cores: 4
     memory: 8192
     disk_gb: 120
