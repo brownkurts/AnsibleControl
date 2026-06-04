@@ -1,0 +1,36 @@
+---
+# Hammond automation server tasks
+
+- name: Deploy Tailscale pre-auth key renewal script
+  ansible.builtin.copy:
+    src: tailscale-renewal.sh
+    dest: /usr/local/bin/tailscale-renewal.sh
+    owner: root
+    group: root
+    mode: "0755"
+  notify: reload systemd
+
+- name: Deploy Tailscale renewal systemd service
+  ansible.builtin.copy:
+    src: tailscale-renewal.service
+    dest: /etc/systemd/system/tailscale-renewal.service
+    owner: root
+    group: root
+    mode: "0644"
+  notify: reload systemd
+
+- name: Deploy Tailscale renewal systemd timer
+  ansible.builtin.copy:
+    src: tailscale-renewal.timer
+    dest: /etc/systemd/system/tailscale-renewal.timer
+    owner: root
+    group: root
+    mode: "0644"
+  notify: reload systemd
+
+- name: Enable and start Tailscale renewal timer
+  ansible.builtin.systemd:
+    name: tailscale-renewal.timer
+    enabled: true
+    state: started
+    daemon_reload: true

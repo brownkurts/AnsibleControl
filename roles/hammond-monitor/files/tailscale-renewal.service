@@ -1,0 +1,11 @@
+[Unit]
+Description=Tailscale Pre-Auth Key Renewal
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=kurt
+ExecStart=/usr/local/bin/tailscale-renewal.sh
+StandardOutput=journal
+StandardError=journal
