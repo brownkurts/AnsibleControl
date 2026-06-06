@@ -1,0 +1,12 @@
+[Unit]
+Description=KBTech morning weather report for Rocket.Chat
+After=network-online.target
+Wants=network-online.target
+ConditionPathExists=/etc/rescue-bot/rescue-bot.env
+
+[Service]
+Type=oneshot
+User=kurt
+WorkingDirectory=/opt/rescue-bot
+EnvironmentFile=/etc/rescue-bot/rescue-bot.env
+ExecStart=/opt/rescue-bot/venv/bin/python /opt/rescue-bot/weather_report.py

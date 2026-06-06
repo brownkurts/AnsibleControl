@@ -1,0 +1,98 @@
+[
+  {
+    "id": "intentional_stop",
+    "name": "Service manually stopped",
+    "description": "Exit code 0 or logs show explicit stop command \u2014 do not restart",
+    "log_patterns": [
+      "Stopped by",
+      "ExecStop=",
+      "systemctl stop",
+      "Deactivated successfully",
+      "Stopping.*service"
+    ],
+    "status_patterns": [
+      "exit=0"
+    ],
+    "fix": "none",
+    "auto": true,
+    "message": "Service was manually stopped \u2014 no automated action taken."
+  },
+  {
+    "id": "nfs_stale",
+    "name": "NFS mount stale or missing",
+    "description": "Container cannot access NFS paths \u2014 remount then restart fixes it",
+    "log_patterns": [
+      "Transport endpoint is not connected",
+      "Stale file handle",
+      "No such file or directory.*/mnt",
+      "Input/output error",
+      "cannot access.*/mnt",
+      "failed to mount",
+      "nfs: server.*not responding",
+      "mount.*nfs.*failed"
+    ],
+    "status_patterns": [],
+    "fix": "bounce_nfs_restart",
+    "auto": true,
+    "message": "NFS mount stale or missing \u2014 remounting and restarting service."
+  },
+  {
+    "id": "oom_killed",
+    "name": "OOM killed",
+    "description": "Container killed by kernel OOM killer \u2014 restart and flag memory concern",
+    "log_patterns": [
+      "OOMKilled",
+      "out of memory",
+      "Cannot allocate memory",
+      "Killed.*oom"
+    ],
+    "status_patterns": [
+      "oom=true"
+    ],
+    "fix": "restart",
+    "auto": true,
+    "message": "OOM killed \u2014 restarting. :warning: Consider increasing container memory limit."
+  },
+  {
+    "id": "port_conflict",
+    "name": "Port already in use",
+    "description": "Another process holds the port \u2014 needs manual resolution",
+    "log_patterns": [
+      "address already in use",
+      "EADDRINUSE",
+      "bind.*failed.*address"
+    ],
+    "status_patterns": [],
+    "fix": "none",
+    "auto": false,
+    "message": "Port conflict \u2014 another process holds the port. Manual intervention needed."
+  },
+  {
+    "id": "db_conn_refused",
+    "name": "Database connection refused",
+    "description": "DB container not ready or down \u2014 check DB first, not the app",
+    "log_patterns": [
+      "ECONNREFUSED.*5432",
+      "ECONNREFUSED.*3306",
+      "could not connect to.*postgres",
+      "connection refused.*3306",
+      "ECONNREFUSED.*27017"
+    ],
+    "status_patterns": [],
+    "fix": "none",
+    "auto": false,
+    "message": "Database connection refused \u2014 check if the DB container is healthy first."
+  },
+  {
+    "id": "crash_loop",
+    "name": "Crash loop / restarting",
+    "description": "Container keeps crashing \u2014 needs log investigation before action",
+    "log_patterns": [],
+    "status_patterns": [
+      "restarting"
+    ],
+    "fix": "none",
+    "auto": false,
+    "message": "Container is in a crash loop. Logs attached \u2014 manual investigation needed."
+  }
+]

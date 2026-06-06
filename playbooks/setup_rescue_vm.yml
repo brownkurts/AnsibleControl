@@ -6,12 +6,50 @@
 
   vars:
     rescue_ollama_model: "llama3.2:1b"
+    rescue_watchdog_url: "http://192.168.2.33:8769"
+    rescue_bot_ansible_host: "kurt@192.168.2.30"
+    rescue_bot_local_kubeconfig: "{{ lookup('env', 'HOME') }}/.kube/config"
+    rescue_bot_local_ssh_key: "{{ lookup('env', 'HOME') }}/.ssh/id_ed25519"
+    rescue_bot_local_env_file: ""
+    rescue_bot_rc_url: "https://chat.kbtech.org"
+    rescue_bot_notify_user: "kbrown"
+    rescue_bot_alerts_channel: "#alerts"
+    rescue_bot_watchdog_interval: 300
+    rescue_bot_ollama_url: "http://127.0.0.1:11434"
+    rescue_bot_ollama_model: "llama3.2:1b"
+    rescue_bot_weather_channel: "#homelab"
+    rescue_bot_weather_location: "Washington,OK"
+    rescue_bot_weather_location_label: "Washington, OK"
+    rescue_bot_rc_bot_token: ""
+    rescue_bot_rc_bot_user_id: ""
 
   pre_tasks:
     - name: Wait for cloud-init to finish
       ansible.builtin.command: cloud-init status --wait
       changed_when: false
       failed_when: false
+
+    - name: Check for local rescue SSH key on controller
+      delegate_to: localhost
+      become: false
+      ansible.builtin.stat:
+        path: "{{ rescue_bot_local_ssh_key }}"
+      register: rescue_bot_local_ssh_key_stat
+
+    - name: Check for local rescue kubeconfig on controller
+      delegate_to: localhost
+      become: false
+      ansible.builtin.stat:
+        path: "{{ rescue_bot_local_kubeconfig }}"
+      register: rescue_bot_local_kubeconfig_stat
+
+    - name: Check for local rescue env file on controller
+      delegate_to: localhost
+      become: false
+      ansible.builtin.stat:
+        path: "{{ rescue_bot_local_env_file }}"
+      register: rescue_bot_local_env_file_stat
+      when: rescue_bot_local_env_file | length > 0
 
   tasks:
     - name: Install rescue server packages
@@ -108,6 +146,113 @@
           - "uvicorn[standard]"
         virtualenv: /opt/rescue-bot/venv
 
+    - name: Install rescue bot runtime files
+      ansible.builtin.copy:
+        src: "files/rescue-bot/{{ item.src }}"
+        dest: "{{ item.dest }}"
+        owner: kurt
+        group: kurt
+        mode: "{{ item.mode }}"
+      loop:
+        - { src: "bot.py", dest: "/opt/rescue-bot/bot.py", mode: "0750" }
+        - { src: "weather_report.py", dest: "/opt/rescue-bot/weather_report.py", mode: "0750" }
+        - { src: "knowledge_base.json", dest: "/opt/rescue-bot/knowledge_base.json", mode: "0644" }
+        - { src: "service_map.json", dest: "/opt/rescue-bot/service_map.json", mode: "0644" }
+        - { src: "auto-approve.json", dest: "/config/auto-approve.json", mode: "0640" }
+      notify: Restart rescue bot
+
+    - name: Install rescue bot systemd units
+      ansible.builtin.copy:
+        src: "files/rescue-bot/{{ item }}"
+        dest: "/etc/systemd/system/{{ item }}"
+        owner: root
+        group: root
+        mode: "0644"
+      loop:
+        - rescue-bot.service
+        - rescue-weather-report.service
+        - rescue-weather-report.timer
+      notify:
+        - Reload systemd
+        - Restart rescue bot
+        - Restart rescue weather timer
+
+    - name: Install rescue SSH key from controller
+      ansible.builtin.copy:
+        src: "{{ rescue_bot_local_ssh_key }}"
+        dest: /ssh/id_ed25519
+        owner: kurt
+        group: kurt
+        mode: "0600"
+      when: rescue_bot_local_ssh_key_stat.stat.exists
+      notify: Restart rescue remediator
+
+    - name: Install rescue kubeconfig from controller
+      ansible.builtin.copy:
+        src: "{{ rescue_bot_local_kubeconfig }}"
+        dest: /opt/rescue-bot/kubeconfig
+        owner: kurt
+        group: kurt
+        mode: "0600"
+      when: rescue_bot_local_kubeconfig_stat.stat.exists
+      notify: Restart rescue remediator
+
+    - name: Install rescue bot environment file from controller
+      ansible.builtin.copy:
+        src: "{{ rescue_bot_local_env_file }}"
+        dest: /etc/rescue-bot/rescue-bot.env
+        owner: root
+        group: root
+        mode: "0600"
+      when:
+        - rescue_bot_local_env_file | length > 0
+        - rescue_bot_local_env_file_stat.stat.exists
+      notify:
+        - Restart rescue bot
+        - Restart rescue remediator
+
+    - name: Render rescue bot environment file from variables
+      ansible.builtin.copy:
+        dest: /etc/rescue-bot/rescue-bot.env
+        owner: root
+        group: root
+        mode: "0600"
+        content: |
+          RC_URL={{ rescue_bot_rc_url }}
+          RC_BOT_TOKEN={{ rescue_bot_rc_bot_token }}
+          RC_BOT_USER_ID={{ rescue_bot_rc_bot_user_id }}
+          NOTIFY_USER={{ rescue_bot_notify_user }}
+          ALERTS_CHANNEL={{ rescue_bot_alerts_channel }}
+          WATCHDOG_INTERVAL={{ rescue_bot_watchdog_interval }}
+          OLLAMA_URL={{ rescue_bot_ollama_url }}
+          OLLAMA_MODEL={{ rescue_bot_ollama_model }}
+          KUBECONFIG=/opt/rescue-bot/kubeconfig
+          WEATHER_CHANNEL={{ rescue_bot_weather_channel }}
+          WEATHER_LOCATION={{ rescue_bot_weather_location }}
+          WEATHER_LOCATION_LABEL="{{ rescue_bot_weather_location_label }}"
+      when:
+        - rescue_bot_local_env_file | length == 0 or not rescue_bot_local_env_file_stat.stat.exists
+        - rescue_bot_rc_bot_token | length > 0
+        - rescue_bot_rc_bot_user_id | length > 0
+      notify:
+        - Restart rescue bot
+        - Restart rescue remediator
+
+    - name: Check rescue bot environment file
+      ansible.builtin.stat:
+        path: /etc/rescue-bot/rescue-bot.env
+      register: rescue_bot_env_stat
+
+    - name: Check rescue SSH key on remote host
+      ansible.builtin.stat:
+        path: /ssh/id_ed25519
+      register: rescue_bot_remote_ssh_key_stat
+
+    - name: Check rescue kubeconfig on remote host
+      ansible.builtin.stat:
+        path: /opt/rescue-bot/kubeconfig
+      register: rescue_bot_remote_kubeconfig_stat
+
     - name: Create rescue remediator directories
       ansible.builtin.file:
         path: "{{ item.path }}"
@@ -144,8 +289,8 @@
           COOLDOWN_SECONDS=1800
           MAX_ATTEMPTS=2
           ATTEMPT_WINDOW_SECONDS=21600
-          WATCHDOG_URL=http://192.168.2.30:8769
-          ANSIBLE_HOST=kurt@192.168.2.30
+          WATCHDOG_URL={{ rescue_watchdog_url }}
+          ANSIBLE_HOST={{ rescue_bot_ansible_host }}
           SSH_KEY=/ssh/id_ed25519
           KUBECONFIG=/opt/rescue-bot/kubeconfig
           RESCUE_BOT_ENV=/etc/rescue-bot/rescue-bot.env
@@ -162,6 +307,7 @@
           Description=KBTech guarded K3s rescue remediator
           After=network-online.target
           Wants=network-online.target
+          ConditionPathExists=/etc/rescue-bot/rescue-bot.env
           ConditionPathExists=/ssh/id_ed25519
           ConditionPathExists=/opt/rescue-bot/kubeconfig
 
@@ -176,22 +322,81 @@
           WantedBy=multi-user.target
       notify: Restart rescue remediator
 
+    - name: Enable rescue bot service
+      ansible.builtin.systemd:
+        name: rescue-bot
+        enabled: true
+        daemon_reload: true
+
+    - name: Start rescue bot service when env exists
+      ansible.builtin.systemd:
+        name: rescue-bot
+        state: started
+      when: rescue_bot_env_stat.stat.exists
+
+    - name: Enable rescue weather timer
+      ansible.builtin.systemd:
+        name: rescue-weather-report.timer
+        enabled: true
+        daemon_reload: true
+
+    - name: Start rescue weather timer when env exists
+      ansible.builtin.systemd:
+        name: rescue-weather-report.timer
+        state: started
+      when: rescue_bot_env_stat.stat.exists
+
+    - name: Note missing rescue bot env file
+      ansible.builtin.debug:
+        msg: >-
+          /etc/rescue-bot/rescue-bot.env is absent, so rescue-bot and the weather
+          timer were installed but not started. Set rescue_bot_local_env_file or
+          rescue_bot_rc_bot_token/rescue_bot_rc_bot_user_id to fully activate them.
+      when: not rescue_bot_env_stat.stat.exists
+
     - name: Enable rescue remediator
       ansible.builtin.systemd:
         name: rescue-remediator
         enabled: true
-        state: started
         daemon_reload: true
 
+    - name: Start rescue remediator when prerequisites exist
+      ansible.builtin.systemd:
+        name: rescue-remediator
+        state: started
+      when:
+        - rescue_bot_env_stat.stat.exists
+        - rescue_bot_remote_ssh_key_stat.stat.exists
+        - rescue_bot_remote_kubeconfig_stat.stat.exists
+
   handlers:
+    - name: Reload systemd
+      ansible.builtin.systemd:
+        daemon_reload: true
+
     - name: Restart Ollama
       ansible.builtin.systemd:
         name: ollama
         state: restarted
         daemon_reload: true
 
+    - name: Restart rescue bot
+      ansible.builtin.systemd:
+        name: rescue-bot
+        state: restarted
+      when: rescue_bot_env_stat is defined and rescue_bot_env_stat.stat.exists
+
+    - name: Restart rescue weather timer
+      ansible.builtin.systemd:
+        name: rescue-weather-report.timer
+        state: restarted
+      when: rescue_bot_env_stat is defined and rescue_bot_env_stat.stat.exists
+
     - name: Restart rescue remediator
       ansible.builtin.systemd:
         name: rescue-remediator
         state: restarted
-        daemon_reload: true
+      when:
+        - rescue_bot_env_stat is defined and rescue_bot_env_stat.stat.exists
+        - rescue_bot_remote_ssh_key_stat is defined and rescue_bot_remote_ssh_key_stat.stat.exists
+        - rescue_bot_remote_kubeconfig_stat is defined and rescue_bot_remote_kubeconfig_stat.stat.exists

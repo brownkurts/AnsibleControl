@@ -108,6 +108,7 @@
         - item.id | int > 0
         - item.id | int < 4094
         - item.status == 'active'
+        - item.name | default('') | trim | length > 0
       ignore_errors: true
 
     # ── Sync interfaces for all switches ───────────────────────────────────

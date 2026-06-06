@@ -1,0 +1,509 @@
+---
+# Wazuh dedicated server build.
+#
+# Usage:
+#   Step 1 - Provision VM on Proxmox:
+#     ansible-playbook -i inventory/hosts.ini playbooks/provision_wazuh_server.yml --tags vm
+#   Step 2 - Install and validate Wazuh all-in-one on iris-01:
+#     ansible-playbook -i inventory/hosts.ini playbooks/provision_wazuh_server.yml --tags configure --limit iris-01
+
+- name: Provision dedicated Wazuh VM on Proxmox
+  hosts: localhost
+  gather_facts: false
+  tags: vm
+
+  vars:
+    wazuh_target_host: "{{ ((groups['wazuh_server'] | default([])) | first) | default('') }}"
+    wazuh_vm: "{{ hostvars[wazuh_target_host].wazuh_server_vm }}"
+
+  tasks:
+    - name: Validate Wazuh inventory target exists
+      ansible.builtin.assert:
+        that:
+          - wazuh_target_host | length > 0
+        fail_msg: "Define at least one host in the wazuh_server inventory group before provisioning."
+
+    - name: Ensure community.proxmox collection is available
+      ansible.builtin.command: ansible-galaxy collection install community.proxmox
+      changed_when: false
+      failed_when: false
+
+    - name: Clone iris-01 from Ubuntu 24.04 template
+      community.proxmox.proxmox_kvm:
+        api_host: "{{ proxmox_api_host }}"
+        api_user: "{{ proxmox_api_user }}"
+        api_token_id: "{{ proxmox_api_token_id }}"
+        api_token_secret: "{{ vault_proxmox_api_token_secret }}"
+        validate_certs: "{{ proxmox_validate_certs | bool }}"
+        node: "{{ wazuh_vm.proxmox_node }}"
+        clone: "{{ wazuh_vm.clone_template }}"
+        newid: "{{ wazuh_vm.vmid }}"
+        name: "{{ wazuh_vm.name }}"
+        full: true
+        timeout: 600
+        storage: "{{ wazuh_vm.storage }}"
+        state: present
+
+    - name: Stop VM for configuration
+      ansible.builtin.command:
+        argv:
+          - qm
+          - stop
+          - "{{ wazuh_vm.vmid | string }}"
+      delegate_to: "{{ wazuh_vm.proxmox_node }}"
+      failed_when: false
+      changed_when: true
+
+    - name: Pause after stop
+      ansible.builtin.pause:
+        seconds: 5
+
+    - name: Set CPU, memory, agent and onboot
+      ansible.builtin.command:
+        argv:
+          - qm
+          - set
+          - "{{ wazuh_vm.vmid | string }}"
+          - --cores
+          - "{{ wazuh_vm.cores | string }}"
+          - --sockets
+          - "1"
+          - --memory
+          - "{{ wazuh_vm.memory | string }}"
+          - --agent
+          - "enabled=1"
+          - --onboot
+          - "1"
+      delegate_to: "{{ wazuh_vm.proxmox_node }}"
+      changed_when: true
+
+    - name: Set VM NIC on management LAN
+      ansible.builtin.command:
+        argv:
+          - qm
+          - set
+          - "{{ wazuh_vm.vmid | string }}"
+          - --net0
+          - "{{ proxmox_template_network_model }},bridge={{ proxmox_template_bridge }}"
+      delegate_to: "{{ wazuh_vm.proxmox_node }}"
+      changed_when: true
+
+    - name: Set cloud-init user, DNS, and search domain
+      ansible.builtin.command:
+        argv:
+          - qm
+          - set
+          - "{{ wazuh_vm.vmid | string }}"
+          - --ciuser
+          - "{{ proxmox_template_ciuser }}"
+          - --nameserver
+          - "{{ proxmox_template_nameserver }}"
+          - --searchdomain
+          - "{{ proxmox_template_searchdomain }}"
+      delegate_to: "{{ wazuh_vm.proxmox_node }}"
+      changed_when: true
+
+    - name: Set cloud-init IP config
+      ansible.builtin.command:
+        argv:
+          - qm
+          - set
+          - "{{ wazuh_vm.vmid | string }}"
+          - --ipconfig0
+          - "ip={{ wazuh_vm.ip }}/{{ wazuh_vm.cidr }},gw={{ wazuh_vm.gateway }}"
+      delegate_to: "{{ wazuh_vm.proxmox_node }}"
+      changed_when: true
+
+    - name: Resize primary disk
+      ansible.builtin.command:
+        argv:
+          - qm
+          - resize
+          - "{{ wazuh_vm.vmid | string }}"
+          - scsi0
+          - "{{ wazuh_vm.disk_gb }}G"
+      delegate_to: "{{ wazuh_vm.proxmox_node }}"
+      failed_when: false
+      changed_when: true
+
+    - name: Start Wazuh VM
+      community.proxmox.proxmox_kvm:
+        api_host: "{{ proxmox_api_host }}"
+        api_user: "{{ proxmox_api_user }}"
+        api_token_id: "{{ proxmox_api_token_id }}"
+        api_token_secret: "{{ vault_proxmox_api_token_secret }}"
+        validate_certs: "{{ proxmox_validate_certs | bool }}"
+        node: "{{ wazuh_vm.proxmox_node }}"
+        vmid: "{{ wazuh_vm.vmid }}"
+        name: "{{ wazuh_vm.name }}"
+        state: started
+
+    - name: Wait for SSH on iris-01
+      ansible.builtin.wait_for:
+        host: "{{ wazuh_vm.ip }}"
+        port: 22
+        delay: 20
+        timeout: 600
+
+- name: Install and validate Wazuh all-in-one on iris-01
+  hosts: wazuh_server
+  become: true
+  gather_facts: true
+  tags: configure
+
+  tasks:
+    - name: Wait for SSH connectivity
+      ansible.builtin.wait_for_connection:
+        timeout: 600
+
+    - name: Wait for cloud-init to finish if present
+      ansible.builtin.shell: |
+        if command -v cloud-init >/dev/null 2>&1; then
+          cloud-init status --wait || true
+        fi
+      args:
+        executable: /bin/bash
+      changed_when: false
+
+    - name: Set hostname to iris-01
+      ansible.builtin.hostname:
+        name: "{{ inventory_hostname }}"
+
+    - name: Install base packages
+      ansible.builtin.apt:
+        name:
+          - ca-certificates
+          - curl
+          - gnupg
+          - qemu-guest-agent
+          - tar
+          - unattended-upgrades
+        update_cache: true
+        state: present
+
+    - name: Apply latest package updates
+      ansible.builtin.apt:
+        upgrade: dist
+        update_cache: true
+
+    - name: Enable QEMU guest agent
+      ansible.builtin.systemd:
+        name: qemu-guest-agent
+        enabled: true
+        state: started
+
+    - name: Create Wazuh install workspace
+      ansible.builtin.file:
+        path: "{{ wazuh_install_dir }}"
+        state: directory
+        owner: root
+        group: root
+        mode: "0700"
+
+    - name: Download official Wazuh installer
+      ansible.builtin.command:
+        argv:
+          - curl
+          - -fsSL
+          - -o
+          - "{{ wazuh_install_dir }}/wazuh-install.sh"
+          - "https://packages.wazuh.com/{{ wazuh_install_version }}/wazuh-install.sh"
+      changed_when: true
+
+    - name: Ensure Wazuh installer is executable
+      ansible.builtin.file:
+        path: "{{ wazuh_install_dir }}/wazuh-install.sh"
+        mode: "0755"
+        state: file
+
+    - name: Check whether Wazuh is already installed
+      ansible.builtin.stat:
+        path: /var/ossec/bin/wazuh-control
+      register: wazuh_manager_binary
+
+    - name: Install Wazuh all-in-one with the official assistant
+      ansible.builtin.shell: |
+        ./wazuh-install.sh -a 2>&1 | tee "{{ wazuh_install_dir }}/install-{{ ansible_date_time.iso8601_basic_short }}.log"
+      args:
+        chdir: "{{ wazuh_install_dir }}"
+        executable: /bin/bash
+      when: not wazuh_manager_binary.stat.exists
+
+    - name: Gather service facts
+      ansible.builtin.service_facts:
+
+    - name: Ensure Wazuh core services are enabled and started
+      ansible.builtin.systemd:
+        name: "{{ item }}"
+        enabled: true
+        state: started
+      loop: "{{ wazuh_core_services }}"
+      when: (item + '.service') in ansible_facts.services
+
+    - name: Check for Wazuh apt repo
+      ansible.builtin.stat:
+        path: /etc/apt/sources.list.d/wazuh.list
+      register: wazuh_repo_file
+
+    - name: Disable Wazuh apt repo after install
+      ansible.builtin.replace:
+        path: /etc/apt/sources.list.d/wazuh.list
+        regexp: '^deb '
+        replace: '#deb '
+      when:
+        - wazuh_disable_repo_after_install | bool
+        - wazuh_repo_file.stat.exists
+
+    - name: Refresh apt cache after disabling Wazuh repo
+      ansible.builtin.apt:
+        update_cache: true
+      when:
+        - wazuh_disable_repo_after_install | bool
+        - wazuh_repo_file.stat.exists
+
+    - name: Wait for Wazuh dashboard HTTPS
+      ansible.builtin.wait_for:
+        host: 127.0.0.1
+        port: 443
+        delay: 5
+        timeout: 600
+
+    - name: Wait for Wazuh agent event listener
+      ansible.builtin.wait_for:
+        host: 127.0.0.1
+        port: 1514
+        delay: 5
+        timeout: 600
+
+    - name: Wait for Wazuh agent enrollment listener
+      ansible.builtin.wait_for:
+        host: 127.0.0.1
+        port: 1515
+        delay: 5
+        timeout: 600
+
+    - name: Wait for Wazuh API listener
+      ansible.builtin.wait_for:
+        host: 127.0.0.1
+        port: 55000
+        delay: 5
+        timeout: 600
+
+    - name: Probe Wazuh dashboard locally
+      ansible.builtin.command:
+        argv:
+          - curl
+          - -kfsS
+          - -o
+          - /dev/null
+          - https://127.0.0.1
+      changed_when: false
+
+    - name: Ensure Wazuh dashboard custom image directory exists
+      ansible.builtin.file:
+        path: /usr/share/wazuh-dashboard/plugins/wazuh/public/assets/custom/images
+        state: directory
+        owner: wazuh-dashboard
+        group: wazuh-dashboard
+        mode: "0755"
+
+    - name: Copy Stargate dashboard logo asset
+      ansible.builtin.copy:
+        src: files/stargate-command-logo.svg
+        dest: "{{ wazuh_dashboard_branding_asset_remote_path }}"
+        owner: wazuh-dashboard
+        group: wazuh-dashboard
+        mode: "0644"
+      register: wazuh_branding_asset
+
+    - name: Configure Wazuh dashboard plugin branding
+      ansible.builtin.blockinfile:
+        path: /usr/share/wazuh-dashboard/data/wazuh/config/wazuh.yml
+        marker: "# {mark} ANSIBLE WAZUH BRANDING"
+        block: |
+          customization.enabled: true
+          customization.logo.app: "custom/images/{{ wazuh_dashboard_branding_asset_name }}"
+          customization.logo.healthcheck: "custom/images/{{ wazuh_dashboard_branding_asset_name }}"
+          customization.reports.header: "{{ wazuh_report_header }}"
+          customization.reports.footer: "{{ wazuh_report_footer }}"
+      register: wazuh_plugin_branding
+
+    - name: Configure OpenSearch Dashboards branding
+      ansible.builtin.blockinfile:
+        path: /etc/wazuh-dashboard/opensearch_dashboards.yml
+        marker: "# {mark} ANSIBLE WAZUH BRANDING"
+        block: |
+          opensearchDashboards.branding:
+            mark:
+              defaultUrl: "{{ wazuh_dashboard_branding_asset_url }}"
+              darkModeUrl: "{{ wazuh_dashboard_branding_asset_url }}"
+            loadingLogo:
+              defaultUrl: "{{ wazuh_dashboard_branding_asset_url }}"
+              darkModeUrl: "{{ wazuh_dashboard_branding_asset_url }}"
+      register: wazuh_dashboard_branding
+
+    - name: Install Rocket.Chat integration script
+      ansible.builtin.copy:
+        dest: "/var/ossec/integrations/{{ wazuh_alert_integration_name }}"
+        owner: root
+        group: wazuh
+        mode: "0750"
+        content: |
+          #!/usr/bin/env python3
+          import json
+          import sys
+          import urllib.request
+
+
+          def severity_for_level(rule_level):
+              try:
+                  level = int(rule_level)
+              except (TypeError, ValueError):
+                  return "warning"
+              if level >= 12:
+                  return "critical"
+              if level >= 7:
+                  return "warning"
+              return "info"
+
+
+          def build_text(alert):
+              rule = alert.get("rule", {})
+              agent = alert.get("agent", {})
+              rule_level = rule.get("level", "n/a")
+              rule_id = rule.get("id", "n/a")
+              description = rule.get("description", "No description")
+              agent_name = agent.get("name", alert.get("manager", {}).get("name", "manager"))
+              groups = ", ".join(rule.get("groups", []))
+              location = alert.get("location", "n/a")
+              return (
+                  f":warning: Wazuh alert level {rule_level}\\n"
+                  f"Rule {rule_id}: {description}\\n"
+                  f"Agent: {agent_name}\\n"
+                  f"Location: {location}\\n"
+                  f"Groups: {groups}"
+              )
+
+
+          def build_payload(alert):
+              rule = alert.get("rule", {})
+              agent = alert.get("agent", {})
+              rule_level = rule.get("level", "n/a")
+              agent_name = agent.get("name", alert.get("manager", {}).get("name", "manager"))
+              description = rule.get("description", "No description")
+              alert_name = f"WazuhRule{rule.get('id', 'unknown')}"
+              summary = f"Wazuh alert on {agent_name}"
+              detail = build_text(alert)
+              severity = severity_for_level(rule_level)
+              return {
+                  "version": "4",
+                  "groupKey": f"wazuh:{rule.get('id', 'unknown')}:{agent_name}",
+                  "truncatedAlerts": 0,
+                  "status": "firing",
+                  "receiver": "rocketchat",
+                  "groupLabels": {
+                      "alertname": alert_name,
+                  },
+                  "commonLabels": {
+                      "alertname": alert_name,
+                      "severity": severity,
+                      "source": "wazuh",
+                      "agent": agent_name,
+                  },
+                  "commonAnnotations": {
+                      "summary": summary,
+                      "description": description,
+                      "text": detail,
+                  },
+                  "externalURL": "{{ wazuh_public_url }}",
+                  "alerts": [
+                      {
+                          "status": "firing",
+                          "labels": {
+                              "alertname": alert_name,
+                              "severity": severity,
+                              "source": "wazuh",
+                              "agent": agent_name,
+                          },
+                          "annotations": {
+                              "summary": summary,
+                              "description": detail,
+                          },
+                          "startsAt": alert.get("timestamp", ""),
+                          "generatorURL": "{{ wazuh_public_url }}",
+                          "fingerprint": f"wazuh-{rule.get('id', 'unknown')}-{agent_name}",
+                      }
+                  ],
+              }
+
+
+          def main():
+              alert_file = sys.argv[1]
+              hook_url = sys.argv[3]
+              with open(alert_file, encoding="utf-8") as file_handle:
+                  alert = json.load(file_handle)
+
+              payload = build_payload(alert)
+              request = urllib.request.Request(
+                  hook_url,
+                  data=json.dumps(payload).encode("utf-8"),
+                  headers={"Content-Type": "application/json"},
+                  method="POST",
+              )
+              with urllib.request.urlopen(request, timeout=10) as response:
+                  response.read()
+
+
+          if __name__ == "__main__":
+              main()
+      register: wazuh_alert_script
+
+    - name: Configure Rocket.Chat alert integration
+      ansible.builtin.blockinfile:
+        path: /var/ossec/etc/ossec.conf
+        marker: "<!-- {mark} ANSIBLE WAZUH ROCKETCHAT -->"
+        insertbefore: '^</ossec_config>$'
+        block: |
+          <integration>
+            <name>{{ wazuh_alert_integration_name }}</name>
+            <hook_url>{{ rocketchat_alert_webhook_url }}</hook_url>
+            <level>{{ wazuh_alert_level }}</level>
+            <alert_format>json</alert_format>
+          </integration>
+      register: wazuh_alert_config
+
+    - name: Restart Wazuh manager when alert integration changes
+      ansible.builtin.systemd:
+        name: wazuh-manager
+        state: restarted
+      when: wazuh_alert_script.changed or wazuh_alert_config.changed
+
+    - name: Restart Wazuh dashboard when branding changes
+      ansible.builtin.systemd:
+        name: wazuh-dashboard
+        state: restarted
+      when: wazuh_branding_asset.changed or wazuh_plugin_branding.changed or wazuh_dashboard_branding.changed
+
+    - name: Pause for dashboard restart
+      ansible.builtin.pause:
+        seconds: 10
+      when: wazuh_branding_asset.changed or wazuh_plugin_branding.changed or wazuh_dashboard_branding.changed
+
+    - name: Re-probe Wazuh dashboard after branding changes
+      ansible.builtin.command:
+        argv:
+          - curl
+          - -kfsS
+          - -o
+          - /dev/null
+          - https://127.0.0.1
+      changed_when: false
+
+    - name: Show operator follow-up
+      ansible.builtin.debug:
+        msg:
+          - "iris-01 Wazuh install workspace: {{ wazuh_install_dir }}"
+          - "Installer logs are kept in {{ wazuh_install_dir }}/install-*.log"
+          - "The generated credentials archive should be in {{ wazuh_install_dir }}/wazuh-install-files.tar"
+          - "Front door target: {{ wazuh_public_url }}"
+          - "Agent rollout target group: wazuh_agents_homelab_linux"

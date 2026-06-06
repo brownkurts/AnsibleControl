@@ -134,6 +134,46 @@
 
   vars:
     hammond_user: kurt
+    hammond_watchdog_local_dir: "{{ playbook_dir }}/../../kbtech-watchdog"
+    hammond_watchdog_tg_token: ""
+    hammond_watchdog_tg_chat: ""
+    hammond_watchdog_rc_webhook_url: ""
+    hammond_watchdog_kubeconfig: "/home/kurt/.kube/config"
+
+  pre_tasks:
+    - name: Check local watchdog script on controller
+      delegate_to: localhost
+      become: false
+      ansible.builtin.stat:
+        path: "{{ hammond_watchdog_local_dir }}/watchdog.py"
+      register: hammond_watchdog_script_stat
+
+    - name: Check local watchdog devices seed on controller
+      delegate_to: localhost
+      become: false
+      ansible.builtin.stat:
+        path: "{{ hammond_watchdog_local_dir }}/devices.json"
+      register: hammond_watchdog_devices_stat
+
+    - name: Check local watchdog service unit on controller
+      delegate_to: localhost
+      become: false
+      ansible.builtin.stat:
+        path: "{{ hammond_watchdog_local_dir }}/kbtech-watchdog.service"
+      register: hammond_watchdog_service_stat
+
+    - name: Fail when local watchdog source files are missing
+      delegate_to: localhost
+      become: false
+      ansible.builtin.fail:
+        msg: >-
+          Expected watchdog source files under {{ hammond_watchdog_local_dir }}.
+          Make sure the kbtech-watchdog workspace is present before running the
+          Hammond configure tag.
+      when:
+        - not hammond_watchdog_script_stat.stat.exists
+          or not hammond_watchdog_devices_stat.stat.exists
+          or not hammond_watchdog_service_stat.stat.exists
 
   tasks:
     - name: Set hostname to hammond
@@ -173,6 +213,18 @@
         group: "{{ hammond_user }}"
         mode: '0755'
 
+    - name: Create watchdog directories
+      ansible.builtin.file:
+        path: "{{ item.path }}"
+        state: directory
+        owner: "{{ item.owner }}"
+        group: "{{ item.group }}"
+        mode: "{{ item.mode }}"
+      loop:
+        - { path: /opt/kbtech-watchdog, owner: "{{ hammond_user }}", group: "{{ hammond_user }}", mode: "0755" }
+        - { path: /etc/kbtech-watchdog, owner: root, group: root, mode: "0755" }
+        - { path: /var/lib/kbtech-watchdog, owner: "{{ hammond_user }}", group: "{{ hammond_user }}", mode: "0755" }
+
     - name: Install Proxmox MCP globally
       community.general.npm:
         name: "@bldg-7/proxmox-mcp"
@@ -206,6 +258,53 @@
         chdir: /opt/hammond/plex-mcp-server
       become_user: "{{ hammond_user }}"
       changed_when: false
+
+    - name: Install watchdog script
+      ansible.builtin.copy:
+        src: "{{ hammond_watchdog_local_dir }}/watchdog.py"
+        dest: /opt/kbtech-watchdog/watchdog.py
+        owner: "{{ hammond_user }}"
+        group: "{{ hammond_user }}"
+        mode: "0755"
+
+    - name: Install watchdog devices seed
+      ansible.builtin.copy:
+        src: "{{ hammond_watchdog_local_dir }}/devices.json"
+        dest: /opt/kbtech-watchdog/devices.json
+        owner: "{{ hammond_user }}"
+        group: "{{ hammond_user }}"
+        mode: "0644"
+
+    - name: Install watchdog environment file
+      ansible.builtin.copy:
+        dest: /etc/kbtech-watchdog/watchdog.env
+        owner: root
+        group: root
+        mode: "0600"
+        content: |
+          TG_TOKEN={{ hammond_watchdog_tg_token }}
+          TG_CHAT={{ hammond_watchdog_tg_chat }}
+          RC_WEBHOOK_URL={{ hammond_watchdog_rc_webhook_url }}
+          KUBECONFIG={{ hammond_watchdog_kubeconfig }}
+          WATCHDOG_DEVICES_FILE=/opt/kbtech-watchdog/devices.json
+          WATCHDOG_ENROLLMENTS_FILE=/var/lib/kbtech-watchdog/enrollments.json
+          WATCHDOG_STATE_FILE=/var/lib/kbtech-watchdog/state.json
+          WATCHDOG_MAINTENANCE_FILE=/tmp/watchdog-maintenance
+
+    - name: Install watchdog systemd service
+      ansible.builtin.copy:
+        src: "{{ hammond_watchdog_local_dir }}/kbtech-watchdog.service"
+        dest: /etc/systemd/system/kbtech-watchdog.service
+        owner: root
+        group: root
+        mode: "0644"
+
+    - name: Enable and start watchdog
+      ansible.builtin.systemd:
+        name: kbtech-watchdog
+        enabled: true
+        state: started
+        daemon_reload: true
 
     - name: Reload systemd
       ansible.builtin.systemd:

@@ -1,0 +1,127 @@
+{
+  "rocketchat": {
+    "type": "docker",
+    "host": "192.168.201.70",
+    "container": "rocketchat"
+  },
+  "rocket.chat": {
+    "type": "docker",
+    "host": "192.168.201.70",
+    "container": "rocketchat"
+  },
+  "authentik": {
+    "type": "docker",
+    "host": "192.168.201.70",
+    "container": "authentik-server"
+  },
+  "grafana": {
+    "type": "docker",
+    "host": "192.168.201.70",
+    "container": "grafana"
+  },
+  "traefik": {
+    "type": "docker",
+    "host": "192.168.201.70",
+    "container": "traefik"
+  },
+  "openwebui": {
+    "type": "docker",
+    "host": "192.168.201.70",
+    "container": "openwebui"
+  },
+  "open-webui": {
+    "type": "docker",
+    "host": "192.168.201.70",
+    "container": "openwebui"
+  },
+  "uptime-kuma": {
+    "type": "docker",
+    "host": "192.168.201.70",
+    "container": "uptime-kuma"
+  },
+  "uptime kuma": {
+    "type": "docker",
+    "host": "192.168.201.70",
+    "container": "uptime-kuma"
+  },
+  "netbox": {
+    "type": "docker",
+    "host": "192.168.201.70",
+    "container": "netbox"
+  },
+  "homepage": {
+    "type": "docker",
+    "host": "192.168.201.70",
+    "container": "homepage"
+  },
+  "jellystat": {
+    "type": "docker",
+    "host": "192.168.201.70",
+    "container": "jellystat"
+  },
+  "alertmanager": {
+    "type": "docker",
+    "host": "192.168.201.70",
+    "container": "alertmanager"
+  },
+  "orbital-sync": {
+    "type": "docker",
+    "host": "192.168.201.70",
+    "container": "orbital-sync"
+  },
+  "command-center": {
+    "type": "docker",
+    "host": "192.168.201.70",
+    "container": "command-center"
+  },
+  "jellyfin": {
+    "type": "docker",
+    "host": "192.168.201.71",
+    "container": "jellyfin"
+  },
+  "prowlarr": {
+    "type": "docker",
+    "host": "192.168.201.71",
+    "container": "prowlarr"
+  },
+  "frigate": {
+    "type": "docker",
+    "host": "192.168.201.71",
+    "container": "frigate"
+  },
+  "watchstate": {
+    "type": "docker",
+    "host": "192.168.201.71",
+    "container": "watchstate"
+  },
+  "seerr": {
+    "type": "docker",
+    "host": "192.168.201.71",
+    "container": "seerr"
+  },
+  "nextcloud": {
+    "type": "vm",
+    "host": "192.168.201.57",
+    "unit": "apache2"
+  },
+  "plex": {
+    "type": "vm",
+    "host": "192.168.201.10",
+    "unit": "plexmediaserver"
+  },
+  "hammond-monitor": {
+    "type": "systemd",
+    "host": "192.168.2.33",
+    "unit": "hammond-monitor"
+  },
+  "proxmox-alert-relay": {
+    "type": "systemd",
+    "host": "192.168.2.33",
+    "unit": "proxmox-alert-relay"
+  },
+  "tautulli-webhook": {
+    "type": "systemd",
+    "host": "192.168.2.33",
+    "unit": "tautulli-webhook"
+  }
+}
