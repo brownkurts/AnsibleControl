@@ -1,0 +1,37 @@
+---
+# Dedicated Wazuh server defaults for the 2026-06-05 architecture pivot.
+# Override any of these at runtime if iris-01 lands on a different node or IP.
+ansible_user: kurt
+
+wazuh_server_vm:
+  name: iris-01
+  vmid: 132
+  proxmox_node: PROXMOX-01
+  clone_template: tpl-ubuntu-2404-proxmox-01
+  ip: 192.168.2.34
+  cidr: 24
+  gateway: 192.168.2.254
+  cores: 8
+  memory: 12288
+  disk_gb: 200
+  storage: local-lvm
+
+wazuh_install_version: "4.14"
+wazuh_install_dir: /root/wazuh-install
+wazuh_disable_repo_after_install: true
+wazuh_public_url: "https://wazuh.kbtech.org"
+wazuh_public_host: "wazuh.kbtech.org"
+wazuh_dashboard_branding_asset_name: "stargate-command-logo.svg"
+wazuh_dashboard_branding_asset_remote_path: "/usr/share/wazuh-dashboard/plugins/wazuh/public/assets/custom/images/{{ wazuh_dashboard_branding_asset_name }}"
+wazuh_dashboard_branding_asset_url: "{{ wazuh_public_url }}/plugins/wazuh/assets/custom/images/{{ wazuh_dashboard_branding_asset_name }}"
+wazuh_report_header: "Stargate Command\\nHome Lab Security"
+wazuh_report_footer: "KBTech Homelab SOC"
+wazuh_alert_integration_name: "custom-rocketchat"
+wazuh_alert_level: 10
+wazuh_alert_channel: "{{ rocketchat_alert_channel }}"
+wazuh_alert_username: "Wazuh"
+wazuh_core_services:
+  - wazuh-indexer
+  - wazuh-manager
+  - wazuh-dashboard
+  - filebeat

@@ -1,0 +1,11 @@
+apiVersion: longhorn.io/v1beta2
+kind: Volume
+metadata:
+  name: kube-prometheus-stack-grafana
+  namespace: longhorn-system
+spec:
+  fromBackup: "nfs://192.168.2.21:/mnt/user/Backups?backup=backup-f80e12568e2d46dd&volume=pvc-873669cb-7736-449a-aef8-41c0765c4cbc"
+  frontend: blockdev
+  numberOfReplicas: 2
+  size: "5368709120"
+  accessMode: rwo

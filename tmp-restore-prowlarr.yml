@@ -1,0 +1,11 @@
+apiVersion: longhorn.io/v1beta2
+kind: Volume
+metadata:
+  name: prowlarr-config-restored
+  namespace: longhorn-system
+spec:
+  fromBackup: "nfs://192.168.2.21:/mnt/user/Backups?backup=backup-0fb24ee9ee8648af&volume=pvc-8b211a42-5999-433b-843c-7bc6085457dd"
+  frontend: blockdev
+  numberOfReplicas: 2
+  size: "5368709120"
+  accessMode: rwo

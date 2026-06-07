@@ -1,0 +1,85 @@
+---
+- name: Monitor disk space on servers
+  hosts: "ubuntu,docker,k3s,pihole,proxmox"
+  gather_facts: false
+  vars:
+    disk_critical_threshold: 90
+    disk_warning_threshold: 80
+  tasks:
+    - name: Get root filesystem usage
+      ansible.builtin.command: df -P /
+      register: disk_usage
+      changed_when: false
+      failed_when: false
+      check_mode: false
+      ignore_unreachable: true
+
+    - name: Set disk usage facts
+      ansible.builtin.set_fact:
+        disk_percent: "{{ disk_usage.stdout_lines[1].split()[4] | regex_replace('%', '') | int }}"
+        disk_status: "{{ 'CRITICAL' if (disk_usage.stdout_lines[1].split()[4] | regex_replace('%', '') | int) >= disk_critical_threshold else 'WARNING' if (disk_usage.stdout_lines[1].split()[4] | regex_replace('%', '') | int) >= disk_warning_threshold else 'OK' }}"
+      when:
+        - disk_usage is defined
+        - not (disk_usage.unreachable | default(false))
+        - disk_usage.rc | default(1) == 0
+        - disk_usage.stdout_lines | default([]) | length > 1
+
+    - name: Alert when disk check is unreachable
+      ansible.builtin.uri:
+        url: "{{ rocketchat_alert_webhook_url }}"
+        method: POST
+        body_format: json
+        body:
+          channel: "{{ rocketchat_alert_channel }}"
+          username: "{{ rocketchat_alert_username }}"
+          icon_emoji: ":warning:"
+          text: "WARNING Disk monitor could not reach {{ inventory_hostname }} ({{ ansible_host | default(inventory_hostname) }}): {{ disk_usage.msg | default('host unreachable') }}"
+        status_code: [200, 201, 202]
+      delegate_to: localhost
+      no_log: true
+      ignore_errors: true
+      when:
+        - disk_usage is defined
+        - disk_usage.unreachable | default(false)
+
+    - name: Alert when disk check command fails
+      ansible.builtin.uri:
+        url: "{{ rocketchat_alert_webhook_url }}"
+        method: POST
+        body_format: json
+        body:
+          channel: "{{ rocketchat_alert_channel }}"
+          username: "{{ rocketchat_alert_username }}"
+          icon_emoji: ":warning:"
+          text: "WARNING Disk monitor failed on {{ inventory_hostname }} ({{ ansible_host | default(inventory_hostname) }}): {{ disk_usage.stderr | default(disk_usage.msg | default('df command failed')) }}"
+        status_code: [200, 201, 202]
+      delegate_to: localhost
+      no_log: true
+      ignore_errors: true
+      when:
+        - disk_usage is defined
+        - not (disk_usage.unreachable | default(false))
+        - disk_usage.rc | default(1) != 0 or disk_usage.stdout_lines | default([]) | length <= 1
+
+    - name: Alert on warning or critical disk usage
+      ansible.builtin.uri:
+        url: "{{ rocketchat_alert_webhook_url }}"
+        method: POST
+        body_format: json
+        body:
+          channel: "{{ rocketchat_alert_channel }}"
+          username: "{{ rocketchat_alert_username }}"
+          icon_emoji: ":warning:"
+          text: "{{ disk_status }} Disk on {{ inventory_hostname }} ({{ ansible_host | default(inventory_hostname) }}): {{ disk_percent }}% used"
+        status_code: [200, 201, 202]
+      delegate_to: localhost
+      no_log: true
+      ignore_errors: true
+      when:
+        - disk_percent is defined
+        - disk_percent | int >= disk_warning_threshold
+
+    - name: Log disk status
+      ansible.builtin.debug:
+        msg: "{{ inventory_hostname }}: {{ disk_percent }}% ({{ disk_status }})"
+      when: disk_percent is defined

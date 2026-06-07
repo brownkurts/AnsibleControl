@@ -1,0 +1,17 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: rancher
+  namespace: cattle-system
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`rancher.kbtech.org`)
+      kind: Rule
+      services:
+        - name: rancher
+          port: 443
+          scheme: https
+  tls:
+    secretName: kbtech-org-wildcard-tls

@@ -1,0 +1,11 @@
+apiVersion: longhorn.io/v1beta2
+kind: Volume
+metadata:
+  name: rocketchat-mongodb-data
+  namespace: longhorn-system
+spec:
+  fromBackup: "nfs://192.168.2.21:/mnt/user/Backups?backup=backup-a4cff4d0b0964d6b&volume=pvc-534cf9fd-93f2-4ca6-971c-2e817948c3f2"
+  frontend: blockdev
+  numberOfReplicas: 2
+  size: "10737418240"
+  accessMode: rwo

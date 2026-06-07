@@ -1,0 +1,111 @@
+---
+- name: Install and enroll Wazuh agent on test or target hosts
+  hosts: "{{ wazuh_agent_target | default('wazuh_agents_homelab_linux') }}"
+  become: true
+  gather_facts: true
+  serial: 5
+
+  vars:
+    wazuh_manager_host: "{{ hostvars[(groups['wazuh_server'] | first)].ansible_host }}"
+    wazuh_agent_repo: "deb [signed-by=/usr/share/keyrings/wazuh.gpg] https://packages.wazuh.com/4.x/apt/ stable main"
+
+  tasks:
+    - name: Validate Wazuh server inventory target exists
+      ansible.builtin.assert:
+        that:
+          - groups['wazuh_server'] | length > 0
+        fail_msg: "Define a Wazuh server in inventory before installing agents."
+
+    - name: Repair interrupted dpkg state
+      ansible.builtin.command: dpkg --configure -a
+      changed_when: false
+
+    - name: Check whether curl and gpg are already installed
+      ansible.builtin.shell: |
+        command -v curl >/dev/null 2>&1 && command -v gpg >/dev/null 2>&1
+      args:
+        executable: /bin/bash
+      register: wazuh_agent_prereqs
+      changed_when: false
+      failed_when: false
+
+    - name: Install prerequisites when missing
+      ansible.builtin.shell: |
+        export DEBIAN_FRONTEND=noninteractive
+        apt-get install -y apt-transport-https curl gnupg
+      args:
+        executable: /bin/bash
+      when: wazuh_agent_prereqs.rc != 0
+
+    - name: Install Wazuh repository keyring
+      ansible.builtin.shell: |
+        set -o pipefail
+        curl -fsSL https://packages.wazuh.com/key/GPG-KEY-WAZUH \
+          | gpg --dearmor -o /usr/share/keyrings/wazuh.gpg
+      args:
+        executable: /bin/bash
+        creates: /usr/share/keyrings/wazuh.gpg
+
+    - name: Configure Wazuh repository
+      ansible.builtin.copy:
+        dest: /etc/apt/sources.list.d/wazuh.list
+        owner: root
+        group: root
+        mode: "0644"
+        content: "{{ wazuh_agent_repo }}\n"
+
+    - name: Refresh Wazuh repository metadata only
+      ansible.builtin.shell: |
+        export DEBIAN_FRONTEND=noninteractive
+        apt-get update \
+          -o Dir::Etc::sourcelist=/etc/apt/sources.list.d/wazuh.list \
+          -o Dir::Etc::sourceparts=- \
+          -o APT::Get::List-Cleanup=0
+      args:
+        executable: /bin/bash
+
+    - name: Check whether Wazuh agent is already installed
+      ansible.builtin.command: dpkg-query -W -f='${Status}' wazuh-agent
+      register: wazuh_agent_package
+      failed_when: false
+      changed_when: false
+
+    - name: Install and enroll Wazuh agent
+      ansible.builtin.shell: |
+        WAZUH_MANAGER='{{ wazuh_manager_host }}' \
+        WAZUH_AGENT_NAME='{{ inventory_hostname }}' \
+        apt-get install -y wazuh-agent
+      args:
+        executable: /bin/bash
+      when: "'install ok installed' not in wazuh_agent_package.stdout"
+
+    - name: Point ossec.conf at the current manager
+      ansible.builtin.replace:
+        path: /var/ossec/etc/ossec.conf
+        regexp: '(<address>).*?(</address>)'
+        replace: '\g<1>{{ wazuh_manager_host }}\g<2>'
+
+    - name: Enable and restart Wazuh agent
+      ansible.builtin.systemd:
+        name: wazuh-agent
+        enabled: true
+        daemon_reload: true
+        state: restarted
+
+    - name: Disable Wazuh repository after install
+      ansible.builtin.replace:
+        path: /etc/apt/sources.list.d/wazuh.list
+        regexp: '^deb '
+        replace: '#deb '
+
+    - name: Check Wazuh agent service state
+      ansible.builtin.command: systemctl is-active wazuh-agent
+      register: wazuh_agent_service
+      changed_when: false
+
+    - name: Show enrolled target summary
+      ansible.builtin.debug:
+        msg:
+          - "Agent host: {{ inventory_hostname }}"
+          - "Manager: {{ wazuh_manager_host }}"
+          - "Agent service state: {{ wazuh_agent_service.stdout | default('unknown') }}"

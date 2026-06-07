@@ -1,0 +1,106 @@
+---
+- name: Publish Wazuh behind Traefik and Authentik
+  hosts: prometheus
+  become: true
+  gather_facts: false
+
+  vars:
+    wazuh_target_host: "{{ (groups['wazuh_server'] | first) }}"
+    wazuh_server_ip: "{{ hostvars[wazuh_target_host].ansible_host }}"
+    wazuh_public_host: "{{ hostvars[wazuh_target_host].wazuh_public_host }}"
+    wazuh_public_url: "{{ hostvars[wazuh_target_host].wazuh_public_url }}"
+    wazuh_traefik_file: /opt/docker/traefik/data/config/wazuh-proxy.yml
+
+  tasks:
+    - name: Validate Wazuh inventory target exists
+      ansible.builtin.assert:
+        that:
+          - wazuh_target_host | length > 0
+        fail_msg: "Define a Wazuh server in inventory before publishing the reverse proxy."
+
+    - name: Publish Wazuh Traefik router and service
+      ansible.builtin.copy:
+        dest: "{{ wazuh_traefik_file }}"
+        owner: root
+        group: root
+        mode: "0644"
+        content: |
+          http:
+            routers:
+              wazuh:
+                rule: "Host(`{{ wazuh_public_host }}`)"
+                middlewares: [authentik-forwardauth@file]
+                service: wazuh
+                entryPoints: [websecure]
+                tls:
+                  certResolver: letsencrypt
+
+            services:
+              wazuh:
+                loadBalancer:
+                  servers:
+                    - url: "https://{{ wazuh_server_ip }}"
+                  serversTransport: insecure-skip-verify
+
+    - name: Create or update Authentik proxy provider and application
+      ansible.builtin.shell: |
+        docker exec -i authentik-server ak shell <<'PY'
+        from authentik.core.models import Application
+        from authentik.outposts.models import Outpost
+        from authentik.providers.proxy.models import ProxyProvider
+
+        source = ProxyProvider.objects.get(name="Frigate")
+        provider, _ = ProxyProvider.objects.update_or_create(
+            name="Wazuh",
+            defaults={
+                "authorization_flow": source.authorization_flow,
+                "invalidation_flow": source.invalidation_flow,
+                "external_host": "{{ wazuh_public_url }}",
+                "internal_host": "",
+                "internal_host_ssl_validation": True,
+                "mode": "forward_single",
+                "intercept_header_auth": True,
+                "basic_auth_enabled": False,
+                "skip_path_regex": "",
+                "cookie_domain": "",
+            },
+        )
+        app, _ = Application.objects.update_or_create(
+            slug="wazuh",
+            defaults={
+                "name": "Wazuh",
+                "group": "",
+                "provider": provider,
+                "meta_launch_url": "{{ wazuh_public_url }}",
+                "open_in_new_tab": False,
+                "policy_engine_mode": "any",
+            },
+        )
+        outpost = Outpost.objects.get(name="authentik Embedded Outpost")
+        outpost.providers.add(provider)
+        print(app.slug, provider.external_host)
+        PY
+      args:
+        executable: /bin/bash
+      changed_when: true
+
+    - name: Verify Wazuh front door challenges through Authentik
+      ansible.builtin.command:
+        argv:
+          - curl
+          - -kI
+          - --resolve
+          - "{{ wazuh_public_host }}:443:127.0.0.1"
+          - "{{ wazuh_public_url }}"
+      register: wazuh_frontdoor_probe
+      changed_when: false
+      retries: 12
+      delay: 5
+      until:
+        - wazuh_frontdoor_probe.rc == 0
+        - "'302' in wazuh_frontdoor_probe.stdout"
+        - "'location:' in (wazuh_frontdoor_probe.stdout | lower)"
+      failed_when: >
+        wazuh_frontdoor_probe.rc != 0 or
+        '302' not in wazuh_frontdoor_probe.stdout or
+        'location:' not in (wazuh_frontdoor_probe.stdout | lower)
