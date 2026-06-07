@@ -42,19 +42,19 @@
     - { role: Linuxrmm, tags: [rmm, linuxrmm, tactical] }
     - { role: reboot, tags: [reboot] }
 
-- name: Manage K3s servers
-  hosts: k3s
-  become: true
-  gather_facts: true
-  serial: 1
-  tags: [k3s]
-  roles:
-    - { role: ipv6-disable, tags: [ipv6] }
-    - { role: packages, tags: [packages] }
-    - { role: qemu-guest-agent, tags: [qemu] }
-    - { role: update_linux, tags: [update] }
-    - { role: Linuxrmm, tags: [rmm, linuxrmm, tactical] }
-    - { role: reboot, tags: [reboot] }
+# - name: Manage K3s servers
+#   hosts: k3s
+#   become: true
+#   gather_facts: true
+#   serial: 1
+#   tags: [k3s]
+#   roles:
+#     - { role: ipv6-disable, tags: [ipv6] }
+#     - { role: packages, tags: [packages] }
+#     - { role: qemu-guest-agent, tags: [qemu] }
+#     - { role: update_linux, tags: [update] }
+#     - { role: Linuxrmm, tags: [rmm, linuxrmm, tactical] }
+#     - { role: reboot, tags: [reboot] }
     
 - name: Manage Proxmox servers
   hosts: proxmox:proxmoxNox
