@@ -3,11 +3,21 @@
 # Uses API key to generate a new device enrollment pre-auth key
 # NOTE: The API key itself cannot be auto-renewed — it must be manually rotated
 #       in the Tailscale admin console before expiry. This script will alert you.
+#
+# API key is stored in /etc/tailscale-renewal.env (not in git):
+#   API_KEY=tskey-api-...
+#   API_KEY_EXPIRY=YYYY-MM-DDTHH:MM:SSZ
 
 set -euo pipefail
 
-API_KEY="REDACTED_ROTATED_2026-06-09"
-API_KEY_EXPIRY="2026-09-02T01:25:24Z"
+ENV_FILE="/etc/tailscale-renewal.env"
+if [ ! -f "$ENV_FILE" ]; then
+    echo "ERROR: $ENV_FILE not found. Create it with API_KEY and API_KEY_EXPIRY." >&2
+    exit 1
+fi
+# shellcheck source=/dev/null
+source "$ENV_FILE"
+
 PULLDESKTOP_REPO="/home/kurt/GitHub/ansible_pull_desktop"
 GROUP_VARS_FILE="$PULLDESKTOP_REPO/group_vars/all.yml"
 
@@ -22,10 +32,10 @@ NOW_EPOCH=$(date +%s)
 DAYS_LEFT=$(( (API_EXPIRY_EPOCH - NOW_EPOCH) / 86400 ))
 
 if [ "$DAYS_LEFT" -lt 0 ]; then
-    notify_telegram "🚨 TAILSCALE API KEY EXPIRED ${DAYS_LEFT#-} days ago! Pre-auth renewal will FAIL. Go to https://login.tailscale.com/admin/settings/keys and create a new API key. Update ansible_pull_desktop/group_vars/all.yml AND /usr/local/bin/tailscale-renewal.sh on Hammond."
+    notify_telegram "🚨 TAILSCALE API KEY EXPIRED ${DAYS_LEFT#-} days ago! Pre-auth renewal will FAIL. Go to https://login.tailscale.com/admin/settings/keys and create a new API key. Update $ENV_FILE on Hammond."
     exit 1
 elif [ "$DAYS_LEFT" -lt 30 ]; then
-    notify_telegram "⚠️ Tailscale API key expires in $DAYS_LEFT days (${API_KEY_EXPIRY%T*}). Go to https://login.tailscale.com/admin/settings/keys to rotate it. Update ansible_pull_desktop/group_vars/all.yml AND this script on Hammond when done."
+    notify_telegram "⚠️ Tailscale API key expires in $DAYS_LEFT days (${API_KEY_EXPIRY%T*}). Go to https://login.tailscale.com/admin/settings/keys to rotate it. Update $ENV_FILE on Hammond when done."
 fi
 
 # Generate new pre-auth key (90-day validity)
@@ -57,7 +67,6 @@ fi
 sed -i "s|^desktop_tailscale_preauth_key:.*|desktop_tailscale_preauth_key: \"$NEW_KEY\"|" "$GROUP_VARS_FILE"
 sed -i "s|^desktop_tailscale_preauth_expiry:.*|desktop_tailscale_preauth_expiry: \"$NEW_EXPIRY\"|" "$GROUP_VARS_FILE"
 
-# Also update this script's API_KEY_EXPIRY line if changed (no-op if same key)
 # Commit and push
 cd "$PULLDESKTOP_REPO"
 git pull origin master --quiet
