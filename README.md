@@ -7,10 +7,16 @@ Use the ansible-pull repos for host self-management:
 - Servers: `C:\Users\KURT\Documents\GitHub\ansible_pull_servers`
 - Desktops/admin workstations: `C:\Users\KURT\Documents\GitHub\ansible_pull_desktop`
 
-Use Fleet for Kubernetes manifests:
+Legacy K3s manifests and retired GitOps history live in:
 
 ```text
 C:\Users\KURT\Documents\GitHub\fleet
+```
+
+The standalone rescue bot and morning weather reporter now live in this repo:
+
+```text
+C:\Users\KURT\Documents\GitHub\AnsibleControl\playbooks\files\rescue-bot
 ```
 
 ## Important Files
@@ -35,9 +41,23 @@ C:\Users\KURT\Documents\GitHub\fleet
 - Windows/AD servers reachable through SSH where configured
 - Rocket.Chat notifications for Ansible alerting
 
+## Rescue Bot
+
+Deploy the repo-backed rescue bot and weather reporter to `rescue-01`:
+
+```bash
+bash scripts/deploy_rescue_bot.sh
+```
+
+Rebuild or fully reconcile the rescue VM from source control:
+
+```bash
+ansible-playbook -i inventory/hosts.ini playbooks/setup_rescue_vm.yml -l rescue-01
+```
+
 ## K3s Access
 
-Cluster access is normally performed from the Ansible server:
+Legacy cluster access is normally performed from the Ansible server:
 
 ```powershell
 ssh 192.168.2.30 "kubectl --server=https://192.168.201.51:6443 get nodes"
@@ -61,6 +81,12 @@ Run disk-space alert check:
 
 ```bash
 ansible-playbook -i inventory/hosts.ini playbooks/task/diskspace.yml
+```
+
+Run the scheduled disk-space monitor:
+
+```bash
+ansible-playbook -i inventory/hosts.ini playbooks/task/diskspace_monitor.yml
 ```
 
 Bootstrap ansible-pull on managed Linux servers:

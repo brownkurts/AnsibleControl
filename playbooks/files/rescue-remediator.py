@@ -24,7 +24,7 @@ COOLDOWN_SECONDS = int(os.environ.get("COOLDOWN_SECONDS", "1800"))
 MAX_ATTEMPTS = int(os.environ.get("MAX_ATTEMPTS", "2"))
 ATTEMPT_WINDOW_SECONDS = int(os.environ.get("ATTEMPT_WINDOW_SECONDS", "21600"))
 AUTO_REMEDIATE = os.environ.get("AUTO_REMEDIATE", "true").lower() == "true"
-WATCHDOG_URL = os.environ.get("WATCHDOG_URL", "http://192.168.2.30:8769")
+WATCHDOG_URL = os.environ.get("WATCHDOG_URL", "http://192.168.2.33:8769")
 ANSIBLE_HOST = os.environ.get("ANSIBLE_HOST", "kurt@192.168.2.30")
 SSH_KEY = os.environ.get("SSH_KEY", "/ssh/id_ed25519")
 KUBECONFIG = os.environ.get("KUBECONFIG", "/opt/rescue-bot/kubeconfig")

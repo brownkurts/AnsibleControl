@@ -13,7 +13,7 @@ Use this repo for inventory, VM creation, bootstrap orchestration, maintenance, 
 | `AnsibleControl` | Inventory, Proxmox builds, central playbooks, maintenance, cross-host orchestration |
 | `ansible_pull_servers` | Server self-management baseline |
 | `ansible_pull_desktop` | Desktop/admin workstation self-management baseline |
-| `fleet` | K3s manifests and GitOps |
+| `fleet` | Legacy K3s manifests and GitOps history retained for reference |
 | `home-lab-command-center` | Command Center app and full homelab runbook |
 
 ## Inventory Updates
@@ -117,9 +117,33 @@ inventory/group_vars/all/vault_ansible_pull.yml
 
 Do not paste this token into README files, shell history, or unencrypted variables. The playbook writes `/root/.git-credentials` on target servers with mode `0600` and configures root Git credential storage so recurring `ansible-pull` can clone the server pull repo.
 
+## Rescue VM
+
+`rescue-01` owns the out-of-cluster `rescue-bot`, the morning Rocket.Chat
+weather report, and the guarded remediator.
+
+Source-controlled runtime files live in:
+
+```text
+playbooks/files/rescue-bot/
+```
+
+Use the lightweight deploy for day-to-day bot updates:
+
+```bash
+bash scripts/deploy_rescue_bot.sh
+```
+
+Use the full playbook when rebuilding or reconciling the VM:
+
+```bash
+ansible-playbook -i inventory/hosts.ini playbooks/setup_rescue_vm.yml -l rescue-01
+```
+
 ## Kubernetes/K3s Work
 
-Use this repo for node build/prep and Fleet for manifests.
+Use this repo for node build/prep. Treat Fleet as legacy history unless you are
+touching an intentionally retained K3s artifact.
 
 Common checks from the Ansible server:
 
@@ -160,6 +184,7 @@ Syntax check examples:
 ```bash
 ansible-playbook --syntax-check -i inventory/hosts.ini playbooks/main.yml
 ansible-playbook --syntax-check -i inventory/hosts.ini playbooks/task/diskspace.yml
+ansible-playbook --syntax-check -i inventory/hosts.ini playbooks/task/diskspace_monitor.yml
 ansible-playbook --syntax-check -i inventory/hosts.ini playbooks/build_admin_desktop_vms.yml
 ```
 

@@ -1,0 +1,10 @@
+[Unit]
+Description=Run KBTech morning weather report daily
+
+[Timer]
+OnCalendar=*-*-* 07:00:00 America/Chicago
+Persistent=true
+Unit=rescue-weather-report.service
+
+[Install]
+WantedBy=timers.target
