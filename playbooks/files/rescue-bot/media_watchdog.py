@@ -567,8 +567,9 @@ def should_notify(previous: dict[str, Any], issues: list[Issue], changes: list[s
         return True
     if current_issue_keys != previous_issue_keys:
         return True
-    if changes:
-        return True
+    # Changes (download progress, file-count deltas) ride along in the message
+    # when an issue transition fires, but never trigger a notification themselves
+    # — otherwise active downloads ping every cycle.
     return False
 
 
