@@ -1,0 +1,33 @@
+---
+- name: Verify Netbox cluster VM counts
+  hosts: localhost
+  gather_facts: false
+  vars:
+    netbox_url: "https://netbox.kbtech.org"
+    netbox_token: "{{ vault_netbox_token }}"
+  tasks:
+    - name: Get clusters
+      uri:
+        url: "{{ netbox_url }}/api/virtualization/clusters/?limit=50"
+        headers: { Authorization: "Token {{ netbox_token }}" }
+        validate_certs: false
+      register: clusters
+      no_log: true
+    - name: Get VM count per cluster
+      uri:
+        url: "{{ netbox_url }}/api/virtualization/virtual-machines/?cluster_id={{ item.id }}&limit=1"
+        headers: { Authorization: "Token {{ netbox_token }}" }
+        validate_certs: false
+      register: vmcounts
+      loop: "{{ clusters.json.results }}"
+      loop_control: { label: "{{ item.name }}" }
+      no_log: true
+    - name: Get device count
+      uri:
+        url: "{{ netbox_url }}/api/dcim/devices/?limit=1"
+        headers: { Authorization: "Token {{ netbox_token }}" }
+        validate_certs: false
+      register: devcount
+      no_log: true
+    - debug:
+        msg: "{{ vmcounts.results | map(attribute='item.name') | zip(vmcounts.results | map(attribute='json.count')) | map('join', ': ') | list + ['total devices: ' + (devcount.json.count | string)] }}"
