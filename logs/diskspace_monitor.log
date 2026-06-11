@@ -2305,3 +2305,2169 @@ proxmox05                  : ok=3    changed=0    unreachable=0    failed=0    s
 pve-4                      : ok=4    changed=0    unreachable=0    failed=0    skipped=2    rescued=0    ignored=1   
 unifi                      : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
 
+
+PLAY [Monitor disk space on servers] *******************************************
+
+TASK [Get root filesystem usage] ***********************************************
+/home/kurt/.local/lib/python3.8/site-packages/ansible/parsing/vault/__init__.py:42: CryptographyDeprecationWarning: Python 3.8 is no longer supported by the Python core team and support for it is deprecated in cryptography. The next release of cryptography will remove support for Python 3.8.
+  from cryptography.exceptions import InvalidSignature
+ok: [prometheus]
+ok: [destiny]
+ok: [nextcloud-01]
+ok: [Kasm]
+ok: [apollo]
+ok: [asgard]
+ok: [hammond]
+ok: [Pihole02]
+ok: [Pihole01]
+ok: [Pihole03]
+ok: [proxmox03]
+ok: [PVE3]
+ok: [Pihole04]
+ok: [PROXMOX-01]
+ok: [pve-4]
+ok: [pbs-noc]
+ok: [proxmox05]
+fatal: [unifi]: UNREACHABLE! => {"changed": false, "msg": "Data could not be sent to remote host \"74.91.16.5\". Make sure this host can be reached over ssh: ssh: connect to host 74.91.16.5 port 22: Connection timed out\r\n", "skip_reason": "Host unifi is unreachable", "unreachable": true}
+
+TASK [Set disk usage facts] ****************************************************
+skipping: [unifi]
+ok: [destiny]
+ok: [Kasm]
+ok: [apollo]
+ok: [nextcloud-01]
+ok: [prometheus]
+ok: [hammond]
+ok: [asgard]
+ok: [Pihole01]
+ok: [Pihole02]
+ok: [Pihole03]
+ok: [Pihole04]
+ok: [PROXMOX-01]
+ok: [proxmox03]
+ok: [proxmox05]
+ok: [pve-4]
+ok: [PVE3]
+ok: [pbs-noc]
+
+TASK [Alert when disk check is unreachable] ************************************
+skipping: [Kasm]
+skipping: [destiny]
+skipping: [nextcloud-01]
+skipping: [prometheus]
+skipping: [hammond]
+skipping: [apollo]
+skipping: [Pihole01]
+skipping: [Pihole02]
+skipping: [asgard]
+skipping: [Pihole03]
+skipping: [Pihole04]
+skipping: [PROXMOX-01]
+skipping: [proxmox03]
+skipping: [proxmox05]
+skipping: [PVE3]
+skipping: [pve-4]
+skipping: [pbs-noc]
+fatal: [unifi -> localhost]: FAILED! => {"censored": "the output has been hidden due to the fact that 'no_log: true' was specified for this result", "changed": false}
+...ignoring
+
+TASK [Alert when disk check command fails] *************************************
+skipping: [Kasm]
+skipping: [destiny]
+skipping: [unifi]
+skipping: [nextcloud-01]
+skipping: [prometheus]
+skipping: [hammond]
+skipping: [apollo]
+skipping: [Pihole01]
+skipping: [asgard]
+skipping: [Pihole02]
+skipping: [Pihole03]
+skipping: [Pihole04]
+skipping: [PROXMOX-01]
+skipping: [proxmox03]
+skipping: [PVE3]
+skipping: [proxmox05]
+skipping: [pbs-noc]
+skipping: [pve-4]
+
+TASK [Alert on warning or critical disk usage] *********************************
+skipping: [destiny]
+skipping: [Kasm]
+skipping: [unifi]
+skipping: [prometheus]
+skipping: [nextcloud-01]
+skipping: [apollo]
+skipping: [hammond]
+skipping: [asgard]
+skipping: [Pihole01]
+skipping: [Pihole02]
+skipping: [Pihole03]
+skipping: [Pihole04]
+skipping: [PROXMOX-01]
+skipping: [proxmox03]
+skipping: [proxmox05]
+skipping: [PVE3]
+skipping: [pbs-noc]
+fatal: [pve-4 -> localhost]: FAILED! => {"censored": "the output has been hidden due to the fact that 'no_log: true' was specified for this result", "changed": false}
+...ignoring
+
+TASK [Log disk status] *********************************************************
+ok: [destiny] => {
+    "msg": "destiny: 65% (OK)"
+}
+skipping: [unifi]
+ok: [Kasm] => {
+    "msg": "Kasm: 52% (OK)"
+}
+ok: [nextcloud-01] => {
+    "msg": "nextcloud-01: 24% (OK)"
+}
+ok: [prometheus] => {
+    "msg": "prometheus: 35% (OK)"
+}
+ok: [apollo] => {
+    "msg": "apollo: 20% (OK)"
+}
+ok: [asgard] => {
+    "msg": "asgard: 20% (OK)"
+}
+ok: [hammond] => {
+    "msg": "hammond: 14% (OK)"
+}
+ok: [Pihole01] => {
+    "msg": "Pihole01: 37% (OK)"
+}
+ok: [Pihole02] => {
+    "msg": "Pihole02: 23% (OK)"
+}
+ok: [Pihole03] => {
+    "msg": "Pihole03: 43% (OK)"
+}
+ok: [Pihole04] => {
+    "msg": "Pihole04: 61% (OK)"
+}
+ok: [PROXMOX-01] => {
+    "msg": "PROXMOX-01: 62% (OK)"
+}
+ok: [proxmox03] => {
+    "msg": "proxmox03: 31% (OK)"
+}
+ok: [PVE3] => {
+    "msg": "PVE3: 33% (OK)"
+}
+ok: [proxmox05] => {
+    "msg": "proxmox05: 57% (OK)"
+}
+ok: [pve-4] => {
+    "msg": "pve-4: 84% (WARNING)"
+}
+ok: [pbs-noc] => {
+    "msg": "pbs-noc: 17% (OK)"
+}
+
+PLAY RECAP *********************************************************************
+Kasm                       : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+PROXMOX-01                 : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+PVE3                       : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+Pihole01                   : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+Pihole02                   : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+Pihole03                   : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+Pihole04                   : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+apollo                     : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+asgard                     : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+destiny                    : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+hammond                    : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+nextcloud-01               : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+pbs-noc                    : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+prometheus                 : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+proxmox03                  : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+proxmox05                  : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+pve-4                      : ok=4    changed=0    unreachable=0    failed=0    skipped=2    rescued=0    ignored=1   
+unifi                      : ok=1    changed=0    unreachable=1    failed=0    skipped=5    rescued=0    ignored=1   
+
+
+PLAY [Monitor disk space on servers] *******************************************
+
+TASK [Get root filesystem usage] ***********************************************
+/home/kurt/.local/lib/python3.8/site-packages/ansible/parsing/vault/__init__.py:42: CryptographyDeprecationWarning: Python 3.8 is no longer supported by the Python core team and support for it is deprecated in cryptography. The next release of cryptography will remove support for Python 3.8.
+  from cryptography.exceptions import InvalidSignature
+ok: [destiny]
+ok: [nextcloud-01]
+ok: [prometheus]
+ok: [apollo]
+ok: [Kasm]
+ok: [asgard]
+ok: [hammond]
+ok: [Pihole02]
+ok: [Pihole01]
+ok: [Pihole03]
+ok: [proxmox03]
+ok: [Pihole04]
+ok: [PROXMOX-01]
+ok: [pve-4]
+ok: [pbs-noc]
+ok: [proxmox05]
+ok: [PVE3]
+fatal: [unifi]: UNREACHABLE! => {"changed": false, "msg": "Data could not be sent to remote host \"74.91.16.5\". Make sure this host can be reached over ssh: ssh: connect to host 74.91.16.5 port 22: Connection timed out\r\n", "skip_reason": "Host unifi is unreachable", "unreachable": true}
+
+TASK [Set disk usage facts] ****************************************************
+skipping: [unifi]
+ok: [prometheus]
+ok: [destiny]
+ok: [Kasm]
+ok: [nextcloud-01]
+ok: [apollo]
+ok: [asgard]
+ok: [hammond]
+ok: [Pihole01]
+ok: [Pihole02]
+ok: [Pihole04]
+ok: [Pihole03]
+ok: [PROXMOX-01]
+ok: [proxmox03]
+ok: [PVE3]
+ok: [proxmox05]
+ok: [pve-4]
+ok: [pbs-noc]
+
+TASK [Alert when disk check is unreachable] ************************************
+skipping: [Kasm]
+skipping: [destiny]
+skipping: [nextcloud-01]
+skipping: [prometheus]
+skipping: [apollo]
+skipping: [hammond]
+skipping: [asgard]
+skipping: [Pihole01]
+skipping: [Pihole02]
+skipping: [Pihole03]
+skipping: [Pihole04]
+skipping: [PROXMOX-01]
+skipping: [proxmox03]
+skipping: [PVE3]
+skipping: [proxmox05]
+skipping: [pve-4]
+skipping: [pbs-noc]
+fatal: [unifi -> localhost]: FAILED! => {"censored": "the output has been hidden due to the fact that 'no_log: true' was specified for this result", "changed": false}
+...ignoring
+
+TASK [Alert when disk check command fails] *************************************
+skipping: [Kasm]
+skipping: [destiny]
+skipping: [unifi]
+skipping: [nextcloud-01]
+skipping: [prometheus]
+skipping: [apollo]
+skipping: [hammond]
+skipping: [asgard]
+skipping: [Pihole01]
+skipping: [Pihole02]
+skipping: [Pihole03]
+skipping: [Pihole04]
+skipping: [PROXMOX-01]
+skipping: [proxmox03]
+skipping: [PVE3]
+skipping: [proxmox05]
+skipping: [pve-4]
+skipping: [pbs-noc]
+
+TASK [Alert on warning or critical disk usage] *********************************
+skipping: [Kasm]
+skipping: [unifi]
+skipping: [destiny]
+skipping: [nextcloud-01]
+skipping: [prometheus]
+skipping: [apollo]
+skipping: [hammond]
+skipping: [asgard]
+skipping: [Pihole01]
+skipping: [Pihole02]
+skipping: [Pihole03]
+skipping: [Pihole04]
+skipping: [PROXMOX-01]
+skipping: [proxmox03]
+skipping: [PVE3]
+skipping: [proxmox05]
+skipping: [pbs-noc]
+fatal: [pve-4 -> localhost]: FAILED! => {"censored": "the output has been hidden due to the fact that 'no_log: true' was specified for this result", "changed": false}
+...ignoring
+
+TASK [Log disk status] *********************************************************
+ok: [Kasm] => {
+    "msg": "Kasm: 52% (OK)"
+}
+ok: [destiny] => {
+    "msg": "destiny: 66% (OK)"
+}
+skipping: [unifi]
+ok: [nextcloud-01] => {
+    "msg": "nextcloud-01: 24% (OK)"
+}
+ok: [prometheus] => {
+    "msg": "prometheus: 35% (OK)"
+}
+ok: [apollo] => {
+    "msg": "apollo: 20% (OK)"
+}
+ok: [hammond] => {
+    "msg": "hammond: 14% (OK)"
+}
+ok: [asgard] => {
+    "msg": "asgard: 20% (OK)"
+}
+ok: [Pihole02] => {
+    "msg": "Pihole02: 23% (OK)"
+}
+ok: [Pihole01] => {
+    "msg": "Pihole01: 37% (OK)"
+}
+ok: [Pihole03] => {
+    "msg": "Pihole03: 44% (OK)"
+}
+ok: [Pihole04] => {
+    "msg": "Pihole04: 62% (OK)"
+}
+ok: [PROXMOX-01] => {
+    "msg": "PROXMOX-01: 62% (OK)"
+}
+ok: [proxmox03] => {
+    "msg": "proxmox03: 31% (OK)"
+}
+ok: [PVE3] => {
+    "msg": "PVE3: 33% (OK)"
+}
+ok: [proxmox05] => {
+    "msg": "proxmox05: 57% (OK)"
+}
+ok: [pve-4] => {
+    "msg": "pve-4: 84% (WARNING)"
+}
+ok: [pbs-noc] => {
+    "msg": "pbs-noc: 18% (OK)"
+}
+
+PLAY RECAP *********************************************************************
+Kasm                       : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+PROXMOX-01                 : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+PVE3                       : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+Pihole01                   : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+Pihole02                   : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+Pihole03                   : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+Pihole04                   : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+apollo                     : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+asgard                     : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+destiny                    : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+hammond                    : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+nextcloud-01               : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+pbs-noc                    : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+prometheus                 : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+proxmox03                  : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+proxmox05                  : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+pve-4                      : ok=4    changed=0    unreachable=0    failed=0    skipped=2    rescued=0    ignored=1   
+unifi                      : ok=1    changed=0    unreachable=1    failed=0    skipped=5    rescued=0    ignored=1   
+
+
+PLAY [Monitor disk space on servers] *******************************************
+
+TASK [Get root filesystem usage] ***********************************************
+/home/kurt/.local/lib/python3.8/site-packages/ansible/parsing/vault/__init__.py:42: CryptographyDeprecationWarning: Python 3.8 is no longer supported by the Python core team and support for it is deprecated in cryptography. The next release of cryptography will remove support for Python 3.8.
+  from cryptography.exceptions import InvalidSignature
+ok: [destiny]
+ok: [prometheus]
+ok: [nextcloud-01]
+ok: [apollo]
+ok: [Kasm]
+ok: [asgard]
+ok: [hammond]
+ok: [Pihole02]
+ok: [Pihole03]
+ok: [Pihole01]
+ok: [proxmox03]
+ok: [PVE3]
+ok: [PROXMOX-01]
+ok: [Pihole04]
+ok: [pve-4]
+ok: [proxmox05]
+ok: [pbs-noc]
+fatal: [unifi]: UNREACHABLE! => {"changed": false, "msg": "Data could not be sent to remote host \"74.91.16.5\". Make sure this host can be reached over ssh: ssh: connect to host 74.91.16.5 port 22: Connection timed out\r\n", "skip_reason": "Host unifi is unreachable", "unreachable": true}
+
+TASK [Set disk usage facts] ****************************************************
+ok: [Kasm]
+ok: [destiny]
+skipping: [unifi]
+ok: [nextcloud-01]
+ok: [prometheus]
+ok: [apollo]
+ok: [hammond]
+ok: [Pihole01]
+ok: [asgard]
+ok: [Pihole02]
+ok: [Pihole03]
+ok: [Pihole04]
+ok: [PROXMOX-01]
+ok: [proxmox03]
+ok: [PVE3]
+ok: [proxmox05]
+ok: [pve-4]
+ok: [pbs-noc]
+
+TASK [Alert when disk check is unreachable] ************************************
+skipping: [Kasm]
+skipping: [destiny]
+skipping: [nextcloud-01]
+skipping: [prometheus]
+skipping: [apollo]
+skipping: [hammond]
+skipping: [asgard]
+skipping: [Pihole01]
+skipping: [Pihole02]
+skipping: [Pihole03]
+skipping: [Pihole04]
+skipping: [PROXMOX-01]
+skipping: [proxmox03]
+skipping: [PVE3]
+skipping: [proxmox05]
+skipping: [pve-4]
+skipping: [pbs-noc]
+fatal: [unifi -> localhost]: FAILED! => {"censored": "the output has been hidden due to the fact that 'no_log: true' was specified for this result", "changed": false}
+...ignoring
+
+TASK [Alert when disk check command fails] *************************************
+skipping: [Kasm]
+skipping: [destiny]
+skipping: [unifi]
+skipping: [nextcloud-01]
+skipping: [prometheus]
+skipping: [apollo]
+skipping: [hammond]
+skipping: [asgard]
+skipping: [Pihole01]
+skipping: [Pihole02]
+skipping: [Pihole03]
+skipping: [Pihole04]
+skipping: [PROXMOX-01]
+skipping: [proxmox03]
+skipping: [PVE3]
+skipping: [proxmox05]
+skipping: [pve-4]
+skipping: [pbs-noc]
+
+TASK [Alert on warning or critical disk usage] *********************************
+skipping: [destiny]
+skipping: [Kasm]
+skipping: [unifi]
+skipping: [nextcloud-01]
+skipping: [prometheus]
+skipping: [apollo]
+skipping: [hammond]
+skipping: [asgard]
+skipping: [Pihole02]
+skipping: [Pihole03]
+skipping: [Pihole04]
+skipping: [proxmox03]
+skipping: [Pihole01]
+skipping: [PROXMOX-01]
+skipping: [PVE3]
+skipping: [proxmox05]
+skipping: [pbs-noc]
+fatal: [pve-4 -> localhost]: FAILED! => {"censored": "the output has been hidden due to the fact that 'no_log: true' was specified for this result", "changed": false}
+...ignoring
+
+TASK [Log disk status] *********************************************************
+skipping: [unifi]
+ok: [destiny] => {
+    "msg": "destiny: 66% (OK)"
+}
+ok: [nextcloud-01] => {
+    "msg": "nextcloud-01: 24% (OK)"
+}
+ok: [Kasm] => {
+    "msg": "Kasm: 52% (OK)"
+}
+ok: [prometheus] => {
+    "msg": "prometheus: 36% (OK)"
+}
+ok: [apollo] => {
+    "msg": "apollo: 22% (OK)"
+}
+ok: [Pihole01] => {
+    "msg": "Pihole01: 38% (OK)"
+}
+ok: [asgard] => {
+    "msg": "asgard: 20% (OK)"
+}
+ok: [hammond] => {
+    "msg": "hammond: 14% (OK)"
+}
+ok: [Pihole02] => {
+    "msg": "Pihole02: 23% (OK)"
+}
+ok: [Pihole03] => {
+    "msg": "Pihole03: 44% (OK)"
+}
+ok: [proxmox03] => {
+    "msg": "proxmox03: 31% (OK)"
+}
+ok: [PROXMOX-01] => {
+    "msg": "PROXMOX-01: 62% (OK)"
+}
+ok: [Pihole04] => {
+    "msg": "Pihole04: 63% (OK)"
+}
+ok: [proxmox05] => {
+    "msg": "proxmox05: 57% (OK)"
+}
+ok: [pve-4] => {
+    "msg": "pve-4: 84% (WARNING)"
+}
+ok: [PVE3] => {
+    "msg": "PVE3: 33% (OK)"
+}
+ok: [pbs-noc] => {
+    "msg": "pbs-noc: 18% (OK)"
+}
+
+PLAY RECAP *********************************************************************
+Kasm                       : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+PROXMOX-01                 : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+PVE3                       : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+Pihole01                   : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+Pihole02                   : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+Pihole03                   : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+Pihole04                   : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+apollo                     : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+asgard                     : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+destiny                    : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+hammond                    : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+nextcloud-01               : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+pbs-noc                    : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+prometheus                 : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+proxmox03                  : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+proxmox05                  : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+pve-4                      : ok=4    changed=0    unreachable=0    failed=0    skipped=2    rescued=0    ignored=1   
+unifi                      : ok=1    changed=0    unreachable=1    failed=0    skipped=5    rescued=0    ignored=1   
+
+
+PLAY [Monitor disk space on servers] *******************************************
+
+TASK [Get root filesystem usage] ***********************************************
+/home/kurt/.local/lib/python3.8/site-packages/ansible/parsing/vault/__init__.py:42: CryptographyDeprecationWarning: Python 3.8 is no longer supported by the Python core team and support for it is deprecated in cryptography. The next release of cryptography will remove support for Python 3.8.
+  from cryptography.exceptions import InvalidSignature
+ok: [prometheus]
+ok: [nextcloud-01]
+ok: [destiny]
+ok: [apollo]
+ok: [Kasm]
+ok: [asgard]
+ok: [hammond]
+ok: [Pihole02]
+ok: [Pihole03]
+ok: [Pihole01]
+ok: [PROXMOX-01]
+ok: [Pihole04]
+ok: [proxmox03]
+ok: [PVE3]
+ok: [pbs-noc]
+ok: [pve-4]
+ok: [proxmox05]
+fatal: [unifi]: UNREACHABLE! => {"changed": false, "msg": "Data could not be sent to remote host \"74.91.16.5\". Make sure this host can be reached over ssh: ssh: connect to host 74.91.16.5 port 22: Connection timed out\r\n", "skip_reason": "Host unifi is unreachable", "unreachable": true}
+
+TASK [Set disk usage facts] ****************************************************
+skipping: [unifi]
+ok: [destiny]
+ok: [Kasm]
+ok: [prometheus]
+ok: [nextcloud-01]
+ok: [apollo]
+ok: [hammond]
+ok: [asgard]
+ok: [Pihole01]
+ok: [Pihole02]
+ok: [Pihole03]
+ok: [Pihole04]
+ok: [PROXMOX-01]
+ok: [PVE3]
+ok: [proxmox05]
+ok: [proxmox03]
+ok: [pbs-noc]
+ok: [pve-4]
+
+TASK [Alert when disk check is unreachable] ************************************
+skipping: [Kasm]
+skipping: [destiny]
+skipping: [nextcloud-01]
+skipping: [prometheus]
+skipping: [apollo]
+skipping: [hammond]
+skipping: [Pihole01]
+skipping: [asgard]
+skipping: [Pihole02]
+skipping: [Pihole03]
+skipping: [Pihole04]
+skipping: [PROXMOX-01]
+skipping: [proxmox03]
+skipping: [PVE3]
+skipping: [proxmox05]
+skipping: [pve-4]
+skipping: [pbs-noc]
+fatal: [unifi -> localhost]: FAILED! => {"censored": "the output has been hidden due to the fact that 'no_log: true' was specified for this result", "changed": false}
+...ignoring
+
+TASK [Alert when disk check command fails] *************************************
+skipping: [Kasm]
+skipping: [destiny]
+skipping: [unifi]
+skipping: [nextcloud-01]
+skipping: [prometheus]
+skipping: [apollo]
+skipping: [hammond]
+skipping: [asgard]
+skipping: [Pihole01]
+skipping: [Pihole02]
+skipping: [Pihole03]
+skipping: [Pihole04]
+skipping: [PROXMOX-01]
+skipping: [PVE3]
+skipping: [proxmox03]
+skipping: [proxmox05]
+skipping: [pve-4]
+skipping: [pbs-noc]
+
+TASK [Alert on warning or critical disk usage] *********************************
+skipping: [Kasm]
+skipping: [destiny]
+skipping: [unifi]
+skipping: [nextcloud-01]
+skipping: [prometheus]
+skipping: [apollo]
+skipping: [hammond]
+skipping: [asgard]
+skipping: [Pihole01]
+skipping: [Pihole02]
+skipping: [Pihole03]
+skipping: [Pihole04]
+skipping: [PROXMOX-01]
+skipping: [proxmox03]
+skipping: [PVE3]
+skipping: [proxmox05]
+skipping: [pbs-noc]
+fatal: [pve-4 -> localhost]: FAILED! => {"censored": "the output has been hidden due to the fact that 'no_log: true' was specified for this result", "changed": false}
+...ignoring
+
+TASK [Log disk status] *********************************************************
+ok: [Kasm] => {
+    "msg": "Kasm: 52% (OK)"
+}
+ok: [destiny] => {
+    "msg": "destiny: 65% (OK)"
+}
+skipping: [unifi]
+ok: [nextcloud-01] => {
+    "msg": "nextcloud-01: 24% (OK)"
+}
+ok: [prometheus] => {
+    "msg": "prometheus: 36% (OK)"
+}
+ok: [apollo] => {
+    "msg": "apollo: 22% (OK)"
+}
+ok: [hammond] => {
+    "msg": "hammond: 14% (OK)"
+}
+ok: [asgard] => {
+    "msg": "asgard: 20% (OK)"
+}
+ok: [Pihole01] => {
+    "msg": "Pihole01: 38% (OK)"
+}
+ok: [Pihole02] => {
+    "msg": "Pihole02: 23% (OK)"
+}
+ok: [Pihole03] => {
+    "msg": "Pihole03: 44% (OK)"
+}
+ok: [Pihole04] => {
+    "msg": "Pihole04: 63% (OK)"
+}
+ok: [PROXMOX-01] => {
+    "msg": "PROXMOX-01: 62% (OK)"
+}
+ok: [proxmox03] => {
+    "msg": "proxmox03: 31% (OK)"
+}
+ok: [PVE3] => {
+    "msg": "PVE3: 33% (OK)"
+}
+ok: [proxmox05] => {
+    "msg": "proxmox05: 57% (OK)"
+}
+ok: [pve-4] => {
+    "msg": "pve-4: 84% (WARNING)"
+}
+ok: [pbs-noc] => {
+    "msg": "pbs-noc: 18% (OK)"
+}
+
+PLAY RECAP *********************************************************************
+Kasm                       : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+PROXMOX-01                 : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+PVE3                       : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+Pihole01                   : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+Pihole02                   : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+Pihole03                   : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+Pihole04                   : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+apollo                     : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+asgard                     : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+destiny                    : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+hammond                    : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+nextcloud-01               : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+pbs-noc                    : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+prometheus                 : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+proxmox03                  : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+proxmox05                  : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+pve-4                      : ok=4    changed=0    unreachable=0    failed=0    skipped=2    rescued=0    ignored=1   
+unifi                      : ok=1    changed=0    unreachable=1    failed=0    skipped=5    rescued=0    ignored=1   
+
+
+PLAY [Monitor disk space on servers] *******************************************
+
+TASK [Get root filesystem usage] ***********************************************
+/home/kurt/.local/lib/python3.8/site-packages/ansible/parsing/vault/__init__.py:42: CryptographyDeprecationWarning: Python 3.8 is no longer supported by the Python core team and support for it is deprecated in cryptography. The next release of cryptography will remove support for Python 3.8.
+  from cryptography.exceptions import InvalidSignature
+ok: [prometheus]
+ok: [nextcloud-01]
+ok: [destiny]
+ok: [apollo]
+ok: [Kasm]
+ok: [asgard]
+ok: [Pihole02]
+ok: [hammond]
+ok: [Pihole01]
+ok: [Pihole03]
+ok: [proxmox03]
+ok: [PVE3]
+ok: [Pihole04]
+ok: [PROXMOX-01]
+ok: [proxmox05]
+ok: [pve-4]
+ok: [pbs-noc]
+fatal: [unifi]: UNREACHABLE! => {"changed": false, "msg": "Data could not be sent to remote host \"74.91.16.5\". Make sure this host can be reached over ssh: ssh: connect to host 74.91.16.5 port 22: Connection timed out\r\n", "skip_reason": "Host unifi is unreachable", "unreachable": true}
+
+TASK [Set disk usage facts] ****************************************************
+ok: [Kasm]
+ok: [destiny]
+skipping: [unifi]
+ok: [prometheus]
+ok: [nextcloud-01]
+ok: [apollo]
+ok: [asgard]
+ok: [hammond]
+ok: [Pihole01]
+ok: [Pihole02]
+ok: [Pihole03]
+ok: [PROXMOX-01]
+ok: [proxmox05]
+ok: [PVE3]
+ok: [proxmox03]
+ok: [Pihole04]
+ok: [pve-4]
+ok: [pbs-noc]
+
+TASK [Alert when disk check is unreachable] ************************************
+skipping: [Kasm]
+skipping: [nextcloud-01]
+skipping: [destiny]
+skipping: [prometheus]
+skipping: [apollo]
+skipping: [hammond]
+skipping: [asgard]
+skipping: [Pihole01]
+skipping: [Pihole02]
+skipping: [Pihole03]
+skipping: [PROXMOX-01]
+skipping: [Pihole04]
+skipping: [proxmox03]
+skipping: [PVE3]
+skipping: [proxmox05]
+skipping: [pve-4]
+skipping: [pbs-noc]
+fatal: [unifi -> localhost]: FAILED! => {"censored": "the output has been hidden due to the fact that 'no_log: true' was specified for this result", "changed": false}
+...ignoring
+
+TASK [Alert when disk check command fails] *************************************
+skipping: [Kasm]
+skipping: [destiny]
+skipping: [unifi]
+skipping: [nextcloud-01]
+skipping: [prometheus]
+skipping: [hammond]
+skipping: [apollo]
+skipping: [asgard]
+skipping: [Pihole01]
+skipping: [Pihole02]
+skipping: [Pihole04]
+skipping: [Pihole03]
+skipping: [PROXMOX-01]
+skipping: [PVE3]
+skipping: [proxmox03]
+skipping: [proxmox05]
+skipping: [pve-4]
+skipping: [pbs-noc]
+
+TASK [Alert on warning or critical disk usage] *********************************
+skipping: [Kasm]
+skipping: [unifi]
+skipping: [destiny]
+skipping: [nextcloud-01]
+skipping: [prometheus]
+skipping: [apollo]
+skipping: [hammond]
+skipping: [asgard]
+skipping: [Pihole02]
+skipping: [Pihole01]
+skipping: [Pihole03]
+skipping: [Pihole04]
+skipping: [proxmox03]
+skipping: [PVE3]
+skipping: [PROXMOX-01]
+skipping: [proxmox05]
+skipping: [pbs-noc]
+fatal: [pve-4 -> localhost]: FAILED! => {"censored": "the output has been hidden due to the fact that 'no_log: true' was specified for this result", "changed": false}
+...ignoring
+
+TASK [Log disk status] *********************************************************
+ok: [Kasm] => {
+    "msg": "Kasm: 52% (OK)"
+}
+ok: [destiny] => {
+    "msg": "destiny: 65% (OK)"
+}
+skipping: [unifi]
+ok: [nextcloud-01] => {
+    "msg": "nextcloud-01: 24% (OK)"
+}
+ok: [prometheus] => {
+    "msg": "prometheus: 36% (OK)"
+}
+ok: [apollo] => {
+    "msg": "apollo: 22% (OK)"
+}
+ok: [hammond] => {
+    "msg": "hammond: 14% (OK)"
+}
+ok: [asgard] => {
+    "msg": "asgard: 20% (OK)"
+}
+ok: [Pihole01] => {
+    "msg": "Pihole01: 38% (OK)"
+}
+ok: [Pihole02] => {
+    "msg": "Pihole02: 23% (OK)"
+}
+ok: [Pihole03] => {
+    "msg": "Pihole03: 44% (OK)"
+}
+ok: [PROXMOX-01] => {
+    "msg": "PROXMOX-01: 62% (OK)"
+}
+ok: [Pihole04] => {
+    "msg": "Pihole04: 62% (OK)"
+}
+ok: [proxmox03] => {
+    "msg": "proxmox03: 31% (OK)"
+}
+ok: [PVE3] => {
+    "msg": "PVE3: 33% (OK)"
+}
+ok: [proxmox05] => {
+    "msg": "proxmox05: 57% (OK)"
+}
+ok: [pve-4] => {
+    "msg": "pve-4: 84% (WARNING)"
+}
+ok: [pbs-noc] => {
+    "msg": "pbs-noc: 18% (OK)"
+}
+
+PLAY RECAP *********************************************************************
+Kasm                       : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+PROXMOX-01                 : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+PVE3                       : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+Pihole01                   : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+Pihole02                   : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+Pihole03                   : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+Pihole04                   : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+apollo                     : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+asgard                     : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+destiny                    : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+hammond                    : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+nextcloud-01               : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+pbs-noc                    : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+prometheus                 : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+proxmox03                  : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+proxmox05                  : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+pve-4                      : ok=4    changed=0    unreachable=0    failed=0    skipped=2    rescued=0    ignored=1   
+unifi                      : ok=1    changed=0    unreachable=1    failed=0    skipped=5    rescued=0    ignored=1   
+
+
+PLAY [Monitor disk space on servers] *******************************************
+
+TASK [Get root filesystem usage] ***********************************************
+/home/kurt/.local/lib/python3.8/site-packages/ansible/parsing/vault/__init__.py:42: CryptographyDeprecationWarning: Python 3.8 is no longer supported by the Python core team and support for it is deprecated in cryptography. The next release of cryptography will remove support for Python 3.8.
+  from cryptography.exceptions import InvalidSignature
+ok: [prometheus]
+ok: [nextcloud-01]
+ok: [destiny]
+ok: [apollo]
+ok: [Kasm]
+ok: [asgard]
+ok: [hammond]
+ok: [Pihole02]
+ok: [Pihole03]
+ok: [Pihole01]
+ok: [proxmox03]
+ok: [PVE3]
+ok: [Pihole04]
+ok: [pve-4]
+ok: [pbs-noc]
+ok: [PROXMOX-01]
+ok: [proxmox05]
+fatal: [unifi]: UNREACHABLE! => {"changed": false, "msg": "Data could not be sent to remote host \"74.91.16.5\". Make sure this host can be reached over ssh: ssh: connect to host 74.91.16.5 port 22: Connection timed out\r\n", "skip_reason": "Host unifi is unreachable", "unreachable": true}
+
+TASK [Set disk usage facts] ****************************************************
+ok: [Kasm]
+ok: [destiny]
+skipping: [unifi]
+ok: [nextcloud-01]
+ok: [prometheus]
+ok: [apollo]
+ok: [hammond]
+ok: [asgard]
+ok: [Pihole01]
+ok: [Pihole02]
+ok: [Pihole03]
+ok: [Pihole04]
+ok: [proxmox03]
+ok: [PROXMOX-01]
+ok: [PVE3]
+ok: [proxmox05]
+ok: [pve-4]
+ok: [pbs-noc]
+
+TASK [Alert when disk check is unreachable] ************************************
+skipping: [Kasm]
+skipping: [destiny]
+skipping: [nextcloud-01]
+skipping: [prometheus]
+skipping: [apollo]
+skipping: [hammond]
+skipping: [asgard]
+skipping: [Pihole02]
+skipping: [Pihole01]
+skipping: [Pihole03]
+skipping: [Pihole04]
+skipping: [PROXMOX-01]
+skipping: [proxmox03]
+skipping: [PVE3]
+skipping: [proxmox05]
+skipping: [pve-4]
+skipping: [pbs-noc]
+fatal: [unifi -> localhost]: FAILED! => {"censored": "the output has been hidden due to the fact that 'no_log: true' was specified for this result", "changed": false}
+...ignoring
+
+TASK [Alert when disk check command fails] *************************************
+skipping: [Kasm]
+skipping: [destiny]
+skipping: [unifi]
+skipping: [nextcloud-01]
+skipping: [prometheus]
+skipping: [apollo]
+skipping: [hammond]
+skipping: [asgard]
+skipping: [Pihole01]
+skipping: [Pihole02]
+skipping: [Pihole03]
+skipping: [Pihole04]
+skipping: [proxmox03]
+skipping: [PROXMOX-01]
+skipping: [proxmox05]
+skipping: [PVE3]
+skipping: [pve-4]
+skipping: [pbs-noc]
+
+TASK [Alert on warning or critical disk usage] *********************************
+skipping: [Kasm]
+skipping: [unifi]
+skipping: [destiny]
+skipping: [nextcloud-01]
+skipping: [prometheus]
+skipping: [apollo]
+skipping: [hammond]
+skipping: [asgard]
+skipping: [Pihole01]
+skipping: [Pihole03]
+skipping: [Pihole02]
+skipping: [Pihole04]
+skipping: [PROXMOX-01]
+skipping: [proxmox03]
+skipping: [PVE3]
+skipping: [proxmox05]
+skipping: [pbs-noc]
+fatal: [pve-4 -> localhost]: FAILED! => {"censored": "the output has been hidden due to the fact that 'no_log: true' was specified for this result", "changed": false}
+...ignoring
+
+TASK [Log disk status] *********************************************************
+ok: [Kasm] => {
+    "msg": "Kasm: 52% (OK)"
+}
+skipping: [unifi]
+ok: [destiny] => {
+    "msg": "destiny: 65% (OK)"
+}
+ok: [nextcloud-01] => {
+    "msg": "nextcloud-01: 24% (OK)"
+}
+ok: [prometheus] => {
+    "msg": "prometheus: 36% (OK)"
+}
+ok: [apollo] => {
+    "msg": "apollo: 22% (OK)"
+}
+ok: [hammond] => {
+    "msg": "hammond: 14% (OK)"
+}
+ok: [asgard] => {
+    "msg": "asgard: 20% (OK)"
+}
+ok: [Pihole01] => {
+    "msg": "Pihole01: 37% (OK)"
+}
+ok: [Pihole02] => {
+    "msg": "Pihole02: 23% (OK)"
+}
+ok: [Pihole03] => {
+    "msg": "Pihole03: 43% (OK)"
+}
+ok: [Pihole04] => {
+    "msg": "Pihole04: 62% (OK)"
+}
+ok: [PROXMOX-01] => {
+    "msg": "PROXMOX-01: 62% (OK)"
+}
+ok: [proxmox03] => {
+    "msg": "proxmox03: 31% (OK)"
+}
+ok: [PVE3] => {
+    "msg": "PVE3: 33% (OK)"
+}
+ok: [proxmox05] => {
+    "msg": "proxmox05: 57% (OK)"
+}
+ok: [pve-4] => {
+    "msg": "pve-4: 84% (WARNING)"
+}
+ok: [pbs-noc] => {
+    "msg": "pbs-noc: 18% (OK)"
+}
+
+PLAY RECAP *********************************************************************
+Kasm                       : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+PROXMOX-01                 : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+PVE3                       : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+Pihole01                   : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+Pihole02                   : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+Pihole03                   : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+Pihole04                   : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+apollo                     : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+asgard                     : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+destiny                    : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+hammond                    : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+nextcloud-01               : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+pbs-noc                    : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+prometheus                 : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+proxmox03                  : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+proxmox05                  : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+pve-4                      : ok=4    changed=0    unreachable=0    failed=0    skipped=2    rescued=0    ignored=1   
+unifi                      : ok=1    changed=0    unreachable=1    failed=0    skipped=5    rescued=0    ignored=1   
+
+
+PLAY [Monitor disk space on servers] *******************************************
+
+TASK [Get root filesystem usage] ***********************************************
+/home/kurt/.local/lib/python3.8/site-packages/ansible/parsing/vault/__init__.py:42: CryptographyDeprecationWarning: Python 3.8 is no longer supported by the Python core team and support for it is deprecated in cryptography. The next release of cryptography will remove support for Python 3.8.
+  from cryptography.exceptions import InvalidSignature
+ok: [prometheus]
+ok: [nextcloud-01]
+ok: [Kasm]
+ok: [apollo]
+ok: [asgard]
+ok: [hammond]
+ok: [Pihole01]
+ok: [Pihole02]
+ok: [Pihole03]
+ok: [proxmox03]
+ok: [PROXMOX-01]
+ok: [Pihole04]
+ok: [PVE3]
+ok: [pve-4]
+ok: [proxmox05]
+ok: [pbs-noc]
+fatal: [destiny]: UNREACHABLE! => {"changed": false, "msg": "Data could not be sent to remote host \"192.168.201.10\". Make sure this host can be reached over ssh: ssh: connect to host 192.168.201.10 port 22: Connection timed out\r\n", "skip_reason": "Host destiny is unreachable", "unreachable": true}
+fatal: [unifi]: UNREACHABLE! => {"changed": false, "msg": "Data could not be sent to remote host \"74.91.16.5\". Make sure this host can be reached over ssh: ssh: connect to host 74.91.16.5 port 22: Connection timed out\r\n", "skip_reason": "Host unifi is unreachable", "unreachable": true}
+
+TASK [Set disk usage facts] ****************************************************
+skipping: [destiny]
+skipping: [unifi]
+ok: [prometheus]
+ok: [Kasm]
+ok: [nextcloud-01]
+ok: [apollo]
+ok: [hammond]
+ok: [asgard]
+ok: [Pihole01]
+ok: [Pihole02]
+ok: [Pihole03]
+ok: [Pihole04]
+ok: [proxmox03]
+ok: [PROXMOX-01]
+ok: [PVE3]
+ok: [pve-4]
+ok: [proxmox05]
+ok: [pbs-noc]
+
+TASK [Alert when disk check is unreachable] ************************************
+skipping: [Kasm]
+skipping: [nextcloud-01]
+skipping: [prometheus]
+skipping: [apollo]
+skipping: [asgard]
+skipping: [hammond]
+skipping: [Pihole01]
+skipping: [Pihole02]
+skipping: [Pihole03]
+skipping: [Pihole04]
+skipping: [proxmox03]
+skipping: [PROXMOX-01]
+skipping: [PVE3]
+skipping: [proxmox05]
+skipping: [pve-4]
+skipping: [pbs-noc]
+fatal: [unifi -> localhost]: FAILED! => {"censored": "the output has been hidden due to the fact that 'no_log: true' was specified for this result", "changed": false}
+...ignoring
+fatal: [destiny -> localhost]: FAILED! => {"censored": "the output has been hidden due to the fact that 'no_log: true' was specified for this result", "changed": false}
+...ignoring
+
+TASK [Alert when disk check command fails] *************************************
+skipping: [Kasm]
+skipping: [destiny]
+skipping: [nextcloud-01]
+skipping: [unifi]
+skipping: [prometheus]
+skipping: [apollo]
+skipping: [hammond]
+skipping: [asgard]
+skipping: [Pihole01]
+skipping: [Pihole02]
+skipping: [PROXMOX-01]
+skipping: [Pihole03]
+skipping: [Pihole04]
+skipping: [PVE3]
+skipping: [pve-4]
+skipping: [proxmox03]
+skipping: [pbs-noc]
+skipping: [proxmox05]
+
+TASK [Alert on warning or critical disk usage] *********************************
+skipping: [Kasm]
+skipping: [unifi]
+skipping: [destiny]
+skipping: [nextcloud-01]
+skipping: [prometheus]
+skipping: [apollo]
+skipping: [hammond]
+skipping: [Pihole01]
+skipping: [asgard]
+skipping: [Pihole02]
+skipping: [Pihole04]
+skipping: [Pihole03]
+skipping: [PROXMOX-01]
+skipping: [PVE3]
+skipping: [proxmox03]
+skipping: [proxmox05]
+skipping: [pbs-noc]
+fatal: [pve-4 -> localhost]: FAILED! => {"censored": "the output has been hidden due to the fact that 'no_log: true' was specified for this result", "changed": false}
+...ignoring
+
+TASK [Log disk status] *********************************************************
+ok: [Kasm] => {
+    "msg": "Kasm: 52% (OK)"
+}
+skipping: [destiny]
+skipping: [unifi]
+ok: [nextcloud-01] => {
+    "msg": "nextcloud-01: 24% (OK)"
+}
+ok: [prometheus] => {
+    "msg": "prometheus: 37% (OK)"
+}
+ok: [apollo] => {
+    "msg": "apollo: 35% (OK)"
+}
+ok: [hammond] => {
+    "msg": "hammond: 14% (OK)"
+}
+ok: [asgard] => {
+    "msg": "asgard: 20% (OK)"
+}
+ok: [Pihole01] => {
+    "msg": "Pihole01: 37% (OK)"
+}
+ok: [Pihole02] => {
+    "msg": "Pihole02: 23% (OK)"
+}
+ok: [Pihole03] => {
+    "msg": "Pihole03: 44% (OK)"
+}
+ok: [Pihole04] => {
+    "msg": "Pihole04: 62% (OK)"
+}
+ok: [PROXMOX-01] => {
+    "msg": "PROXMOX-01: 62% (OK)"
+}
+ok: [proxmox03] => {
+    "msg": "proxmox03: 31% (OK)"
+}
+ok: [PVE3] => {
+    "msg": "PVE3: 33% (OK)"
+}
+ok: [proxmox05] => {
+    "msg": "proxmox05: 57% (OK)"
+}
+ok: [pve-4] => {
+    "msg": "pve-4: 84% (WARNING)"
+}
+ok: [pbs-noc] => {
+    "msg": "pbs-noc: 18% (OK)"
+}
+
+PLAY RECAP *********************************************************************
+Kasm                       : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+PROXMOX-01                 : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+PVE3                       : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+Pihole01                   : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+Pihole02                   : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+Pihole03                   : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+Pihole04                   : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+apollo                     : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+asgard                     : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+destiny                    : ok=1    changed=0    unreachable=1    failed=0    skipped=5    rescued=0    ignored=1   
+hammond                    : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+nextcloud-01               : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+pbs-noc                    : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+prometheus                 : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+proxmox03                  : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+proxmox05                  : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+pve-4                      : ok=4    changed=0    unreachable=0    failed=0    skipped=2    rescued=0    ignored=1   
+unifi                      : ok=1    changed=0    unreachable=1    failed=0    skipped=5    rescued=0    ignored=1   
+
+
+PLAY [Monitor disk space on servers] *******************************************
+
+TASK [Get root filesystem usage] ***********************************************
+/home/kurt/.local/lib/python3.8/site-packages/ansible/parsing/vault/__init__.py:42: CryptographyDeprecationWarning: Python 3.8 is no longer supported by the Python core team and support for it is deprecated in cryptography. The next release of cryptography will remove support for Python 3.8.
+  from cryptography.exceptions import InvalidSignature
+ok: [prometheus]
+ok: [nextcloud-01]
+ok: [Kasm]
+ok: [apollo]
+ok: [hammond]
+ok: [asgard]
+ok: [Pihole02]
+ok: [Pihole01]
+ok: [Pihole03]
+ok: [Pihole04]
+ok: [proxmox03]
+fatal: [destiny]: UNREACHABLE! => {"changed": false, "msg": "Data could not be sent to remote host \"192.168.201.10\". Make sure this host can be reached over ssh: ssh: connect to host 192.168.201.10 port 22: Connection timed out\r\n", "skip_reason": "Host destiny is unreachable", "unreachable": true}
+fatal: [unifi]: UNREACHABLE! => {"changed": false, "msg": "Data could not be sent to remote host \"74.91.16.5\". Make sure this host can be reached over ssh: ssh: connect to host 74.91.16.5 port 22: Connection timed out\r\n", "skip_reason": "Host unifi is unreachable", "unreachable": true}
+ok: [PROXMOX-01]
+ok: [PVE3]
+ok: [proxmox05]
+ok: [pbs-noc]
+ok: [pve-4]
+
+TASK [Set disk usage facts] ****************************************************
+skipping: [destiny]
+ok: [Kasm]
+skipping: [unifi]
+ok: [nextcloud-01]
+ok: [hammond]
+ok: [prometheus]
+ok: [apollo]
+ok: [asgard]
+ok: [Pihole01]
+ok: [Pihole02]
+ok: [Pihole04]
+ok: [Pihole03]
+ok: [PROXMOX-01]
+ok: [proxmox03]
+ok: [PVE3]
+ok: [pve-4]
+ok: [proxmox05]
+ok: [pbs-noc]
+
+TASK [Alert when disk check is unreachable] ************************************
+skipping: [Kasm]
+skipping: [nextcloud-01]
+skipping: [prometheus]
+skipping: [hammond]
+skipping: [apollo]
+skipping: [asgard]
+skipping: [Pihole01]
+skipping: [Pihole02]
+skipping: [Pihole03]
+skipping: [PROXMOX-01]
+skipping: [Pihole04]
+skipping: [proxmox03]
+skipping: [PVE3]
+skipping: [proxmox05]
+skipping: [pve-4]
+skipping: [pbs-noc]
+fatal: [unifi -> localhost]: FAILED! => {"censored": "the output has been hidden due to the fact that 'no_log: true' was specified for this result", "changed": false}
+...ignoring
+fatal: [destiny -> localhost]: FAILED! => {"censored": "the output has been hidden due to the fact that 'no_log: true' was specified for this result", "changed": false}
+...ignoring
+
+TASK [Alert when disk check command fails] *************************************
+skipping: [Kasm]
+skipping: [destiny]
+skipping: [unifi]
+skipping: [nextcloud-01]
+skipping: [prometheus]
+skipping: [apollo]
+skipping: [hammond]
+skipping: [asgard]
+skipping: [Pihole01]
+skipping: [Pihole03]
+skipping: [Pihole02]
+skipping: [Pihole04]
+skipping: [PROXMOX-01]
+skipping: [proxmox03]
+skipping: [PVE3]
+skipping: [proxmox05]
+skipping: [pve-4]
+skipping: [pbs-noc]
+
+TASK [Alert on warning or critical disk usage] *********************************
+skipping: [Kasm]
+skipping: [destiny]
+skipping: [unifi]
+skipping: [nextcloud-01]
+skipping: [prometheus]
+skipping: [apollo]
+skipping: [hammond]
+skipping: [asgard]
+skipping: [Pihole01]
+skipping: [Pihole02]
+skipping: [Pihole03]
+skipping: [Pihole04]
+skipping: [PROXMOX-01]
+skipping: [proxmox03]
+skipping: [PVE3]
+skipping: [proxmox05]
+skipping: [pbs-noc]
+fatal: [pve-4 -> localhost]: FAILED! => {"censored": "the output has been hidden due to the fact that 'no_log: true' was specified for this result", "changed": false}
+...ignoring
+
+TASK [Log disk status] *********************************************************
+ok: [Kasm] => {
+    "msg": "Kasm: 52% (OK)"
+}
+skipping: [destiny]
+skipping: [unifi]
+ok: [nextcloud-01] => {
+    "msg": "nextcloud-01: 24% (OK)"
+}
+ok: [prometheus] => {
+    "msg": "prometheus: 37% (OK)"
+}
+ok: [apollo] => {
+    "msg": "apollo: 35% (OK)"
+}
+ok: [hammond] => {
+    "msg": "hammond: 14% (OK)"
+}
+ok: [asgard] => {
+    "msg": "asgard: 20% (OK)"
+}
+ok: [Pihole01] => {
+    "msg": "Pihole01: 38% (OK)"
+}
+ok: [Pihole02] => {
+    "msg": "Pihole02: 23% (OK)"
+}
+ok: [Pihole03] => {
+    "msg": "Pihole03: 44% (OK)"
+}
+ok: [Pihole04] => {
+    "msg": "Pihole04: 62% (OK)"
+}
+ok: [PROXMOX-01] => {
+    "msg": "PROXMOX-01: 62% (OK)"
+}
+ok: [proxmox03] => {
+    "msg": "proxmox03: 31% (OK)"
+}
+ok: [proxmox05] => {
+    "msg": "proxmox05: 57% (OK)"
+}
+ok: [PVE3] => {
+    "msg": "PVE3: 33% (OK)"
+}
+ok: [pve-4] => {
+    "msg": "pve-4: 84% (WARNING)"
+}
+ok: [pbs-noc] => {
+    "msg": "pbs-noc: 18% (OK)"
+}
+
+PLAY RECAP *********************************************************************
+Kasm                       : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+PROXMOX-01                 : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+PVE3                       : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+Pihole01                   : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+Pihole02                   : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+Pihole03                   : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+Pihole04                   : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+apollo                     : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+asgard                     : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+destiny                    : ok=1    changed=0    unreachable=1    failed=0    skipped=5    rescued=0    ignored=1   
+hammond                    : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+nextcloud-01               : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+pbs-noc                    : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+prometheus                 : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+proxmox03                  : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+proxmox05                  : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+pve-4                      : ok=4    changed=0    unreachable=0    failed=0    skipped=2    rescued=0    ignored=1   
+unifi                      : ok=1    changed=0    unreachable=1    failed=0    skipped=5    rescued=0    ignored=1   
+
+
+PLAY [Monitor disk space on servers] *******************************************
+
+TASK [Get root filesystem usage] ***********************************************
+/home/kurt/.local/lib/python3.8/site-packages/ansible/parsing/vault/__init__.py:42: CryptographyDeprecationWarning: Python 3.8 is no longer supported by the Python core team and support for it is deprecated in cryptography. The next release of cryptography will remove support for Python 3.8.
+  from cryptography.exceptions import InvalidSignature
+ok: [prometheus]
+ok: [nextcloud-01]
+ok: [apollo]
+ok: [Kasm]
+ok: [asgard]
+ok: [hammond]
+ok: [Pihole02]
+ok: [Pihole01]
+ok: [Pihole04]
+ok: [PROXMOX-01]
+ok: [Pihole03]
+ok: [proxmox03]
+fatal: [destiny]: UNREACHABLE! => {"changed": false, "msg": "Data could not be sent to remote host \"192.168.201.10\". Make sure this host can be reached over ssh: ssh: connect to host 192.168.201.10 port 22: Connection timed out\r\n", "skip_reason": "Host destiny is unreachable", "unreachable": true}
+fatal: [unifi]: UNREACHABLE! => {"changed": false, "msg": "Data could not be sent to remote host \"74.91.16.5\". Make sure this host can be reached over ssh: ssh: connect to host 74.91.16.5 port 22: Connection timed out\r\n", "skip_reason": "Host unifi is unreachable", "unreachable": true}
+ok: [proxmox05]
+ok: [pve-4]
+ok: [pbs-noc]
+ok: [PVE3]
+
+TASK [Set disk usage facts] ****************************************************
+ok: [Kasm]
+skipping: [destiny]
+ok: [nextcloud-01]
+skipping: [unifi]
+ok: [apollo]
+ok: [prometheus]
+ok: [hammond]
+ok: [asgard]
+ok: [Pihole01]
+ok: [Pihole02]
+ok: [Pihole03]
+ok: [PROXMOX-01]
+ok: [Pihole04]
+ok: [proxmox03]
+ok: [PVE3]
+ok: [pve-4]
+ok: [pbs-noc]
+ok: [proxmox05]
+
+TASK [Alert when disk check is unreachable] ************************************
+skipping: [Kasm]
+skipping: [nextcloud-01]
+skipping: [prometheus]
+skipping: [apollo]
+skipping: [asgard]
+skipping: [Pihole01]
+skipping: [hammond]
+skipping: [Pihole02]
+skipping: [Pihole03]
+skipping: [Pihole04]
+skipping: [PROXMOX-01]
+skipping: [proxmox03]
+skipping: [PVE3]
+skipping: [proxmox05]
+skipping: [pve-4]
+skipping: [pbs-noc]
+fatal: [unifi -> localhost]: FAILED! => {"censored": "the output has been hidden due to the fact that 'no_log: true' was specified for this result", "changed": false}
+...ignoring
+fatal: [destiny -> localhost]: FAILED! => {"censored": "the output has been hidden due to the fact that 'no_log: true' was specified for this result", "changed": false}
+...ignoring
+
+TASK [Alert when disk check command fails] *************************************
+skipping: [Kasm]
+skipping: [destiny]
+skipping: [nextcloud-01]
+skipping: [unifi]
+skipping: [prometheus]
+skipping: [apollo]
+skipping: [hammond]
+skipping: [asgard]
+skipping: [Pihole01]
+skipping: [Pihole02]
+skipping: [Pihole03]
+skipping: [Pihole04]
+skipping: [proxmox03]
+skipping: [PVE3]
+skipping: [PROXMOX-01]
+skipping: [proxmox05]
+skipping: [pve-4]
+skipping: [pbs-noc]
+
+TASK [Alert on warning or critical disk usage] *********************************
+skipping: [destiny]
+skipping: [Kasm]
+skipping: [unifi]
+skipping: [nextcloud-01]
+skipping: [prometheus]
+skipping: [apollo]
+skipping: [asgard]
+skipping: [hammond]
+skipping: [Pihole01]
+skipping: [Pihole02]
+skipping: [Pihole03]
+skipping: [proxmox03]
+skipping: [Pihole04]
+skipping: [PVE3]
+skipping: [PROXMOX-01]
+skipping: [pbs-noc]
+skipping: [proxmox05]
+fatal: [pve-4 -> localhost]: FAILED! => {"censored": "the output has been hidden due to the fact that 'no_log: true' was specified for this result", "changed": false}
+...ignoring
+
+TASK [Log disk status] *********************************************************
+skipping: [destiny]
+skipping: [unifi]
+ok: [Kasm] => {
+    "msg": "Kasm: 52% (OK)"
+}
+ok: [nextcloud-01] => {
+    "msg": "nextcloud-01: 24% (OK)"
+}
+ok: [prometheus] => {
+    "msg": "prometheus: 37% (OK)"
+}
+ok: [hammond] => {
+    "msg": "hammond: 14% (OK)"
+}
+ok: [apollo] => {
+    "msg": "apollo: 36% (OK)"
+}
+ok: [asgard] => {
+    "msg": "asgard: 20% (OK)"
+}
+ok: [Pihole01] => {
+    "msg": "Pihole01: 38% (OK)"
+}
+ok: [Pihole02] => {
+    "msg": "Pihole02: 23% (OK)"
+}
+ok: [Pihole04] => {
+    "msg": "Pihole04: 63% (OK)"
+}
+ok: [PROXMOX-01] => {
+    "msg": "PROXMOX-01: 62% (OK)"
+}
+ok: [Pihole03] => {
+    "msg": "Pihole03: 44% (OK)"
+}
+ok: [proxmox03] => {
+    "msg": "proxmox03: 31% (OK)"
+}
+ok: [PVE3] => {
+    "msg": "PVE3: 33% (OK)"
+}
+ok: [proxmox05] => {
+    "msg": "proxmox05: 57% (OK)"
+}
+ok: [pve-4] => {
+    "msg": "pve-4: 84% (WARNING)"
+}
+ok: [pbs-noc] => {
+    "msg": "pbs-noc: 18% (OK)"
+}
+
+PLAY RECAP *********************************************************************
+Kasm                       : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+PROXMOX-01                 : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+PVE3                       : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+Pihole01                   : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+Pihole02                   : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+Pihole03                   : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+Pihole04                   : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+apollo                     : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+asgard                     : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+destiny                    : ok=1    changed=0    unreachable=1    failed=0    skipped=5    rescued=0    ignored=1   
+hammond                    : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+nextcloud-01               : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+pbs-noc                    : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+prometheus                 : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+proxmox03                  : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+proxmox05                  : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+pve-4                      : ok=4    changed=0    unreachable=0    failed=0    skipped=2    rescued=0    ignored=1   
+unifi                      : ok=1    changed=0    unreachable=1    failed=0    skipped=5    rescued=0    ignored=1   
+
+
+PLAY [Monitor disk space on servers] *******************************************
+
+TASK [Get root filesystem usage] ***********************************************
+/home/kurt/.local/lib/python3.8/site-packages/ansible/parsing/vault/__init__.py:42: CryptographyDeprecationWarning: Python 3.8 is no longer supported by the Python core team and support for it is deprecated in cryptography. The next release of cryptography will remove support for Python 3.8.
+  from cryptography.exceptions import InvalidSignature
+ok: [prometheus]
+ok: [apollo]
+ok: [nextcloud-01]
+ok: [Kasm]
+ok: [asgard]
+ok: [Pihole01]
+ok: [hammond]
+ok: [Pihole02]
+ok: [PROXMOX-01]
+ok: [proxmox03]
+ok: [Pihole03]
+ok: [Pihole04]
+ok: [proxmox05]
+fatal: [unifi]: UNREACHABLE! => {"changed": false, "msg": "Data could not be sent to remote host \"74.91.16.5\". Make sure this host can be reached over ssh: ssh: connect to host 74.91.16.5 port 22: Connection timed out\r\n", "skip_reason": "Host unifi is unreachable", "unreachable": true}
+fatal: [destiny]: UNREACHABLE! => {"changed": false, "msg": "Data could not be sent to remote host \"192.168.201.10\". Make sure this host can be reached over ssh: ssh: connect to host 192.168.201.10 port 22: Connection timed out\r\n", "skip_reason": "Host destiny is unreachable", "unreachable": true}
+ok: [PVE3]
+ok: [pve-4]
+ok: [pbs-noc]
+
+TASK [Set disk usage facts] ****************************************************
+skipping: [destiny]
+skipping: [unifi]
+ok: [Kasm]
+ok: [nextcloud-01]
+ok: [apollo]
+ok: [prometheus]
+ok: [hammond]
+ok: [asgard]
+ok: [Pihole01]
+ok: [Pihole02]
+ok: [Pihole03]
+ok: [Pihole04]
+ok: [PROXMOX-01]
+ok: [PVE3]
+ok: [pve-4]
+ok: [proxmox03]
+ok: [proxmox05]
+ok: [pbs-noc]
+
+TASK [Alert when disk check is unreachable] ************************************
+skipping: [Kasm]
+skipping: [nextcloud-01]
+skipping: [prometheus]
+skipping: [apollo]
+skipping: [hammond]
+skipping: [Pihole01]
+skipping: [Pihole02]
+skipping: [asgard]
+skipping: [Pihole04]
+skipping: [PROXMOX-01]
+skipping: [Pihole03]
+skipping: [proxmox03]
+skipping: [PVE3]
+skipping: [proxmox05]
+skipping: [pve-4]
+skipping: [pbs-noc]
+fatal: [unifi -> localhost]: FAILED! => {"censored": "the output has been hidden due to the fact that 'no_log: true' was specified for this result", "changed": false}
+...ignoring
+fatal: [destiny -> localhost]: FAILED! => {"censored": "the output has been hidden due to the fact that 'no_log: true' was specified for this result", "changed": false}
+...ignoring
+
+TASK [Alert when disk check command fails] *************************************
+skipping: [Kasm]
+skipping: [destiny]
+skipping: [unifi]
+skipping: [nextcloud-01]
+skipping: [prometheus]
+skipping: [apollo]
+skipping: [hammond]
+skipping: [asgard]
+skipping: [Pihole01]
+skipping: [Pihole02]
+skipping: [Pihole03]
+skipping: [Pihole04]
+skipping: [PROXMOX-01]
+skipping: [proxmox03]
+skipping: [PVE3]
+skipping: [pbs-noc]
+skipping: [pve-4]
+skipping: [proxmox05]
+
+TASK [Alert on warning or critical disk usage] *********************************
+skipping: [destiny]
+skipping: [Kasm]
+skipping: [unifi]
+skipping: [prometheus]
+skipping: [nextcloud-01]
+skipping: [apollo]
+skipping: [hammond]
+skipping: [asgard]
+skipping: [Pihole01]
+skipping: [Pihole02]
+skipping: [Pihole03]
+skipping: [Pihole04]
+skipping: [PROXMOX-01]
+skipping: [PVE3]
+skipping: [proxmox03]
+skipping: [proxmox05]
+skipping: [pbs-noc]
+fatal: [pve-4 -> localhost]: FAILED! => {"censored": "the output has been hidden due to the fact that 'no_log: true' was specified for this result", "changed": false}
+...ignoring
+
+TASK [Log disk status] *********************************************************
+skipping: [destiny]
+ok: [Kasm] => {
+    "msg": "Kasm: 52% (OK)"
+}
+skipping: [unifi]
+ok: [nextcloud-01] => {
+    "msg": "nextcloud-01: 24% (OK)"
+}
+ok: [prometheus] => {
+    "msg": "prometheus: 37% (OK)"
+}
+ok: [apollo] => {
+    "msg": "apollo: 35% (OK)"
+}
+ok: [hammond] => {
+    "msg": "hammond: 14% (OK)"
+}
+ok: [asgard] => {
+    "msg": "asgard: 20% (OK)"
+}
+ok: [Pihole01] => {
+    "msg": "Pihole01: 38% (OK)"
+}
+ok: [Pihole02] => {
+    "msg": "Pihole02: 24% (OK)"
+}
+ok: [Pihole03] => {
+    "msg": "Pihole03: 44% (OK)"
+}
+ok: [Pihole04] => {
+    "msg": "Pihole04: 63% (OK)"
+}
+ok: [proxmox03] => {
+    "msg": "proxmox03: 31% (OK)"
+}
+ok: [proxmox05] => {
+    "msg": "proxmox05: 57% (OK)"
+}
+ok: [PROXMOX-01] => {
+    "msg": "PROXMOX-01: 62% (OK)"
+}
+ok: [PVE3] => {
+    "msg": "PVE3: 33% (OK)"
+}
+ok: [pve-4] => {
+    "msg": "pve-4: 84% (WARNING)"
+}
+ok: [pbs-noc] => {
+    "msg": "pbs-noc: 18% (OK)"
+}
+
+PLAY RECAP *********************************************************************
+Kasm                       : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+PROXMOX-01                 : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+PVE3                       : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+Pihole01                   : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+Pihole02                   : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+Pihole03                   : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+Pihole04                   : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+apollo                     : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+asgard                     : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+destiny                    : ok=1    changed=0    unreachable=1    failed=0    skipped=5    rescued=0    ignored=1   
+hammond                    : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+nextcloud-01               : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+pbs-noc                    : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+prometheus                 : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+proxmox03                  : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+proxmox05                  : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+pve-4                      : ok=4    changed=0    unreachable=0    failed=0    skipped=2    rescued=0    ignored=1   
+unifi                      : ok=1    changed=0    unreachable=1    failed=0    skipped=5    rescued=0    ignored=1   
+
+
+PLAY [Monitor disk space on servers] *******************************************
+
+TASK [Get root filesystem usage] ***********************************************
+/home/kurt/.local/lib/python3.8/site-packages/ansible/parsing/vault/__init__.py:42: CryptographyDeprecationWarning: Python 3.8 is no longer supported by the Python core team and support for it is deprecated in cryptography. The next release of cryptography will remove support for Python 3.8.
+  from cryptography.exceptions import InvalidSignature
+ok: [prometheus]
+ok: [nextcloud-01]
+ok: [Kasm]
+ok: [apollo]
+ok: [asgard]
+ok: [hammond]
+ok: [Pihole01]
+ok: [Pihole02]
+ok: [Pihole03]
+ok: [Pihole04]
+ok: [proxmox03]
+ok: [PROXMOX-01]
+ok: [PVE3]
+ok: [pve-4]
+fatal: [unifi]: UNREACHABLE! => {"changed": false, "msg": "Data could not be sent to remote host \"74.91.16.5\". Make sure this host can be reached over ssh: ssh: connect to host 74.91.16.5 port 22: Connection timed out\r\n", "skip_reason": "Host unifi is unreachable", "unreachable": true}
+fatal: [destiny]: UNREACHABLE! => {"changed": false, "msg": "Data could not be sent to remote host \"192.168.201.10\". Make sure this host can be reached over ssh: ssh: connect to host 192.168.201.10 port 22: Connection timed out\r\n", "skip_reason": "Host destiny is unreachable", "unreachable": true}
+ok: [proxmox05]
+ok: [pbs-noc]
+
+TASK [Set disk usage facts] ****************************************************
+skipping: [destiny]
+ok: [Kasm]
+skipping: [unifi]
+ok: [nextcloud-01]
+ok: [prometheus]
+ok: [hammond]
+ok: [apollo]
+ok: [asgard]
+ok: [Pihole03]
+ok: [Pihole02]
+ok: [Pihole01]
+ok: [PROXMOX-01]
+ok: [Pihole04]
+ok: [PVE3]
+ok: [proxmox05]
+ok: [proxmox03]
+ok: [pve-4]
+ok: [pbs-noc]
+
+TASK [Alert when disk check is unreachable] ************************************
+skipping: [Kasm]
+skipping: [nextcloud-01]
+skipping: [prometheus]
+skipping: [apollo]
+skipping: [asgard]
+skipping: [Pihole01]
+skipping: [hammond]
+skipping: [Pihole02]
+skipping: [Pihole03]
+skipping: [Pihole04]
+skipping: [PROXMOX-01]
+skipping: [PVE3]
+skipping: [proxmox03]
+skipping: [proxmox05]
+skipping: [pve-4]
+skipping: [pbs-noc]
+fatal: [destiny -> localhost]: FAILED! => {"censored": "the output has been hidden due to the fact that 'no_log: true' was specified for this result", "changed": false}
+...ignoring
+fatal: [unifi -> localhost]: FAILED! => {"censored": "the output has been hidden due to the fact that 'no_log: true' was specified for this result", "changed": false}
+...ignoring
+
+TASK [Alert when disk check command fails] *************************************
+skipping: [Kasm]
+skipping: [destiny]
+skipping: [unifi]
+skipping: [nextcloud-01]
+skipping: [prometheus]
+skipping: [apollo]
+skipping: [hammond]
+skipping: [asgard]
+skipping: [Pihole01]
+skipping: [Pihole02]
+skipping: [Pihole03]
+skipping: [Pihole04]
+skipping: [PROXMOX-01]
+skipping: [proxmox03]
+skipping: [proxmox05]
+skipping: [PVE3]
+skipping: [pve-4]
+skipping: [pbs-noc]
+
+TASK [Alert on warning or critical disk usage] *********************************
+skipping: [Kasm]
+skipping: [destiny]
+skipping: [unifi]
+skipping: [nextcloud-01]
+skipping: [prometheus]
+skipping: [apollo]
+skipping: [hammond]
+skipping: [asgard]
+skipping: [Pihole01]
+skipping: [Pihole02]
+skipping: [Pihole03]
+skipping: [Pihole04]
+skipping: [PROXMOX-01]
+skipping: [proxmox03]
+skipping: [PVE3]
+skipping: [proxmox05]
+skipping: [pbs-noc]
+fatal: [pve-4 -> localhost]: FAILED! => {"censored": "the output has been hidden due to the fact that 'no_log: true' was specified for this result", "changed": false}
+...ignoring
+
+TASK [Log disk status] *********************************************************
+ok: [Kasm] => {
+    "msg": "Kasm: 52% (OK)"
+}
+skipping: [destiny]
+skipping: [unifi]
+ok: [nextcloud-01] => {
+    "msg": "nextcloud-01: 24% (OK)"
+}
+ok: [prometheus] => {
+    "msg": "prometheus: 37% (OK)"
+}
+ok: [apollo] => {
+    "msg": "apollo: 35% (OK)"
+}
+ok: [hammond] => {
+    "msg": "hammond: 15% (OK)"
+}
+ok: [asgard] => {
+    "msg": "asgard: 20% (OK)"
+}
+ok: [Pihole01] => {
+    "msg": "Pihole01: 38% (OK)"
+}
+ok: [Pihole02] => {
+    "msg": "Pihole02: 24% (OK)"
+}
+ok: [Pihole03] => {
+    "msg": "Pihole03: 44% (OK)"
+}
+ok: [Pihole04] => {
+    "msg": "Pihole04: 63% (OK)"
+}
+ok: [PROXMOX-01] => {
+    "msg": "PROXMOX-01: 62% (OK)"
+}
+ok: [proxmox03] => {
+    "msg": "proxmox03: 31% (OK)"
+}
+ok: [PVE3] => {
+    "msg": "PVE3: 33% (OK)"
+}
+ok: [proxmox05] => {
+    "msg": "proxmox05: 57% (OK)"
+}
+ok: [pve-4] => {
+    "msg": "pve-4: 84% (WARNING)"
+}
+ok: [pbs-noc] => {
+    "msg": "pbs-noc: 18% (OK)"
+}
+
+PLAY RECAP *********************************************************************
+Kasm                       : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+PROXMOX-01                 : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+PVE3                       : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+Pihole01                   : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+Pihole02                   : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+Pihole03                   : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+Pihole04                   : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+apollo                     : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+asgard                     : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+destiny                    : ok=1    changed=0    unreachable=1    failed=0    skipped=5    rescued=0    ignored=1   
+hammond                    : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+nextcloud-01               : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+pbs-noc                    : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+prometheus                 : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+proxmox03                  : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+proxmox05                  : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+pve-4                      : ok=4    changed=0    unreachable=0    failed=0    skipped=2    rescued=0    ignored=1   
+unifi                      : ok=1    changed=0    unreachable=1    failed=0    skipped=5    rescued=0    ignored=1   
+
+
+PLAY [Monitor disk space on servers] *******************************************
+
+TASK [Get root filesystem usage] ***********************************************
+/home/kurt/.local/lib/python3.8/site-packages/ansible/parsing/vault/__init__.py:42: CryptographyDeprecationWarning: Python 3.8 is no longer supported by the Python core team and support for it is deprecated in cryptography. The next release of cryptography will remove support for Python 3.8.
+  from cryptography.exceptions import InvalidSignature
+ok: [prometheus]
+ok: [nextcloud-01]
+ok: [Kasm]
+ok: [apollo]
+ok: [asgard]
+ok: [hammond]
+ok: [Pihole02]
+ok: [Pihole01]
+ok: [Pihole03]
+ok: [proxmox03]
+ok: [PVE3]
+ok: [PROXMOX-01]
+ok: [Pihole04]
+ok: [pve-4]
+ok: [pbs-noc]
+ok: [proxmox05]
+fatal: [destiny]: UNREACHABLE! => {"changed": false, "msg": "Data could not be sent to remote host \"192.168.201.10\". Make sure this host can be reached over ssh: ssh: connect to host 192.168.201.10 port 22: Connection timed out\r\n", "skip_reason": "Host destiny is unreachable", "unreachable": true}
+fatal: [unifi]: UNREACHABLE! => {"changed": false, "msg": "Data could not be sent to remote host \"74.91.16.5\". Make sure this host can be reached over ssh: ssh: connect to host 74.91.16.5 port 22: Connection timed out\r\n", "skip_reason": "Host unifi is unreachable", "unreachable": true}
+
+TASK [Set disk usage facts] ****************************************************
+ok: [Kasm]
+skipping: [unifi]
+skipping: [destiny]
+ok: [nextcloud-01]
+ok: [prometheus]
+ok: [apollo]
+ok: [hammond]
+ok: [asgard]
+ok: [Pihole01]
+ok: [Pihole02]
+ok: [Pihole04]
+ok: [Pihole03]
+ok: [PROXMOX-01]
+ok: [proxmox03]
+ok: [PVE3]
+ok: [pve-4]
+ok: [proxmox05]
+ok: [pbs-noc]
+
+TASK [Alert when disk check is unreachable] ************************************
+skipping: [Kasm]
+skipping: [nextcloud-01]
+skipping: [apollo]
+skipping: [prometheus]
+skipping: [hammond]
+skipping: [Pihole01]
+skipping: [asgard]
+skipping: [Pihole02]
+skipping: [Pihole04]
+skipping: [Pihole03]
+skipping: [PROXMOX-01]
+skipping: [proxmox03]
+skipping: [PVE3]
+skipping: [proxmox05]
+skipping: [pve-4]
+skipping: [pbs-noc]
+fatal: [destiny -> localhost]: FAILED! => {"censored": "the output has been hidden due to the fact that 'no_log: true' was specified for this result", "changed": false}
+...ignoring
+fatal: [unifi -> localhost]: FAILED! => {"censored": "the output has been hidden due to the fact that 'no_log: true' was specified for this result", "changed": false}
+...ignoring
+
+TASK [Alert when disk check command fails] *************************************
+skipping: [Kasm]
+skipping: [destiny]
+skipping: [nextcloud-01]
+skipping: [unifi]
+skipping: [prometheus]
+skipping: [apollo]
+skipping: [hammond]
+skipping: [Pihole01]
+skipping: [Pihole03]
+skipping: [asgard]
+skipping: [Pihole04]
+skipping: [Pihole02]
+skipping: [proxmox03]
+skipping: [PROXMOX-01]
+skipping: [proxmox05]
+skipping: [pbs-noc]
+skipping: [PVE3]
+skipping: [pve-4]
+
+TASK [Alert on warning or critical disk usage] *********************************
+skipping: [destiny]
+skipping: [unifi]
+skipping: [Kasm]
+skipping: [prometheus]
+skipping: [nextcloud-01]
+skipping: [apollo]
+skipping: [hammond]
+skipping: [asgard]
+skipping: [Pihole01]
+skipping: [Pihole02]
+skipping: [Pihole03]
+skipping: [Pihole04]
+skipping: [PROXMOX-01]
+skipping: [PVE3]
+skipping: [proxmox03]
+skipping: [proxmox05]
+skipping: [pbs-noc]
+fatal: [pve-4 -> localhost]: FAILED! => {"censored": "the output has been hidden due to the fact that 'no_log: true' was specified for this result", "changed": false}
+...ignoring
+
+TASK [Log disk status] *********************************************************
+ok: [Kasm] => {
+    "msg": "Kasm: 52% (OK)"
+}
+skipping: [destiny]
+skipping: [unifi]
+ok: [nextcloud-01] => {
+    "msg": "nextcloud-01: 24% (OK)"
+}
+ok: [prometheus] => {
+    "msg": "prometheus: 37% (OK)"
+}
+ok: [apollo] => {
+    "msg": "apollo: 35% (OK)"
+}
+ok: [hammond] => {
+    "msg": "hammond: 15% (OK)"
+}
+ok: [asgard] => {
+    "msg": "asgard: 20% (OK)"
+}
+ok: [Pihole01] => {
+    "msg": "Pihole01: 38% (OK)"
+}
+ok: [Pihole02] => {
+    "msg": "Pihole02: 24% (OK)"
+}
+ok: [Pihole03] => {
+    "msg": "Pihole03: 44% (OK)"
+}
+ok: [Pihole04] => {
+    "msg": "Pihole04: 62% (OK)"
+}
+ok: [PROXMOX-01] => {
+    "msg": "PROXMOX-01: 62% (OK)"
+}
+ok: [proxmox03] => {
+    "msg": "proxmox03: 31% (OK)"
+}
+ok: [PVE3] => {
+    "msg": "PVE3: 33% (OK)"
+}
+ok: [proxmox05] => {
+    "msg": "proxmox05: 57% (OK)"
+}
+ok: [pve-4] => {
+    "msg": "pve-4: 84% (WARNING)"
+}
+ok: [pbs-noc] => {
+    "msg": "pbs-noc: 18% (OK)"
+}
+
+PLAY RECAP *********************************************************************
+Kasm                       : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+PROXMOX-01                 : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+PVE3                       : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+Pihole01                   : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+Pihole02                   : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+Pihole03                   : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+Pihole04                   : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+apollo                     : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+asgard                     : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+destiny                    : ok=1    changed=0    unreachable=1    failed=0    skipped=5    rescued=0    ignored=1   
+hammond                    : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+nextcloud-01               : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+pbs-noc                    : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+prometheus                 : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+proxmox03                  : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+proxmox05                  : ok=3    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+pve-4                      : ok=4    changed=0    unreachable=0    failed=0    skipped=2    rescued=0    ignored=1   
+unifi                      : ok=1    changed=0    unreachable=1    failed=0    skipped=5    rescued=0    ignored=1   
+
