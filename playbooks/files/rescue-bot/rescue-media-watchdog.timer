@@ -1,0 +1,12 @@
+[Unit]
+Description=Run KBTech media stack watchdog every 10 minutes
+
+[Timer]
+OnBootSec=5m
+OnUnitActiveSec=10m
+RandomizedDelaySec=30s
+Persistent=true
+Unit=rescue-media-watchdog.service
+
+[Install]
+WantedBy=timers.target

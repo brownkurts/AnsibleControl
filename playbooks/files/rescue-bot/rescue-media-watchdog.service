@@ -1,0 +1,13 @@
+[Unit]
+Description=KBTech media stack watchdog
+After=network-online.target ollama.service
+Wants=network-online.target
+Requires=ollama.service
+ConditionPathExists=/etc/rescue-bot/rescue-bot.env
+
+[Service]
+Type=oneshot
+User=kurt
+WorkingDirectory=/opt/rescue-bot
+EnvironmentFile=/etc/rescue-bot/rescue-bot.env
+ExecStart=/opt/rescue-bot/venv/bin/python /opt/rescue-bot/media_watchdog.py
