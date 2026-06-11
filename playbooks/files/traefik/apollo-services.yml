@@ -1,0 +1,82 @@
+http:
+  routers:
+    frigate:
+      entryPoints:
+      - websecure
+      rule: Host(`frigate.kbtech.org`)
+      service: frigate
+      middlewares:
+      - authentik-forwardauth@file
+      tls:
+        certResolver: letsencrypt
+    jellyfin:
+      entryPoints:
+      - websecure
+      rule: Host(`jellyfin.kbtech.org`)
+      service: jellyfin
+      tls:
+        certResolver: letsencrypt
+    jellyseerr:
+      entryPoints:
+      - websecure
+      rule: Host(`request.kbtech.org`)
+      service: jellyseerr
+      tls:
+        certResolver: letsencrypt
+    portainer:
+      entryPoints:
+      - websecure
+      rule: Host(`portainer.kbtech.org`)
+      service: portainer
+      tls:
+        certResolver: letsencrypt
+    prowlarr:
+      entryPoints:
+      - websecure
+      rule: Host(`prowlarr.kbtech.org`)
+      service: prowlarr
+      tls:
+        certResolver: letsencrypt
+    sabnzbd:
+      entryPoints:
+      - websecure
+      rule: Host(`sabnzbd.kbtech.org`)
+      service: sabnzbd
+      tls:
+        certResolver: letsencrypt
+    watchstate:
+      entryPoints:
+      - websecure
+      rule: Host(`watchstate.kbtech.org`)
+      service: watchstate
+      tls:
+        certResolver: letsencrypt
+  services:
+    frigate:
+      loadBalancer:
+        servers:
+        - url: http://192.168.201.71:5000
+    jellyfin:
+      loadBalancer:
+        servers:
+        - url: http://192.168.201.71:8096
+    jellyseerr:
+      loadBalancer:
+        servers:
+        - url: http://192.168.201.71:5055
+    portainer:
+      loadBalancer:
+        servers:
+        - url: http://192.168.201.71:9000
+    prowlarr:
+      loadBalancer:
+        servers:
+        - url: http://192.168.201.71:9696
+    sabnzbd:
+      loadBalancer:
+        servers:
+        - url: http://192.168.2.21:8081
+    watchstate:
+      loadBalancer:
+        servers:
+        - url: http://192.168.201.71:8008

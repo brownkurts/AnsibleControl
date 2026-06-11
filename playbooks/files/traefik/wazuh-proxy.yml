@@ -1,0 +1,16 @@
+http:
+  routers:
+    wazuh:
+      rule: "Host(`wazuh.kbtech.org`)"
+      middlewares: [authentik-forwardauth@file]
+      service: wazuh
+      entryPoints: [websecure]
+      tls:
+        certResolver: letsencrypt
+
+  services:
+    wazuh:
+      loadBalancer:
+        servers:
+          - url: "https://192.168.2.34"
+        serversTransport: insecure-skip-verify

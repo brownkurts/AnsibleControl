@@ -1,0 +1,34 @@
+---
+# Deploy Traefik dynamic (file-provider) config to prometheus.
+# Source of truth: playbooks/files/traefik/ in this repo — edit there, run this,
+# never hand-edit /opt/docker/traefik/data/config/ on the host.
+# Traefik watches the directory, so changes apply without a restart.
+- name: Deploy Traefik dynamic config
+  hosts: prometheus
+  become: true
+  vars:
+    traefik_config_dir: /opt/docker/traefik/data/config
+    traefik_config_files:
+      - external-proxies.yml
+      - apollo-services.yml
+      - middlewares.yml
+      - wazuh-proxy.yml
+  tasks:
+    - name: Copy Traefik dynamic config files
+      copy:
+        src: "files/traefik/{{ item }}"
+        dest: "{{ traefik_config_dir }}/{{ item }}"
+        owner: kurt
+        group: kurt
+        mode: "0644"
+      loop: "{{ traefik_config_files }}"
+
+    - name: Warn about unmanaged files in config dir
+      find:
+        paths: "{{ traefik_config_dir }}"
+        patterns: "*.yml"
+      register: live_files
+
+    - name: List files on host not tracked in git
+      debug:
+        msg: "UNMANAGED: {{ live_files.files | map(attribute='path') | map('basename') | difference(traefik_config_files) | list }}"

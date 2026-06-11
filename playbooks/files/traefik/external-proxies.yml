@@ -1,0 +1,183 @@
+http:
+  serversTransports:
+    insecure-skip-verify:
+      insecureSkipVerify: true
+
+  routers:
+    proxmox:
+      rule: "Host(`proxmox.kbtech.org`)"
+      service: proxmox
+      entryPoints: [websecure]
+      tls:
+        certResolver: letsencrypt
+    proxmox-noc:
+      rule: "Host(`proxmox-noc.kbtech.org`)"
+      service: proxmox-noc
+      entryPoints: [websecure]
+      tls:
+        certResolver: letsencrypt
+    pfsensehome:
+      rule: "Host(`pfsensehome.kbtech.org`)"
+      service: pfsensehome
+      entryPoints: [websecure]
+      tls:
+        certResolver: letsencrypt
+    unraid:
+      rule: "Host(`unraid.kbtech.org`)"
+      service: unraid
+      entryPoints: [websecure]
+      tls:
+        certResolver: letsencrypt
+    pbs-home:
+      rule: "Host(`pbs-home.kbtech.org`)"
+      service: pbs-home
+      entryPoints: [websecure]
+      tls:
+        certResolver: letsencrypt
+    pbs-noc:
+      rule: "Host(`pbs-noc.kbtech.org`)"
+      service: pbs-noc
+      entryPoints: [websecure]
+      tls:
+        certResolver: letsencrypt
+    pvemoms:
+      rule: "Host(`pvemoms.kbtech.org`)"
+      service: pvemoms
+      entryPoints: [websecure]
+      tls:
+        certResolver: letsencrypt
+    pihole1:
+      rule: "Host(`pihole1.kbtech.org`)"
+      service: pihole1
+      entryPoints: [websecure]
+      tls:
+        certResolver: letsencrypt
+    pihole2:
+      rule: "Host(`pihole2.kbtech.org`)"
+      service: pihole2
+      entryPoints: [websecure]
+      tls:
+        certResolver: letsencrypt
+    homeassistant:
+      rule: "Host(`homeassistant.kbtech.org`)"
+      service: homeassistant
+      entryPoints: [websecure]
+      tls:
+        certResolver: letsencrypt
+    kasm:
+      rule: "Host(`kasm.kbtech.org`)"
+      service: kasm
+      entryPoints: [websecure]
+      tls:
+        certResolver: letsencrypt
+    dvr-barn:
+      rule: "Host(`dvr-barn.kbtech.org`)"
+      service: dvr-barn
+      entryPoints: [websecure]
+      tls:
+        certResolver: letsencrypt
+    sonarr:
+      rule: "Host(`sonarr.kbtech.org`)"
+      middlewares: [authentik-forwardauth@file]
+      service: sonarr
+      entryPoints: [websecure]
+      tls:
+        certResolver: letsencrypt
+    radarr:
+      rule: "Host(`radarr.kbtech.org`)"
+      middlewares: [authentik-forwardauth@file]
+      service: radarr
+      entryPoints: [websecure]
+      tls:
+        certResolver: letsencrypt
+    nextcloud:
+      rule: "Host(`nextcloud.kbtech.org`)"
+      service: nextcloud
+      entryPoints: [websecure]
+      tls:
+        certResolver: letsencrypt
+
+    asgard:
+      rule: "Host(`asgard.kbtech.org`)"
+      service: asgard
+      entryPoints: [websecure]
+      tls:
+        certResolver: letsencrypt
+      middlewares:
+        - authentik@file
+  services:
+    proxmox:
+      loadBalancer:
+        servers:
+          - url: "https://192.168.2.201:8006"
+        serversTransport: insecure-skip-verify
+    proxmox-noc:
+      loadBalancer:
+        servers:
+          - url: "https://74.91.16.2:8006"
+        serversTransport: insecure-skip-verify
+    pfsensehome:
+      loadBalancer:
+        servers:
+          - url: "https://192.168.201.1"
+        serversTransport: insecure-skip-verify
+    unraid:
+      loadBalancer:
+        servers:
+          - url: "https://192.168.2.21"
+        serversTransport: insecure-skip-verify
+    pbs-home:
+      loadBalancer:
+        servers:
+          - url: "https://192.168.2.205:8007"
+        serversTransport: insecure-skip-verify
+    pbs-noc:
+      loadBalancer:
+        servers:
+          - url: "https://10.3.1.202:8007"
+        serversTransport: insecure-skip-verify
+    pvemoms:
+      loadBalancer:
+        servers:
+          - url: "https://192.168.1.200:8006"
+        serversTransport: insecure-skip-verify
+    pihole1:
+      loadBalancer:
+        servers:
+          - url: "https://192.168.2.2"
+        serversTransport: insecure-skip-verify
+    pihole2:
+      loadBalancer:
+        servers:
+          - url: "https://192.168.2.4"
+        serversTransport: insecure-skip-verify
+    homeassistant:
+      loadBalancer:
+        servers:
+          - url: "http://192.168.2.36:8123"
+    kasm:
+      loadBalancer:
+        servers:
+          - url: "https://10.3.1.15"
+        serversTransport: insecure-skip-verify
+    sonarr:
+      loadBalancer:
+        servers:
+          - url: "http://192.168.2.21:8989"
+    radarr:
+      loadBalancer:
+        servers:
+          - url: "http://192.168.2.21:7878"
+    dvr-barn:
+      loadBalancer:
+        servers:
+          - url: "https://192.168.1.20:8971"
+        serversTransport: insecure-skip-verify
+    nextcloud:
+      loadBalancer:
+        servers:
+          - url: "http://192.168.201.57:8080"
+    asgard:
+      loadBalancer:
+        servers:
+          - url: "http://192.168.201.60:5678"
