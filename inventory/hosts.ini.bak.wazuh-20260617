@@ -3,6 +3,7 @@ Ansible ansible_host=192.168.2.30
 
 [ubuntu]
 Kasm ansible_host=10.3.1.15
+destiny ansible_host=192.168.201.10
 unifi ansible_host=74.91.16.5
 nextcloud-01 ansible_host=192.168.201.57
 prometheus ansible_host=192.168.201.70
@@ -168,6 +169,7 @@ ansible_user=kurt
 [wazuh_agents_homelab_linux]
 Ansible
 Kasm
+destiny
 unifi
 nextcloud-01
 prometheus
@@ -187,4 +189,3 @@ pbs-noc
 pbs-home
 hammond
 tactical
-asgard
