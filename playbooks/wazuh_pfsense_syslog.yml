@@ -1,0 +1,58 @@
+---
+# Configure the iris-01 Wazuh manager to receive remote syslog from pfSense.
+#
+# Adds a syslog <remote> listener (514/udp) restricted to the pfSense source
+# IPs in `wazuh_syslog_allowed_ips`, then restarts wazuh-manager.
+#
+# The actual pfSense side (Status > System Logs > Settings > Remote Logging,
+# pointing at 192.168.2.34:514) is configured on each firewall separately.
+#
+# Usage:
+#   ansible-playbook -i inventory/hosts.ini playbooks/wazuh_pfsense_syslog.yml --limit iris-01
+
+- name: Configure pfSense syslog ingestion on the Wazuh manager
+  hosts: wazuh_server
+  become: true
+  gather_facts: false
+
+  vars:
+    # Source IPs of the pfSense firewalls as seen by iris-01.
+    # Home pfSense LAN interface is 192.168.2.254. Add NOC/Farm once their
+    # route to 192.168.2.34 is confirmed and their source IP is known.
+    wazuh_syslog_allowed_ips:
+      - "192.168.2.254"
+
+  tasks:
+    - name: Add pfSense syslog listener to ossec.conf
+      ansible.builtin.blockinfile:
+        path: /var/ossec/etc/ossec.conf
+        marker: "<!-- {mark} ANSIBLE WAZUH PFSENSE SYSLOG -->"
+        insertbefore: '^</ossec_config>$'
+        block: |-
+          <remote>
+            <connection>syslog</connection>
+            <port>514</port>
+            <protocol>udp</protocol>
+          {% for ip in wazuh_syslog_allowed_ips %}
+            <allowed-ips>{{ ip }}</allowed-ips>
+          {% endfor %}
+          </remote>
+      register: wazuh_syslog_block
+
+    - name: Restart Wazuh manager when the syslog listener changes
+      ansible.builtin.systemd:
+        name: wazuh-manager
+        state: restarted
+      when: wazuh_syslog_block.changed
+
+    - name: Confirm 514/udp is listening
+      ansible.builtin.shell: |
+        ss -lunp | grep -q ':514 ' && echo "LISTENING_514_UDP" || echo "NOT_LISTENING"
+      args:
+        executable: /bin/bash
+      changed_when: false
+      register: wazuh_syslog_listen
+
+    - name: Show listener status
+      ansible.builtin.debug:
+        msg: "iris-01 syslog 514/udp: {{ wazuh_syslog_listen.stdout }}"
