@@ -7,3 +7,7 @@ __pycache__/
 kubeseal
 kubeseal-*.tar.gz
 reports/discovery/
+
+# Inventory backups may contain plaintext credentials — never track
+inventory/*.bak
+inventory/*.bak.*

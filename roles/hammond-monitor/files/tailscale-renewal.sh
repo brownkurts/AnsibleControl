@@ -4,9 +4,11 @@
 # NOTE: The API key itself cannot be auto-renewed — it must be manually rotated
 #       in the Tailscale admin console before expiry. This script will alert you.
 #
-# API key is stored in /etc/tailscale-renewal.env (not in git):
+# Secrets are stored in /etc/tailscale-renewal.env (not in git):
 #   API_KEY=tskey-api-...
 #   API_KEY_EXPIRY=YYYY-MM-DDTHH:MM:SSZ
+#   TG_TOKEN=<telegram bot token>
+#   TG_CHAT=<telegram chat id>
 
 set -euo pipefail
 
@@ -22,8 +24,8 @@ PULLDESKTOP_REPO="/home/kurt/GitHub/ansible_pull_desktop"
 GROUP_VARS_FILE="$PULLDESKTOP_REPO/group_vars/all.yml"
 
 notify_telegram() {
-    curl -s "https://api.telegram.org/bot8336332018:AAGG15vg2hkCrXW7J_mvaqoBX_EXxsVkRfk/sendMessage" \
-        -d "chat_id=8083167980&text=$1" > /dev/null 2>&1 || true
+    curl -s "https://api.telegram.org/bot${TG_TOKEN}/sendMessage" \
+        -d "chat_id=${TG_CHAT}&text=$1" > /dev/null 2>&1 || true
 }
 
 # Check API key expiry — warn if < 30 days remaining
