@@ -17,7 +17,7 @@ lb_pool_name: "first-pool"
 
 proxmox_api_host: "192.168.2.201"
 proxmox_api_user: "root@pam"
-proxmox_api_token_id: "ansible"
+proxmox_api_token_id: "automation"
 proxmox_validate_certs: false
 
 proxmox_template_image_dir: "/var/lib/vz/template/qcow2"
